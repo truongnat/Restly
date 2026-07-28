@@ -1,0 +1,30 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+
+# Secrets / local MCP keys
+.cursor/mcp.json
+.env
+.env.*
+
+# Design dumps (optional keep)
+# design/
+
+# Simple Skills — Work layer (sessions + memory; nested git)
+.agent-work/

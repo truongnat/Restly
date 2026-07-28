@@ -1,0 +1,60 @@
+display_name: "Sync"
+short_description: "Read-only sync of session artifacts, codebase context, git state, dirty changes, dependency/config drift, plan mismatch, and blockers before execution."
+default_prompt: "Use $sync to ensure the agent has the latest, reliable, and safe state before execution."
+required_input: "Session path, PLAN.md, TASKS.md (including Progress board/Status/checkboxes when present), workspace state, git state, dependency/config metadata, known affected files, user constraints."
+required_output: "Sync summary with observed facts (include TASKS resume point / in_progress|blocked IDs), inferred context, drift, dirty changes, risks, blockers, recommended next step."
+note_important: "Read-only by default. Do NOT mutate TASKS progress during sync. Prefer scope from PLAN/TASKS affected areas. Do NOT read secrets or sensitive files without a clear reason. Do NOT run destructive commands. Do NOT auto-resolve conflicts or unrelated dirty changes. Do NOT move to execution when PLAN Ready=No, blockers open, PLAN.md/TASKS.md stale, or SYNC.md older than PLAN/TASKS."
+artifacts:
+  EXECUTION.md:
+    required: false
+    update: true
+    description: "Append sync summary if workflow requires it. Not required for Lite Mode."
+  SYNC.md:
+    required: false
+    required_when: "Full Mode"
+    description: "Standalone sync report; Lite Mode may append the same content to EXECUTION.md."
+    schema:
+      executive_summary:
+        type: array
+        required: true
+        description: "Maximum five bullets with readiness, drift, blockers, and next action."
+      developer_overview:
+        type: object
+        required: true
+        description: "Readiness status, resume task IDs, blocker count, next action."
+      charts:
+        type: array
+        required: false
+        description: "Mermaid readiness/drift chart when useful; otherwise N/A."
+      scope:
+        type: string
+        required: true
+        description: "What was synced (artifacts, workspace, git, dependencies)."
+      observed_facts:
+        type: array
+        required: true
+        description: "List of observed facts with source for each."
+      inferred_context:
+        type: array
+        required: false
+        description: "Inferences with basis and confidence level."
+      drift_detected:
+        type: array
+        required: false
+        description: "Drift items with type, impact, suggested action."
+      dirty_changes:
+        type: array
+        required: false
+        description: "Classified dirty changes with scope check (in-scope/out-of-scope/unknown)."
+      risks_blockers:
+        type: array
+        required: true
+        description: "Blockers with type, impact, next action."
+      recommendation:
+        type: string
+        required: true
+        description: "Suggested next step matching Implementation readiness verdict."
+      implementation_readiness:
+        type: object
+        required: true
+        description: "Verdict PASS | CONCERNS | FAIL plus one-line reason. Execution only after PASS, or CONCERNS with explicit user accept."

@@ -1,0 +1,37 @@
+---
+description: File names must be lowercase kebab-case
+alwaysApply: true
+---
+
+# File naming — lowercase kebab-case
+
+All **new** source files under the repo use **lowercase kebab-case**.
+
+## Format
+
+- Only `a-z`, `0-9`, and `-` in the basename (before the extension).
+- No PascalCase, camelCase, or snake_case filenames.
+- Multi-word = hyphens: `app-top-bar.tsx`, `use-send-request.ts`, `request-url-bar.tsx`.
+
+## Examples
+
+| Kind | ✅ Good | ❌ Bad |
+| --- | --- | --- |
+| Component | `app-shell.tsx` | `AppShell.tsx` |
+| Page | `workspace-page.tsx` | `WorkspacePage.tsx` |
+| Hook | `use-send-request.ts` | `useSendRequest.ts` |
+| Lib / util | `method-colors.ts` | `methodColors.ts` |
+| Constants | `app.ts`, `http.constants.ts` | `AppConstants.ts` |
+| Test | `send-request.test.ts` | `sendRequest.test.ts` |
+
+Exported **symbols** stay PascalCase / camelCase as usual (`export function AppShell`); only the **filename** is kebab-case.
+
+## Allowed exceptions
+
+- Entry / tooling names required by the ecosystem: `main.tsx`, `index.ts`, `index.css`, `vite.config.ts`, `vitest.config.ts`, `components.json`, `package.json`.
+- Generated or vendor paths you must not rename (e.g. lockfiles). Prefer matching kebab-case when adding new configs.
+
+## When renaming
+
+- Prefer rename + update imports in the same change.
+- Do not leave duplicate PascalCase + kebab-case copies of the same module.

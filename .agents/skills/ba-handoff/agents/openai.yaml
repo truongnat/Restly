@@ -1,0 +1,30 @@
+display_name: "BA handoff"
+short_description: "Meet minutes, userguide, export, HTML preview, shared overview — offline-first."
+default_prompt: "Use $ba-handoff with mode=meet|userguide|export|preview|update-overview. Write the matching session artifact."
+required_input: "Mode; notes/transcript/sources; audience; format targets."
+required_output: "MEETING.md / USERGUIDE.md / EXPORT.md / PREVIEW.md / OVERVIEW_SHARED.md as per mode."
+note_important: "Do NOT invent meeting decisions. Do NOT recreate lifecycle OVERVIEW.md progress pages."
+artifacts:
+  MEETING.md:
+    required: false
+    schema:
+      executive_summary: { type: array, required: true }
+      decisions: { type: array, required: true }
+      actions: { type: array, required: true }
+  USERGUIDE.md:
+    required: false
+    schema:
+      executive_summary: { type: array, required: true }
+  EXPORT.md:
+    required: false
+    schema:
+      executive_summary: { type: array, required: true }
+      inventory: { type: array, required: true }
+  PREVIEW.md:
+    required: false
+    schema:
+      executive_summary: { type: array, required: true }
+  OVERVIEW_SHARED.md:
+    required: false
+    schema:
+      executive_summary: { type: array, required: true }

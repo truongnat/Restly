@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": false,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "ignorePatterns": ["dist/**", "node_modules/**", "design/**", ".agents/**", ".agent-work/**"],
+  "sortImports": {
+    "enabled": true
+  },
+  "sortTailwindcss": {
+    "enabled": true,
+    "stylesheet": "./src/shared/styles/index.css"
+  }
+}

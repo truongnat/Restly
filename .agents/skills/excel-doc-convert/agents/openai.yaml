@@ -1,0 +1,30 @@
+display_name: "Excel Doc Convert"
+short_description: "Convert merged-cell / JP Excel design docs to HTML + Markdown with convert-report.json."
+default_prompt: "Use $excel-doc-convert and skills/excel-doc-convert/scripts/cli.py. classify then convert; always keep convert-report.json; do not claim layout-lossless Markdown."
+required_input: ".xlsx path; optional --sheets and row/col caps; output directory."
+required_output: "Per-sheet .html + .md and convert-report.json (format excel-doc-convert) with strategies and limitations."
+note_important: "Do NOT flatten merges into Markdown tables. Do NOT invent cell values or drop sheets silently. Layout sheets → HTML primary. Use skill xlsx for workbook edit, not this skill."
+artifacts:
+  convert-report.json:
+    required: true
+    schema:
+      format:
+        type: string
+        required: true
+        description: "Must be excel-doc-convert."
+      operation:
+        type: string
+        required: true
+        description: "classify | convert"
+      source:
+        type: string
+        required: true
+        description: "Input workbook path."
+      sheets:
+        type: array
+        required: false
+        description: "Per-sheet results for convert."
+      limitations:
+        type: array
+        required: false
+        description: "Explicit unsupported or lossy aspects."

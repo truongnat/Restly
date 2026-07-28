@@ -1,0 +1,27 @@
+display_name: "Docs (enterprise documentation wiki)"
+short_description: "Author a standards-based doc set (SRS, Architecture, HLD, LLD, ADRs, Reference, Ops, Guides); full write or incremental sync."
+default_prompt: "Use $docs full to author the whole documentation set, or $docs sync to update what a code change affects. Honors rules.docs in settings."
+required_input: "rules.docs (enabled, location, format, sync_strategy), rules.branch, repo source/config, session artifacts (BUSINESS_ANALYSIS/BASIC_DESIGN/DETAIL_DESIGN/DISCUSSION), PRJ_REFERENCE.md, .agent-work/memory/, the change set for sync, existing wiki + .docmap.md."
+required_output: "Enterprise doc set under rules.docs.location in the resolved format: SRS (ISO/IEC/IEEE 29148), Architecture (arc42 + C4 + 4+1), ADRs, HLD, LLD, Reference (API/data model), Operations (runbook), Guides (Diataxis), a coverage matrix in Home, traceability IDs, and .docmap.md."
+note_important: "NOT a one-shot skim. Author document by document: fill every required section (or N/A + reason), assign stable IDs (FR/NFR/ADR/BR), cite a source per claim, and mark Gap/Unknown where evidence is missing — never invent requirements, behavior, or decisions. Reuse session artifacts (SRS<-BUSINESS_ANALYSIS/DISCUSSION, HLD<-BASIC_DESIGN, LLD<-DETAIL_DESIGN, ADRs<-decision gates) instead of re-deriving. Read-only against project code except the bundled scanner; no secrets. Resolve rules.docs.format and follow its organization (markdown page tree is canonical; html/docx/xlsx render from it). Honor the branch gate (main-only never writes off base; with-commit stages into the task commit under done). In sync, touch only affected documents/sections."
+standards:
+  requirements: "ISO/IEC/IEEE 29148 SRS"
+  architecture: "arc42 (12 sections) + C4 model + 4+1 views"
+  decisions: "ADR (MADR/Nygard), one record per file"
+  design: "HLD (basic design) and LLD (detailed design), fed by basic-design/detail-design skills"
+  guides: "Diataxis (tutorial / how-to / reference / explanation)"
+formats:
+  markdown: "The standard doc tree (01-requirements .. 06-guides) with cross-links. Canonical source."
+  html: "Same tree rendered to linked .html + shared styles.css per .agents/DESIGN_SYSTEM.md (self-contained, accessible)."
+  docx: "One <Project>-documentation.docx with Heading styles + TOC and the doc set as Parts, via the docx skill; see templates/DOCX_OUTLINE.template.md."
+  xlsx: "Workbook of registers/matrices (Requirements, NFRs, Traceability, ADRs, Workspaces, DataModel, Coverage, Docmap), via the xlsx skill; see templates/XLSX_STRUCTURE.template.md."
+artifacts:
+  doc_set:
+    required: true
+    description: "Standards-based documents under rules.docs.location: 01-requirements/SRS.md + glossary; 02-architecture/architecture.md + decisions/ADR-*; 03-design/HLD.md + LLD.md; 04-reference/api-reference.md + data-model.md + configuration + workspaces/<name>.md; 05-operations/deployment+runbook+observability+security; 06-guides/onboarding+tutorials+how-to+explanation. Each to its template, with sources cited and gaps marked."
+  Home.md:
+    required: true
+    description: "Landing page: skim overview, document map, and a coverage matrix (per-document status/owner/last-synced) that reflects real completeness."
+  .docmap.md:
+    required: true
+    description: "Manifest mapping each addressable unit (file/section/sheet) to source paths + last-synced commit. Enables incremental sync."

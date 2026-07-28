@@ -1,0 +1,26 @@
+display_name: "PPTX"
+short_description: "Inspect/create/edit/validate .pptx with supported-lossless coverage manifests (Python/python-pptx)."
+default_prompt: "Use $pptx and skills/pptx/scripts/cli.py for PowerPoint work. Require coverage_ratio=1.0 before publishing any .pptx."
+required_input: ".pptx path and/or JSON create/edit spec; optional manifest path."
+required_output: ".pptx deliverable for create/edit plus coverage manifest JSON with coverage_ratio=1.0."
+note_important: "Do NOT publish when unsupported OOXML parts/macros/OLE/signatures exist. Do NOT claim pixel-perfect fidelity without optional tool checks. Do NOT silently drop slides/shapes."
+artifacts:
+  coverage.json:
+    required: true
+    schema:
+      format:
+        type: string
+        required: true
+        description: "Must be pptx."
+      operation:
+        type: string
+        required: true
+        description: "inspect | create | edit | validate"
+      coverage_ratio:
+        type: number
+        required: true
+        description: "Must equal 1.0 before publish."
+      items:
+        type: array
+        required: true
+        description: "Coverage inventory entries."

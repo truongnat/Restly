@@ -1,0 +1,26 @@
+display_name: "PDF"
+short_description: "Inspect/create/edit/validate PDF with supported-lossless coverage manifests (Python/pypdf/pdfplumber/reportlab)."
+default_prompt: "Use $pdf and skills/pdf/scripts/cli.py for PDF work. Require coverage_ratio=1.0 before publishing any PDF."
+required_input: ".pdf path and/or JSON create/edit spec; optional manifest path."
+required_output: ".pdf deliverable for create/edit plus coverage manifest JSON with coverage_ratio=1.0."
+note_important: "Do NOT publish encrypted or XFA PDFs. Do NOT claim OCR success without Tesseract. Mark missing optional tools as skipped, never false-pass. Do NOT silently drop pages/text."
+artifacts:
+  coverage.json:
+    required: true
+    schema:
+      format:
+        type: string
+        required: true
+        description: "Must be pdf."
+      operation:
+        type: string
+        required: true
+        description: "inspect | create | edit | validate"
+      coverage_ratio:
+        type: number
+        required: true
+        description: "Must equal 1.0 before publish."
+      items:
+        type: array
+        required: true
+        description: "Coverage inventory entries."

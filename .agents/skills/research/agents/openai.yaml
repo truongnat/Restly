@@ -1,0 +1,66 @@
+display_name: "Research"
+short_description: "Research internal or external sources before making technical/product decisions. Source-backed findings, comparison matrix, recommendations with citations and caveats."
+default_prompt: "Use $research to collect, verify, and synthesize evidence to support technical, product, or operational decisions."
+required_input: "Research question, decision context, local evidence, external source constraints, freshness requirement, quality bar."
+required_output: "RESEARCH.md with source strategy, evidence, findings, comparison matrix, recommendation, confidence, caveats, residual risks."
+note_important: "Do NOT fabricate citations. Do NOT copy long source content. Do NOT use stale sources for decisions needing fresh information. Do NOT present inference as fact. Do NOT omit caveats or residual risks."
+artifacts:
+  RESEARCH.md:
+    required: true
+    schema:
+      executive_summary:
+        type: array
+        required: true
+        description: "Maximum five bullets with answer, strongest evidence, caveat/risk, recommendation, and next action."
+      developer_overview:
+        type: object
+        required: true
+        description: "Research status, answer confidence, top caveat, next action."
+      charts:
+        type: array
+        required: false
+        description: "Mermaid comparison chart when useful; otherwise N/A."
+      question:
+        type: string
+        required: true
+        description: "Research question."
+      decision_context:
+        type: string
+        required: true
+        description: "What decision this research supports."
+      status:
+        type: string
+        required: true
+        description: "Complete / Complete with caveats / Partial / Blocked."
+      source_strategy:
+        type: array
+        required: true
+        description: "Source type, purpose, notes."
+      sources_reviewed:
+        type: array
+        required: true
+        description: "Source ID, name, type, date/version, relevance."
+      findings:
+        type: array
+        required: true
+        description: "Finding, evidence, confidence."
+      comparison_matrix:
+        type: table
+        required: false
+        description: "Option columns x criteria rows."
+      recommendation:
+        type: string
+        required: true
+        description: "Recommended option, confidence, reason, why not alternatives."
+      caveats:
+        type: array
+        required: false
+        description: "Caveat with impact and mitigation."
+      residual_risks:
+        type: array
+        required: false
+        description: "Risk, impact, suggested follow-up."
+      handoff:
+        type: string
+        required: true
+        description: "Ready for planning/execution? Required verification?"

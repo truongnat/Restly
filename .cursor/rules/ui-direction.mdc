@@ -1,0 +1,32 @@
+---
+description: UI direction — Stitch is reference only; FE skills own visual quality
+alwaysApply: true
+---
+
+# UI direction (Restly)
+
+## Stitch role
+
+`design/` (Stitch HTML + screenshots) is **reference only** — IA hints, feature inventory, loose color inspiration.
+
+**Do not** pixel-match Stitch, force dark/light conflicts from mixed screens, or block UX improvements to “look like the screenshot.”
+
+## Visual SSOT for remakes
+
+When remaking or polishing UI, executors follow (in order):
+
+1. Skills: `frontend-design`, `design-taste-frontend`, `redesign-existing-projects`, `web-component-design`, `design-system-patterns`
+2. Stack already chosen: Vite + React 19 + Tailwind 4 + shadcn + TanStack + Zod + DI layers
+3. Product: desktop-first API client — calm, dense-enough, developer-friendly (Linear / Insomnia / Bruno vibe — not marketing-landing maximalism)
+
+## Friendly remake goals
+
+- Clear hierarchy: sidebar nav → request → response
+- Readable density; comfortable hit targets; no fake macOS traffic lights on web
+- One coherent light shell; consistent tokens; shadcn primitives over one-off chrome
+- Empty / loading / error states that guide action
+- Motion restrained (useful feedback only)
+
+## Feature work
+
+Do **not** start backlog features (F01+) until the user explicitly **chốt OK** on the remade UI shell.

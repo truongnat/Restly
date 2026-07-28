@@ -1,0 +1,76 @@
+display_name: "Business Analysis"
+short_description: "Step workflow: seed BA template, Spec quality review, stories/rules/AC, self-check before design/planning."
+default_prompt: "Use $business-analysis: seed the template, run Spec quality review, stop on blockers, then fill stories/rules/AC and self-check."
+required_input: "User request, business context, existing requirements, data samples (Excel, CSV, SQL, JSON, API response), screenshots or demo recordings, stakeholder feedback; session path."
+required_output: "Session BUSINESS_ANALYSIS.md seeded from templates/BUSINESS_ANALYSIS.template.md and filled via steps/. Incomplete if chat-only, steps skipped, or Spec quality missing."
+note_important: "Do NOT skip step-01-init or Spec quality review. Stop and ask when Feasibility/Correctness Fail/Unknown+blocking or Blocking=Yes capability gaps remain. Do NOT treat assumptions as requirements. Do NOT decide for stakeholders. Do NOT write vague AC. Do NOT produce technical architecture — hand off to basic-design. For demo video, use video-keyframes and cite frames as observations."
+workflow:
+  - "Seed BUSINESS_ANALYSIS.md from the template and set Step ledger 01 done."
+  - "Frame problem/stakeholders/scope and complete Spec quality review (Feasibility, Correctness, Capability)."
+  - "STOP and ask focused blocking questions when Spec quality blockers remain; record answers."
+  - "Only then fill user stories, business rules, and Given/When/Then acceptance criteria."
+  - "Run self-check; Ready=No while Spec quality blockers remain."
+artifacts:
+  BUSINESS_ANALYSIS.md:
+    required: true
+    schema:
+      source_template:
+        type: string
+        required: true
+        description: "Must be seeded from templates/BUSINESS_ANALYSIS.template.md via step-01."
+      step_ledger:
+        type: table
+        required: true
+        description: "Steps 01–04 status; no later step done while earlier is todo."
+      executive_summary:
+        type: array
+        required: true
+        description: "Maximum five bullets with the problem, key rule/decision, top Spec quality finding, top risk, and next action."
+      developer_overview:
+        type: object
+        required: true
+        description: "Status, Spec quality summary, open questions, next action."
+      charts:
+        type: array
+        required: false
+        description: "Mermaid process/actor flow when useful; otherwise N/A."
+      problem_statement:
+        type: string
+        required: true
+        description: "One-sentence business problem."
+      stakeholders:
+        type: array
+        required: true
+        description: "Actor, goal, pain point, authority."
+      scope:
+        type: object
+        required: true
+        description: "In scope, out of scope, non-goals."
+      user_stories:
+        type: array
+        required: true
+        description: "ID, actor, need, value."
+      business_rules:
+        type: array
+        required: true
+        description: "BR ID, rule, source, confidence."
+      data_assumptions:
+        type: array
+        required: false
+        description: "Assumption, risk, confirmation owner."
+      acceptance_criteria:
+        type: array
+        required: true
+        description: "AC ID, Given/When/Then, rule mapping."
+      spec_quality_review:
+        type: object
+        required: true
+        description: "Feasibility, Correctness, and Capability recommendations that challenge the request/specs."
+      open_questions:
+        type: array
+        required: true
+        description: "Question, owner, blocking status."
+      handoff:
+        type: string
+        required: true
+        description: "Recommended next skill and readiness."

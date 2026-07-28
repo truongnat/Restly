@@ -1,0 +1,16 @@
+display_name: "API BA"
+short_description: "API doc/map/assess/design/checklist/test/readiness for BA — never invent endpoints."
+default_prompt: "Use $api-ba with an explicit mode. Write API_BA.md; cite sources; no secrets."
+required_input: "Mode, API docs/URL/spec, consumer screens/flows, system entities, auth constraints."
+required_output: "API_BA.md with mode sections, sources, risks, open questions, handoff."
+note_important: "Do NOT invent endpoints/fields. Do NOT copy secrets. Do NOT claim readiness without evidence."
+artifacts:
+  API_BA.md:
+    required: true
+    schema:
+      executive_summary: { type: array, required: true }
+      developer_overview: { type: object, required: true }
+      mode: { type: string, required: true }
+      sources: { type: array, required: true }
+      open_questions: { type: array, required: true }
+      handoff: { type: string, required: true }

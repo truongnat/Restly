@@ -1,0 +1,26 @@
+display_name: "XLSX"
+short_description: "Inspect/create/edit/validate .xlsx with supported-lossless coverage manifests (Python/openpyxl)."
+default_prompt: "Use $xlsx and skills/xlsx/scripts/cli.py for Excel work. Require coverage_ratio=1.0 before publishing any .xlsx."
+required_input: ".xlsx path and/or JSON create/edit spec; optional manifest path."
+required_output: ".xlsx deliverable for create/edit plus coverage manifest JSON with coverage_ratio=1.0."
+note_important: "Do NOT publish when unsupported OOXML parts/macros/OLE/signatures exist. Do NOT claim full Excel format support. Do NOT silently drop sheets/cells. Use office-common helpers beside this skill."
+artifacts:
+  coverage.json:
+    required: true
+    schema:
+      format:
+        type: string
+        required: true
+        description: "Must be xlsx."
+      operation:
+        type: string
+        required: true
+        description: "inspect | create | edit | validate"
+      coverage_ratio:
+        type: number
+        required: true
+        description: "Must equal 1.0 before publish."
+      items:
+        type: array
+        required: true
+        description: "Coverage inventory entries with status preserved/transformed/unsupported/skipped."

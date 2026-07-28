@@ -1,0 +1,22 @@
+display_name: "Story spec"
+short_description: "Cockburn usecase, user stories, or Given/When/Then AC by mode."
+default_prompt: "Use $story-spec with mode=usecase|userstory|ac. Seed the matching template in the active session."
+required_input: "Mode, epic/feature context, actors, related BA/PRD/SRS IDs."
+required_output: "USECASE.md or USER_STORIES.md or AC.md from templates."
+note_important: "Do NOT write vague AC. Prefer business-analysis when Spec quality gate is still open."
+artifacts:
+  USECASE.md:
+    required: false
+    schema:
+      mode: { type: string, required: true }
+      executive_summary: { type: array, required: true }
+  USER_STORIES.md:
+    required: false
+    schema:
+      mode: { type: string, required: true }
+      executive_summary: { type: array, required: true }
+  AC.md:
+    required: false
+    schema:
+      mode: { type: string, required: true }
+      executive_summary: { type: array, required: true }

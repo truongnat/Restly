@@ -1,0 +1,37 @@
+---
+description: Where Restly constants, enums, and config live
+alwaysApply: true
+---
+
+# Constants & config
+
+## Placement
+
+| Scope | Location | Example |
+| --- | --- | --- |
+| App-wide | `src/shared/constants/` | HTTP methods list, timeouts, storage keys |
+| Design tokens (CSS) | `src/shared/styles/` | colors, spacing — not duplicated in TS unless needed |
+| Domain enums / Zod | `src/entities/` | `httpMethodSchema`, status groups |
+| Feature-only | `src/features/<f>/lib/constants.ts` | tab ids for request editor |
+| Env / build | `import.meta.env` + `src/shared/config/env.ts` | API base URL later |
+
+## Rules
+
+1. **No magic** in JSX/hooks: URLs, delays, tab ids, status codes → named export.
+2. Constants are **`UPPER_SNAKE`** for primitives, **`PascalCase`** for maps/enums objects.
+3. Prefer `as const` + derive types: `typeof HTTP_METHODS[number]`.
+4. Do **not** put React components or hooks in constants files.
+5. Config that changes per environment → `shared/config/`, never hardcode prod hosts in UI.
+
+## Example
+
+```ts
+// shared/constants/http.ts
+export const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const
+export const DEFAULT_REQUEST_TIMEOUT_MS = 30_000
+```
+
+```ts
+// features/request-editor/lib/constants.ts
+export const REQUEST_TABS = ['params', 'auth', 'headers', 'body'] as const
+```

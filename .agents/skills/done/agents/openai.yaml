@@ -1,0 +1,78 @@
+display_name: "Done"
+short_description: "Close a task after execution/review with DONE.md, PR_MESSAGE.md, PR_DESCRIPTION.md, and optional RELEASE_NOTE.md."
+default_prompt: "Use $done to close a task with clear, honest, reviewable artifacts."
+required_input: "PLAN.md, TASKS.md when present, EXECUTION.md, REVIEW.md, diff/file changes, verification evidence, skipped checks, blockers, risks, PR/MR template."
+required_output: "DONE.md, .agent-work/memory/<Task-N-slug>.md + updated .agent-work/memory/INDEX.md, PR_MESSAGE.md, PR_DESCRIPTION.md, optional RELEASE_NOTE.md."
+note_important: "Do NOT overclaim verification. Do NOT hide skipped/failed checks. Do NOT mark complete if blockers remain. Do NOT describe changes that were not made. Do NOT put secrets into final artifacts. Do NOT mark Done while session.sh status is COMPLETE: no or while validate_artifacts.py fails."
+artifacts:
+  DONE.md:
+    required: true
+    schema:
+      executive_summary:
+        type: array
+        required: true
+        description: "Maximum five bullets with final status, delivered value, verification, residual risk, and next action."
+      developer_overview:
+        type: object
+        required: true
+        description: "Final status, verification summary, residual risks, next action."
+      charts:
+        type: array
+        required: false
+        description: "Mermaid delivery/verification chart when useful; otherwise N/A."
+      status:
+        type: string
+        required: true
+        description: "Done / Done with risks / Needs fix / Blocked / Partial."
+      summary:
+        type: string
+        required: true
+        description: "Outcome-focused summary (not file list)."
+      scope_completed:
+        type: array
+        required: true
+        description: "Scope item, status, evidence."
+      what_changed:
+        type: array
+        required: true
+        description: "Area, change summary, reason."
+      files_changed:
+        type: array
+        required: true
+        description: "File path, summary."
+      verification:
+        type: array
+        required: true
+        description: "Check, command/method, result, evidence."
+      review_result:
+        type: string
+        required: false
+        description: "Findings and resolution, or 'No findings.'"
+      skipped_failed_checks:
+        type: array
+        required: false
+        description: "Check, status, reason, risk."
+      risks_followups:
+        type: array
+        required: false
+        description: "Item, type (risk/follow-up/blocker), impact, owner/next action."
+      handoff:
+        type: string
+        required: true
+        description: "Next step, reviewer focus, QA focus, deployment notes."
+  PR_MESSAGE.md:
+    required: false
+    description: "Conventional commit format: feat/fix/refactor(scope): summary."
+  PR_DESCRIPTION.md:
+    required: false
+    description: "Summary, Changes, Verification, Review Notes, Risks/Follow-ups."
+  RELEASE_NOTE.md:
+    required: false
+    description: "Only when change is user-facing or user requests it."
+  .agent-work/memory/<Task-N-slug>.md:
+    required: true
+    description: "Distilled cross-task memory from templates/MEMORY_ENTRY.template.md. Vital few only (non-obvious decisions + why, gotchas, reusable conventions, pointers). Not a changelog; no padding; do not duplicate an existing entry; do not brand sections 80/20."
+  .agent-work/memory/INDEX.md:
+    required: true
+    update: true
+    description: "One-line pointer per memory entry (seed from templates/MEMORY_INDEX.template.md if missing; newest on top). Lifecycle skills read this first for prior lessons."

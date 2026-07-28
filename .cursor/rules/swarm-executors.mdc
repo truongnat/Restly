@@ -1,0 +1,44 @@
+---
+description: Swarm roles — Cursor reviews; agy + OpenCode code
+alwaysApply: true
+---
+
+# Swarm roles (locked by user)
+
+| Actor | Role | Model |
+| --- | --- | --- |
+| **This Cursor agent** | **Review only** — split work, AC, merge-review, report. Does **not** implement product UI/features. | — |
+| **agy** | **Coder** | `gemini-3.1-pro-high` (fallback `gemini-3.1-pro-low`) |
+| **opencode** | **Coder / fixer** | DeepSeek V4 Max Free if listed; else `opencode/deepseek-v4-flash-free` |
+
+## Workflow
+
+1. User request → controller decomposes into **disjoint** briefs:
+   - `.agents/briefs/<ID>-agy.md`
+   - `.agents/briefs/<ID>-opencode.md`
+2. Dispatch both in parallel (owned paths must not overlap).
+3. When both finish → controller reviews diffs + build; report in Vietnamese.
+4. Hotfixes from review → assign back to **agy** or **opencode** (not self-code).
+
+## Dispatch
+
+```bash
+# agy (Gemini 3.1 Pro)
+cd /root/Restly && agy --dangerously-skip-permissions \
+  --model gemini-3.1-pro-high --print-timeout 30m \
+  --print "Execute .agents/briefs/<ID>-agy.md …"
+
+# opencode (DeepSeek)
+cd /root/Restly && opencode run --auto --dir /root/Restly \
+  -m opencode/deepseek-v4-flash-free \
+  --title "<ID>" \
+  "Execute .agents/briefs/<ID>-opencode.md …"
+```
+
+If user names `deepseek-v4-max-free` and `opencode models` shows it, use that slug instead.
+
+## Never
+
+- Cursor agent coding product changes while swarm is active
+- Two coders on the same file set
+- OpenCode/agy used as “reviewer” — review is Cursor’s job

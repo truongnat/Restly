@@ -1,0 +1,53 @@
+display_name: "Tester"
+short_description: "Support tester/QA in the agent lifecycle: analyze acceptance criteria, create test plans/cases, map requirements, define test data, and identify gaps."
+default_prompt: "Use $tester to act as a tester/QA in the agent workflow to ensure requirements, plans, or changes have clear verification methods."
+required_input: "Requirements, TASKS.md (preferred for AC/verify per task), PLAN.md (strategy/DoD), acceptance criteria, user stories, business rules, current/expected behavior, test environment, existing tests, test data, screenshots or test-run recordings."
+required_output: "Test cases, traceability matrix, test data, manual verification steps, automated test suggestions, regression checklist, testing gaps."
+note_important: "Do NOT claim pass if not run or no evidence. Do NOT decide expected behavior when requirements are unclear. Do NOT use real/sensitive data as test data without permission. For supplied test-run video, use video-keyframes and cite sampled frames without treating them as a repeatable executed test."
+artifacts:
+  TESTCASES.md:
+    required: true
+    schema:
+      executive_summary:
+        type: array
+        required: true
+        description: "Maximum five bullets with scope, highest-risk coverage, critical gaps, and next action."
+      developer_overview:
+        type: object
+        required: true
+        description: "Test scope status, P0 coverage, critical gaps, next action."
+      charts:
+        type: array
+        required: false
+        description: "Mermaid coverage/priority chart when useful; otherwise N/A."
+      session_timestamp:
+        type: string
+        required: true
+        description: "ISO 8601 with timezone."
+      test_scope:
+        type: string
+        required: true
+        description: "In scope, out of scope, assumptions."
+      applicable_groups:
+        type: string
+        required: true
+        description: "Which test groups apply (A/B/C/D) and which are skipped with reasons."
+      test_cases:
+        type: array
+        required: true
+        description: "ID, priority, type, title, preconditions, steps, test data, expected result, requirement mapping, verification method, status."
+      regression_checklist:
+        type: array
+        required: false
+        description: "Area, scenario, expected result, priority."
+      test_data:
+        type: array
+        required: false
+        description: "Data, purpose, source/setup, notes."
+      testing_gaps:
+        type: array
+        required: false
+        description: "Gap, risk, suggested follow-up."
+  TESTCASES.csv:
+    required: false
+    description: "CSV file for Excel/Google Sheets import when user requests."

@@ -1,0 +1,64 @@
+---
+description: Module-level DI — ports, adapters, resolve outside React
+alwaysApply: true
+---
+
+# Dependency injection (FE)
+
+## Rule
+
+**DI is not React Context.** Boot once outside the component tree; resolve from a module runtime.
+
+```
+main.tsx          → bootContainer()   // composition root
+application/ports → interfaces only
+application/use-cases → biz (framework-free)
+infrastructure/adapters → port implementations
+infrastructure/di → Container, TOKENS, runtime, createAppContainer
+features/*/model  → resolve(TOKENS.X) inside queryFn / mutationFn + TanStack
+```
+
+## Why not Context
+
+- Couples composition to React lifecycle / Provider tree
+- Hard to use from non-React code
+- Unit tests must mount components to get services
+- Easy to accidentally recreate the container and break referential stability
+
+## App boot
+
+```ts
+// app/main.tsx
+bootContainer() // default = createAppContainer() with mock adapters
+```
+
+## Feature model (TanStack)
+
+```ts
+queryFn: () => resolve(TOKENS.ListHistory)()
+mutationFn: (input) => resolve(TOKENS.SendRequest)(input)
+```
+
+Resolve **inside** the Query/Mutation callback so tests can `setContainer` before running.
+
+## Unit tests (no React)
+
+```ts
+import { createSendRequest } from '@/application/use-cases/send-request'
+import { createFakeRequestClient, createTestContainer, setContainer, resolve, TOKENS, resetContainer } from '@/infrastructure/di'
+
+// Prefer testing use-cases directly with fakes:
+const client = createFakeRequestClient()
+await createSendRequest(client)({ method: 'GET', url: 'https://x', params: [] })
+
+// Or boot a test container and resolve:
+setContainer(createTestContainer({ requestClient: client }))
+await resolve(TOKENS.SendRequest)(...)
+resetContainer()
+```
+
+## Forbidden
+
+- `DiProvider` / putting the container in React Context
+- Importing mock adapters from `ui/`
+- Calling `fetch` from pages or presentational components

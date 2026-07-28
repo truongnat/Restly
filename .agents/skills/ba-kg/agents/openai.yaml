@@ -1,0 +1,15 @@
+display_name: "BA knowledge graph"
+short_description: "Link Epic/US/AC/FR/API/Test IDs into KG.md with Mermaid + edge table."
+default_prompt: "Use $ba-kg to scan session artifacts and write KG.md with nodes, edges, orphans."
+required_input: "Session artifacts with IDs; optional focus question."
+required_output: "KG.md with nodes, edges, Mermaid graph, orphans, handoff."
+note_important: "Do NOT invent links without citing both ends. Keep orphans visible."
+artifacts:
+  KG.md:
+    required: true
+    schema:
+      executive_summary: { type: array, required: true }
+      nodes: { type: array, required: true }
+      edges: { type: array, required: true }
+      orphans: { type: array, required: true }
+      handoff: { type: string, required: true }

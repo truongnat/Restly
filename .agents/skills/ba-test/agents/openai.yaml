@@ -1,0 +1,17 @@
+display_name: "BA test"
+short_description: "Test checklist then executable cases; optional Playwright hints."
+default_prompt: "Use $ba-test with mode=checklist|cases|playwright-hint. Write TEST_CHECKLIST.md or TESTCASES.md in the active session."
+required_input: "Mode; AC/US/FR; optional user-flow/API maps."
+required_output: "TEST_CHECKLIST.md and/or TESTCASES.md."
+note_important: "Do NOT claim pass without execution. Do NOT claim Playwright production-ready from hints."
+artifacts:
+  TEST_CHECKLIST.md:
+    required: false
+    schema:
+      executive_summary: { type: array, required: true }
+      scenarios: { type: array, required: true }
+  TESTCASES.md:
+    required: false
+    schema:
+      executive_summary: { type: array, required: true }
+      test_cases: { type: array, required: true }

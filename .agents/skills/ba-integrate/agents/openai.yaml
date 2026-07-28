@@ -1,0 +1,19 @@
+display_name: "BA integrate"
+short_description: "Jira/Confluence sync plans — offline mapping first; live only with confirmation."
+default_prompt: "Use $ba-integrate with mode=jira|confluence. Write the integrate plan; never store tokens in artifacts."
+required_input: "Mode; local stories/docs; site URL; project/space keys; auth method via env."
+required_output: "INTEGRATE_JIRA.md or INTEGRATE_CONFLUENCE.md with mapping + dry-run."
+note_important: "Do NOT store API tokens in session files. Do NOT live-push without explicit confirmation."
+artifacts:
+  INTEGRATE_JIRA.md:
+    required: false
+    schema:
+      executive_summary: { type: array, required: true }
+      mapping: { type: array, required: true }
+      dry_run: { type: array, required: true }
+  INTEGRATE_CONFLUENCE.md:
+    required: false
+    schema:
+      executive_summary: { type: array, required: true }
+      mapping: { type: array, required: true }
+      dry_run: { type: array, required: true }

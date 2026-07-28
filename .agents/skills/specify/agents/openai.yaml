@@ -1,0 +1,43 @@
+display_name: "Specify (BA docs)"
+short_description: "BA requirements docs by mode: prd, roadmap, discover, urd, brd, prd-epic, srs."
+default_prompt: "Use $specify with an explicit mode (prd|roadmap|discover|urd|brd|prd-epic|srs). Seed the matching template into the active session and Confirm-first on blockers."
+required_input: "Mode (required), product/feature context, stakeholders, existing session artifacts/memory."
+required_output: "One mode artifact (PRD.md / ROADMAP.md / DISCOVER.md / URD.md / BRD.md / PRD_EPIC.md / SPEC_SRS.md) seeded from templates/."
+note_important: "Do NOT mix modes in one file. Do NOT invent stakeholder decisions. Do NOT skip Confirm-first on Blocking unknowns. Map aliases in BA_SKILLS.md."
+artifacts:
+  PRD.md:
+    required: false
+    schema:
+      mode: { type: string, required: true, description: "Must be prd when this file is used." }
+      executive_summary: { type: array, required: true }
+      developer_overview: { type: object, required: true }
+  ROADMAP.md:
+    required: false
+    schema:
+      mode: { type: string, required: true }
+      executive_summary: { type: array, required: true }
+  DISCOVER.md:
+    required: false
+    schema:
+      mode: { type: string, required: true }
+      executive_summary: { type: array, required: true }
+  URD.md:
+    required: false
+    schema:
+      mode: { type: string, required: true }
+      executive_summary: { type: array, required: true }
+  BRD.md:
+    required: false
+    schema:
+      mode: { type: string, required: true }
+      executive_summary: { type: array, required: true }
+  PRD_EPIC.md:
+    required: false
+    schema:
+      mode: { type: string, required: true }
+      executive_summary: { type: array, required: true }
+  SPEC_SRS.md:
+    required: false
+    schema:
+      mode: { type: string, required: true }
+      executive_summary: { type: array, required: true }

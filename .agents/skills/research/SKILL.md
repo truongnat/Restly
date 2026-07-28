@@ -1,0 +1,114 @@
+---
+name: research
+description: "Research internal or external sources before making technical/product decisions. Source-backed findings, comparison matrix, recommendations with citations and caveats. (Hard contract in this SKILL.md — MUST follow.)"
+---
+
+# Research
+
+## Shared preamble (do this first)
+
+Read and follow `.agents/SKILL_PREAMBLE.md` now (Language + Work layout +
+Memory + Thinking methods + **Readable writing**) before Purpose, Contract, or
+steps. Do not skip it; do not reuse a cached `language`. Write so a teammate
+understands on first pass — concrete paths/IDs, no filler, no method branding.
+Artifacts go under `.agent-work/` (sessions + memory), not `.agents/`.
+Source copy: `docs/policy/SKILL_PREAMBLE.md` / `docs/policy/AGENT_WORK.md`.
+
+## Purpose
+
+Collect, verify, and synthesize evidence to support technical, product, or operational decisions.
+
+## Contract (mandatory)
+
+This skill is a **hard contract**. Obey it before any other action. Do NOT treat as optional. Do NOT skip required artifacts.
+
+| Field | Requirement |
+|-------|-------------|
+| preferred_role | `researcher` (routing hint for multi-CLI; fallback main). |
+| Inputs | Research question, decision context, local evidence, external source constraints, freshness requirement, quality bar. |
+| Outputs | `RESEARCH.md` (prefer template) with **keywords**, source strategy, evidence, findings, comparison matrix, recommendation, confidence, caveats, residual risks. |
+| Safety | Do NOT fabricate citations. Do NOT copy long source content. Do NOT use stale sources for decisions needing fresh information. Do NOT present inference as fact. Do NOT omit caveats, residual risks, or Spec quality challenges (feasibility/correctness/capability gaps). Do NOT leave opaque domain terms unexplained — fill Keywords or mark none. **Confirm-first:** Blocking gaps → STOP, classify Ask method, ask in chat before finishing RESEARCH as a quiz-as-document. |
+
+### Required artifacts
+
+#### `RESEARCH.md`
+- Required: yes
+- Prefer seed: `templates/RESEARCH.template.md`
+- **executive_summary** (required, array): Maximum five bullets with answer, strongest evidence, caveat/risk, recommendation, and next action.
+- **developer_overview** (required, object): Research status, answer confidence, top caveat, next action.
+- **keywords** (required, object): Term \| Meaning (`settings.language`) \| Where seen; or `_(none — plain language)_`. Cap 3–12. See SKILL_PREAMBLE → Keywords.
+- **charts** (optional, array): Mermaid comparison chart when useful; otherwise N/A.
+- **question** (required, string): Research question.
+- **decision_context** (required, string): What decision this research supports.
+- **status** (required, string): Complete / Complete with caveats / Partial / Blocked.
+- **source_strategy** (required, array): Source type, purpose, notes.
+- **sources_reviewed** (required, array): Source ID, name, type, date/version, relevance.
+- **findings** (required, array): Finding, evidence, confidence.
+- **comparison_matrix** (optional, table): Option columns x criteria rows.
+- **recommendation** (required, string): Recommended option, confidence, reason, why not alternatives.
+- **spec_quality_review** (required when research supports a feature/spec decision, object): Feasibility, Correctness, Capability recommendations inferred from evidence.
+- **caveats** (optional, array): Caveat with impact and mitigation.
+- **residual_risks** (optional, array): Risk, impact, suggested follow-up.
+- **handoff** (required, string): Ready for planning/execution? Required verification?
+
+### Reference
+
+`agents/openai.yaml` is a machine-readable duplicate for tooling. The Contract in this SKILL.md is authoritative for agents.
+
+## Quality Standards
+
+- [ ] Source quality is noted (Primary/Secondary/Community/Marketing/Unknown).
+- [ ] Keywords filled (or none) for opaque terms in findings/recommendation.
+- [ ] Freshness is checked for time-sensitive information (API versions, pricing, features).
+- [ ] Facts, inferences, and opinions are separated.
+- [ ] Comparison matrix exists when multiple options are evaluated.
+- [ ] Recommendation includes confidence level (High/Medium/Low).
+- [ ] When researching a feature/spec, Spec quality review covers Feasibility, Correctness, and Capability gaps suggested by evidence.
+- [ ] Caveats and residual risks are documented.
+
+- [ ] Work nested git: ran `session.sh commit 'docs(research): …'` after writing artifacts (or `WORK_COMMIT=clean`). See AGENT_WORK.md.
+
+- [ ] Confirm-first: on Blocking need, STOP immediately; classify Ask method (`confirm`/`choice`/`fact`/`table`/`diagram`/`html`); ask that way; finished artifact is not a quiz — residual Open questions non-blocking only (SKILL_PREAMBLE).
+
+## WRONG vs CORRECT
+
+```markdown
+// WRONG — no source, no freshness check
+React 19 supports server components.
+
+// CORRECT — sourced and versioned
+Fact (source: react.dev blog, 2026-03): React 19.1 stable supports server components.
+Freshness: checked 2026-07-13.
+Caveat: The recommendation only applies if the repo uses React 19+.
+```
+
+```markdown
+// WRONG — no comparison, just listing
+Option A and B are both good.
+
+// CORRECT — comparison matrix with criteria
+| Criteria | Option A (Library X) | Option B (Library Y) |
+|---|---|---|
+| License | MIT | AGPL (⚠️ restriction) |
+| Bundle size | 12KB | 45KB |
+| Last release | 2026-06 | 2025-03 (⚠️ stale) |
+| Native ESM | Yes | No |
+Recommendation: Option A. Lower risk, better license, lighter bundle.
+```
+
+## Edge Cases
+
+| Situation | Handling |
+|---|---|
+| Official docs contradict community sources | Prefer official docs. Document the conflict and why the official source was chosen. |
+| Pricing page does not list pricing | Document as caveat. Do NOT guess pricing. |
+| Source is too old (>1 year for fast-moving tools) | Lower confidence, recommend verification before implementation. |
+| No external sources available (offline) | Mark as "offline research only". Document limitations. |
+| Research question is too broad | Narrow to 2-3 sub-questions. Recommend planning the research scope. |
+
+
+## Limitations
+
+- Does NOT implement.
+- Does NOT replace planning or investigate.
+- Does NOT guarantee external sources are always correct.

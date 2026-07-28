@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Restly - History</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#e5e2e1",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "on-tertiary-fixed": "#351000",
+                        "on-surface": "#1b1b1c",
+                        "on-primary-fixed": "#0c006a",
+                        "background": "#fcf9f8",
+                        "on-secondary-fixed": "#07006c",
+                        "on-primary-container": "#bcbbff",
+                        "surface-variant": "#e5e2e1",
+                        "primary-container": "#3f3bbd",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#4f4ccd",
+                        "secondary-container": "#6063ee",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#fcf9f8",
+                        "surface": "#fcf9f8",
+                        "on-secondary-container": "#fffbff",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#893500",
+                        "surface-container": "#f0eded",
+                        "outline": "#777585",
+                        "secondary-fixed": "#e1e0ff",
+                        "inverse-surface": "#303030",
+                        "surface-container-low": "#f6f3f2",
+                        "tertiary": "#642500",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed": "#ffdbcc",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "on-tertiary-fixed-variant": "#7b2f00",
+                        "primary-fixed": "#e2dfff",
+                        "secondary": "#4648d4",
+                        "surface-container-high": "#eae7e7",
+                        "on-tertiary-container": "#ffaf8a",
+                        "error-container": "#ffdad6",
+                        "on-background": "#1b1b1c",
+                        "inverse-primary": "#c2c1ff",
+                        "outline-variant": "#c7c4d6",
+                        "primary": "#261ca6",
+                        "on-surface-variant": "#464554",
+                        "primary-fixed-dim": "#c2c1ff",
+                        "surface-dim": "#dcd9d9",
+                        "inverse-on-surface": "#f3f0ef",
+                        "tertiary-fixed-dim": "#ffb694",
+                        "on-primary-fixed-variant": "#3630b4",
+                        "on-secondary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "toolbar-height": "52px",
+                        "margin-window": "20px",
+                        "unit": "4px",
+                        "sidebar-width": "260px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "mono-code": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["18px", {"lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-sm": ["12px", {"lineHeight": "18px", "fontWeight": "400"}],
+                        "mono-code": ["12px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-md": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .macos-glass { backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); }
+        .traffic-light { width: 12px; height: 12px; border-radius: 50%; }
+        .method-get { color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        .method-post { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+        .method-put { color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+        .method-delete { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface flex h-screen overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="w-sidebar-width bg-surface-container/30 backdrop-blur-xl border-r border-outline-variant/50 flex flex-col h-full pt-12 pb-4 px-4 relative z-20">
+<!-- macOS Traffic Lights -->
+<div class="absolute top-[18px] left-[20px] flex gap-2">
+<div class="traffic-light bg-[#ff5f57]"></div>
+<div class="traffic-light bg-[#febc2e]"></div>
+<div class="traffic-light bg-[#28c840]"></div>
+</div>
+<div class="mb-8 px-2">
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Restly</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant opacity-70">API Development</p>
+</div>
+<button class="mb-6 w-full py-2.5 px-4 bg-primary text-on-primary rounded-lg font-headline-md text-[14px] flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-[18px]">add</span>
+            New Collection
+        </button>
+<nav class="flex-1 space-y-1">
+<!-- Labels from JSON: ["Collections", "History", "Environments", "Auth", "Mock Servers"] -->
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-variant/50 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined text-[20px]">folder_open</span>
+<span class="font-body-md text-body-md">Collections</span>
+</a>
+<!-- HISTORY IS ACTIVE TAB -->
+<a class="flex items-center gap-3 px-3 py-2 bg-primary text-on-primary rounded-lg transition-all group shadow-sm" href="#">
+<span class="material-symbols-outlined text-[20px]">history</span>
+<span class="font-body-md text-body-md">History</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-variant/50 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined text-[20px]">swipe_left</span>
+<span class="font-body-md text-body-md">Environments</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-variant/50 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined text-[20px]">lock</span>
+<span class="font-body-md text-body-md">Auth</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-variant/50 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined text-[20px]">cloud</span>
+<span class="font-body-md text-body-md">Mock Servers</span>
+</a>
+</nav>
+<div class="mt-auto flex items-center gap-3 px-3 py-3 border-t border-outline-variant/30">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined text-[18px]">person</span>
+</div>
+<div class="flex-1 overflow-hidden">
+<p class="font-body-md text-body-md truncate">User Profile</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">settings</span>
+</div>
+</aside>
+<!-- Main Workspace Area -->
+<main class="flex-1 flex flex-col bg-surface min-w-0">
+<!-- Top Toolbar -->
+<header class="h-toolbar-height flex justify-between items-center w-full px-margin-window border-b border-outline-variant/50 bg-surface">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-md pl-10 pr-4 py-1.5 text-body-sm font-body-sm focus:ring-1 focus:ring-primary" placeholder="Search history..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-3 py-1.5 text-primary font-bold hover:bg-surface-container-highest transition-colors rounded text-body-sm">New Request</button>
+<div class="h-4 w-[1px] bg-outline-variant/50 mx-1"></div>
+<button class="material-symbols-outlined text-on-surface-variant p-1.5 hover:bg-surface-container-highest rounded transition-colors" data-icon="sync">sync</button>
+<button class="material-symbols-outlined text-on-surface-variant p-1.5 hover:bg-surface-container-highest rounded transition-colors" data-icon="settings">settings</button>
+</div>
+</header>
+<!-- Content Canvas: History View -->
+<div class="flex-1 overflow-y-auto scrollbar-hide p-6 bg-surface">
+<div class="max-w-4xl mx-auto">
+<div class="flex items-center justify-between mb-8">
+<h2 class="font-headline-lg text-headline-lg">Request History</h2>
+<div class="flex gap-2">
+<button class="flex items-center gap-2 px-3 py-1.5 rounded bg-surface-container-high hover:bg-surface-container-highest text-body-sm font-medium transition-colors">
+<span class="material-symbols-outlined text-[16px]">filter_list</span>
+                            Filter
+                        </button>
+<button class="flex items-center gap-2 px-3 py-1.5 rounded text-error hover:bg-error-container/20 text-body-sm font-medium transition-colors">
+<span class="material-symbols-outlined text-[16px]">delete_sweep</span>
+                            Clear All
+                        </button>
+</div>
+</div>
+<!-- History Groups -->
+<div class="space-y-10">
+<!-- Today -->
+<section>
+<div class="flex items-center gap-4 mb-4">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Today</h3>
+<div class="flex-1 h-[1px] bg-outline-variant/30"></div>
+</div>
+<div class="space-y-1">
+<!-- History Item 1 -->
+<div class="group relative flex items-center gap-4 p-3 rounded-xl hover:bg-surface-container-low transition-all cursor-pointer border border-transparent hover:border-outline-variant/20 shadow-sm hover:shadow-md">
+<div class="flex flex-col items-center justify-center min-w-[50px]">
+<span class="method-get px-2 py-0.5 rounded text-[11px] font-bold">GET</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-0.5">
+<span class="font-mono-code text-mono-code text-on-surface truncate">https://api.restly.app/v1/user/profile</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-body-sm text-body-sm text-on-surface-variant opacity-60">2 mins ago</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant/50"></span>
+<span class="font-body-sm text-body-sm text-on-surface-variant opacity-60">124ms</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-green-600 font-mono-code text-[12px] font-bold bg-green-50 px-2 py-0.5 rounded border border-green-100">200 OK</span>
+<div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-primary/10 text-primary rounded-lg transition-colors title=" restore"="">
+<span class="material-symbols-outlined text-[18px]">restore</span>
+</button>
+<button class="p-2 hover:bg-error/10 text-error rounded-lg transition-colors" title="Delete">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- History Item 2 -->
+<div class="group relative flex items-center gap-4 p-3 rounded-xl hover:bg-surface-container-low transition-all cursor-pointer border border-transparent hover:border-outline-variant/20 shadow-sm hover:shadow-md">
+<div class="flex flex-col items-center justify-center min-w-[50px]">
+<span class="method-post px-2 py-0.5 rounded text-[11px] font-bold">POST</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-0.5">
+<span class="font-mono-code text-mono-code text-on-surface truncate">https://api.restly.app/v1/auth/login</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-body-sm text-body-sm text-on-surface-variant opacity-60">45 mins ago</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant/50"></span>
+<span class="font-body-sm text-body-sm text-on-surface-variant opacity-60">342ms</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-on-surface-variant font-mono-code text-[12px] font-bold bg-surface-container px-2 py-0.5 rounded border border-outline-variant/30">401 Auth</span>
+<div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-primary/10 text-primary rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[18px]">restore</span>
+</button>
+<button class="p-2 hover:bg-error/10 text-error rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Yesterday -->
+<section>
+<div class="flex items-center gap-4 mb-4">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Yesterday</h3>
+<div class="flex-1 h-[1px] bg-outline-variant/30"></div>
+</div>
+<div class="space-y-1">
+<!-- History Item 3 -->
+<div class="group relative flex items-center gap-4 p-3 rounded-xl hover:bg-surface-container-low transition-all cursor-pointer border border-transparent hover:border-outline-variant/20 shadow-sm hover:shadow-md">
+<div class="flex flex-col items-center justify-center min-w-[50px]">
+<span class="method-put px-2 py-0.5 rounded text-[11px] font-bold">PUT</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-0.5">
+<span class="font-mono-code text-mono-code text-on-surface truncate">https://api.stripe.com/v1/customers/cus_92831</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-body-sm text-body-sm text-on-surface-variant opacity-60">Yesterday, 4:12 PM</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant/50"></span>
+<span class="font-body-sm text-body-sm text-on-surface-variant opacity-60">56ms</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-green-600 font-mono-code text-[12px] font-bold bg-green-50 px-2 py-0.5 rounded border border-green-100">204 No Cont.</span>
+<div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-primary/10 text-primary rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[18px]">restore</span>
+</button>
+<button class="p-2 hover:bg-error/10 text-error rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- History Item 4 -->
+<div class="group relative flex items-center gap-4 p-3 rounded-xl hover:bg-surface-container-low transition-all cursor-pointer border border-transparent hover:border-outline-variant/20 shadow-sm hover:shadow-md">
+<div class="flex flex-col items-center justify-center min-w-[50px]">
+<span class="method-delete px-2 py-0.5 rounded text-[11px] font-bold">DELETE</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-0.5">
+<span class="font-mono-code text-mono-code text-on-surface truncate">https://api.github.com/repos/user/repo/hooks/12</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-body-sm text-body-sm text-on-surface-variant opacity-60">Yesterday, 11:20 AM</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant/50"></span>
+<span class="font-body-sm text-body-sm text-on-surface-variant opacity-60">890ms</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-error font-mono-code text-[12px] font-bold bg-error-container/20 px-2 py-0.5 rounded border border-error/10">500 Server Err</span>
+<div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-primary/10 text-primary rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[18px]">restore</span>
+</button>
+<button class="p-2 hover:bg-error/10 text-error rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Background Abstract Art -->
+<div class="fixed bottom-0 right-0 p-12 opacity-5 pointer-events-none -z-10">
+<div class="w-[400px] h-[400px] rounded-full blur-[100px] bg-primary-container"></div>
+</div>
+</div>
+</div>
+<!-- Toast Notification (Floating Glassmorphism) -->
+<div class="fixed bottom-8 left-1/2 -translate-x-1/2 translate-y-20 opacity-0 transition-all duration-300 pointer-events-none" id="toast">
+<div class="bg-white/80 backdrop-blur-md border border-outline-variant/30 px-6 py-3 rounded-full shadow-2xl flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">check_circle</span>
+<span class="font-body-md text-body-md text-on-surface">Request restored successfully</span>
+</div>
+</div>
+</main>
+<script>
+        // Micro-interactions for restoration and deletion demo
+        document.querySelectorAll('button[title="Restore"]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const toast = document.getElementById('toast');
+                toast.classList.remove('translate-y-20', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+                
+                setTimeout(() => {
+                    toast.classList.add('translate-y-20', 'opacity-0');
+                    toast.classList.remove('translate-y-0', 'opacity-100');
+                }, 3000);
+            });
+        });
+
+        document.querySelectorAll('button[title="Delete"]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const item = btn.closest('.group');
+                item.style.opacity = '0';
+                item.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    item.remove();
+                }, 300);
+            });
+        });
+    </script>
+</body></html>

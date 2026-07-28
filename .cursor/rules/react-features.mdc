@@ -1,0 +1,39 @@
+---
+description: React feature patterns — UI vs model vs Query/Zustand
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# React feature patterns
+
+## Feature folder
+
+```
+features/request-editor/
+  ui/           # JSX only — props in, events out
+  model/        # use-send-request.ts — resolve(DI) + TanStack
+  lib/          # pure mappers, constants
+```
+
+## Logic placement
+
+| Concern | Tool | Where |
+| --- | --- | --- |
+| Biz rules | use-cases | `application/use-cases` |
+| Server/cache data | TanStack Query + `resolve(TOKENS.*)` | `features/*/model` |
+| Ephemeral UI state | Zustand or local `useState` | `app/store` or component-local |
+| Forms | TanStack Form + Zod | `model/` + `entities` schemas |
+| Tables | TanStack Table | column defs in `model/` or `lib/` |
+| Validation | Zod | `entities` |
+
+## UI components
+
+- Use **shadcn** from `@/components/ui` first; wrap in `shared/ui` only if Restly-specific.
+- Pages must not call `useMutation`/`fetch` / `resolve` directly — go through feature `model/` hooks.
+- Do not put DI in React Context — see `di.mdc`.
+
+## Anti-patterns
+
+- God store with HTTP + validation + UI flags in one file
+- Importing `infrastructure/adapters` from `ui/` or `pages/`
+- Importing one feature's `ui/` from another feature

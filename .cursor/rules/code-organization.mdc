@@ -1,0 +1,52 @@
+---
+description: How to split files, features, and logic in Restly
+alwaysApply: true
+---
+
+# Code organization
+
+## One file, one job
+
+| Kind | Put in | Max rough size |
+| --- | --- | --- |
+| Route screen | `pages/*Page.tsx` | ~80 lines — compose only |
+| Presentational UI | `features/<f>/ui/*.tsx` | split if >150 lines |
+| Feature TanStack wiring | `features/<f>/model/*.ts` | `resolve` + hooks, light JSX ok for columns |
+| Feature helpers | `features/<f>/lib/*.ts` | pure functions |
+| Biz use-cases | `application/use-cases/*.ts` | no React |
+| Ports (API contracts) | `application/ports/*.ts` | interfaces only |
+| Domain types / Zod | `entities/*.ts` | no React |
+| Shared UI primitives | `components/ui` (shadcn) + `shared/ui` | no feature imports |
+| Shared helpers | `shared/lib` | no feature imports |
+| Constants | `shared/constants` or `features/<f>/lib/constants.ts` | see constants rule |
+| Adapters / DI | `infrastructure/adapters`, `infrastructure/di` | see `di.mdc` |
+
+## Split when
+
+- Component mixes **fetch + form + table + layout** → extract `model/` hook + child UI.
+- Same magic string/number appears **2+ times** → constant.
+- JSX has business `if` trees → move to `application/use-cases` or pure `lib/`.
+- Cross-feature need → promote type to `entities/`, helper to `shared/`.
+
+## Import direction (forbidden ↑)
+
+```
+pages → features → application/entities/shared
+features/model → resolve(TOKENS) only (not adapters)
+app → bootContainer + providers (composition root)
+```
+
+Never: `entities` / `application` → React/Zustand/Query/adapters.
+Never: `shared` → `features`. Never: feature A → feature B deep import.
+Never: DI via React Context.
+
+## Naming
+
+See **`file-naming.mdc`** — all filenames are **lowercase kebab-case**.
+
+- Components: `request-workspace.tsx` (export `RequestWorkspace`)
+- Pages: `workspace-page.tsx` (export `WorkspacePage`)
+- Hooks: `use-send-request.ts`
+- Pure libs: `method-colors.ts`
+- Constants: `*.constants.ts` or `shared/constants/<domain>.ts`
+- Zod schemas: `*.schema.ts` or colocated in `entities/schemas.ts` until split needed

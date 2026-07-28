@@ -1,0 +1,62 @@
+# Project agent settings — keep this file small.
+# Agents re-read it at the start of every task.
+#
+# Only set what you need to change. Everything else uses fixed defaults in
+# `.agents/AGENT_POLICY.md` (decisions, visuals, report style, code comments).
+
+# Thread / report / artifact **prose** only (chat, summaries, questions).
+# Headings / template keys / enums stay English.
+#   en | vi
+# One language per artifact — do not mix Vietnamese and English body text.
+# Does NOT control source-code comments or docstrings (see rules.code.comments).
+language: vi
+
+project:
+  reference: .agents/PRJ_REFERENCE.md
+
+rules:
+  # Branching before any code change (IMPORTANT).
+  #   direct    — work/commit on base/main
+  #   checkout  — create/checkout a work branch first (safer default)
+  branch:
+    mode: direct
+    base: ""       # empty = detect (e.g. main)
+    naming: ""     # e.g. feat/<slug>
+
+  # Lifecycle report files: markdown (default) | html
+  reports:
+    output_format: markdown
+
+  # Project wiki (`docs` skill). Set enabled: false to skip.
+  docs:
+    enabled: true
+    location: .agents/wiki
+    format: markdown          # markdown | html | docx | xlsx
+    sync_strategy: with-commit  # with-commit | main-only
+
+  # Source-code comment / docstring prose language (NOT settings.language).
+  #   repo-default — follow PRJ_REFERENCE / existing repo style; else English
+  #   en | vi      — force comment prose to that language
+  code:
+    comments:
+      prose_language: repo-default
+
+  # Optional — fill when the repo has a convention (init can merge these):
+  # commit:
+  #   convention: ""
+  #   format: ""
+  # pull_request:
+  #   title_format: ""
+  #   description_sections: []
+  #   required_checks: []
+
+  # Multi-CLI routing (main brain + optional workers). Inventory: detect_agents.py
+  # agents:
+  #   inventory_ref: .agents/PRJ_REFERENCE.md   # ## Agent CLIs section
+  #   fallback: main
+  #   routing:
+  #     investigate: [codex, main]
+  #     planning: [claude, main]
+  #     execution: [opencode, codex, main]
+  #     review: [claude, main]
+  #   # Never dispatch a worker without CONTEXT_PACK Rules (mandatory) gate.

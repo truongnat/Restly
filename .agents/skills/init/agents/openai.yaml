@@ -1,0 +1,74 @@
+display_name: "Project Init"
+short_description: "Collect project context and configure project-specific agent behavior."
+default_prompt: "Use $init to initialize or refresh .agents/PRJ_REFERENCE.md and merge confirmed project rules into .agents/settings.yaml."
+required_input: "Repository root, existing settings/reference, source/config/docs/tests, git metadata, user-confirmed rules."
+required_output: ".agents/PRJ_REFERENCE.md plus merged .agents/settings.yaml."
+note_important: "Read-only discovery. Never read or record secret values. Preserve user settings. Do not invent commands, business rules, or conventions. Force mode rebuilds the reference but does not silently reset settings."
+workflow:
+  - "Read settings and existing reference; choose init, refresh, or explicit force mode."
+  - "Inventory git metadata, manifests, configs, CI, architecture, tests, docs, business rules, and constraints without executing project code."
+  - "Deep workspace scan (mandatory): run `bash .agents/skills/init/scripts/scan_workspaces.sh` for deterministic COVERAGE — it surfaces every project-root directory from the filesystem (not the workspace config), with best-effort marker hints only. YOU classify each candidate's stack with your own knowledge (any ecosystem — Flutter/Dart, Go, Rust, Python, Elixir, …); do not rely on a fixed list and inspect rows hinted `-`. Record every candidate with its own stack; never enumerate from the workspace config alone (a pubspec.yaml app under apps/ is not listed there) and never collapse a multi-stack monorepo into one root stack."
+  - "Classify facts as confirmed, inferred, or unknown and cite sources."
+  - "Fill templates/PRJ_REFERENCE.template.md with an executive summary at the top."
+  - "Merge only evidenced or user-confirmed conventions into settings.yaml; preserve language and custom values."
+  - "Validate no secrets, no guessed commands, and visible unknowns; then report handoff."
+artifacts:
+  .agents/PRJ_REFERENCE.md:
+    required: true
+    schema:
+      executive_summary:
+        type: array
+        required: true
+        description: "The most useful 20% of project context, maximum five bullets."
+      project_identity:
+        type: object
+        required: true
+        description: "Purpose, users, domain, lifecycle status."
+      workspaces:
+        type: array
+        required: false
+        description: "Monorepo only: one entry per app/package/service with path, type, and its own stack, entry point, and commands. Never collapse multiple stacks into one."
+      tech_stack:
+        type: array
+        required: true
+        description: "Technology, role, version/source, confidence. In a monorepo, per workspace — not only the root manifest."
+      architecture:
+        type: array
+        required: true
+        description: "Components, boundaries, entry points, data flows."
+      business_rules:
+        type: array
+        required: true
+        description: "Rule, source, affected area, confidence."
+      key_constraints:
+        type: array
+        required: true
+        description: "Constraint, reason/source, impact."
+      commands:
+        type: array
+        required: true
+        description: "Purpose, command, source, confidence."
+      conventions:
+        type: object
+        required: true
+        description: "Code, branch, commit, PR, report, decision-gate, and visual conventions."
+      security_notes:
+        type: array
+        required: true
+        description: "Security boundaries and handling rules; never secret values."
+      references:
+        type: array
+        required: true
+        description: "Authoritative source and purpose."
+      unknowns:
+        type: array
+        required: true
+        description: "Question, impact, owner, blocking."
+      freshness:
+        type: object
+        required: true
+        description: "Generated/updated time, source commit, mode."
+  .agents/settings.yaml:
+    required: true
+    update: true
+    description: "Merge confirmed project rules while preserving language, security hard rules, and custom values."

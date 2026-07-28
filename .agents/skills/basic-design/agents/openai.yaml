@@ -1,0 +1,54 @@
+display_name: "Basic Design"
+short_description: "Turn an approved DISCUSSION.md into system-level design after Doc reality check (docs↔code) — boundaries, components, flows, ownership."
+default_prompt: "Use $basic-design. Seed BASIC_DESIGN.template.md. Run Doc reality check; on Blocking prefer visual Ask method (diagram/table/html) before architecture/components/flows."
+required_input: "DISCUSSION.md with recommendation; BA if useful; repo inspection; wiki/HLD when docs enabled."
+required_output: "BASIC_DESIGN.md with Doc reality check, goal, architecture, components, flows, data ownership, handoff to detail-design."
+note_important: "Do NOT treat docs as truth without Doc reality check. Do NOT fill design body while Blocking=Yes unresolved — Confirm-first; prefer diagram/table/html so the user sees the docs↔code diff (SSOT). Do NOT invent paths. Do NOT implement code or write full contracts."
+artifacts:
+  BASIC_DESIGN.md:
+    required: true
+    schema:
+      executive_summary:
+        type: array
+        required: true
+        description: "Max five bullets: direction, boundaries, top Doc reality finding/risk, next action."
+      developer_overview:
+        type: object
+        required: true
+        description: "Status, Doc reality blockers, components/boundaries, next action."
+      doc_reality_check:
+        type: object
+        required: true
+        description: "Claims with doc vs code evidence, verdict, Blocking, Ask user?; Clarification checkpoint."
+      charts:
+        type: array
+        required: true
+        description: "Mermaid architecture/boundary/flow or N/A with reason."
+      goal:
+        type: string
+        required: true
+        description: "One sentence aligned with DISCUSSION recommendation."
+      context:
+        type: string
+        required: true
+        description: "Chosen direction and scope from DISCUSSION (and BA if present)."
+      architecture_overview:
+        type: string
+        required: true
+        description: "Short system shape."
+      components:
+        type: array
+        required: true
+        description: "Components/modules with responsibility."
+      user_or_system_flows:
+        type: array
+        required: true
+        description: "Main happy-path flows."
+      data_ownership:
+        type: array
+        required: true
+        description: "Logical entities/stores and owning component."
+      handoff:
+        type: string
+        required: true
+        description: "Next skill: detail-design, research, or investigate."

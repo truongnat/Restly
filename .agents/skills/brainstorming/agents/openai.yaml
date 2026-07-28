@@ -1,0 +1,108 @@
+display_name: "Brainstorming"
+short_description: "Step workflow: seed DISCUSSION template, then frame → scope/options → recommend → self-check before design/planning."
+default_prompt: "Use $brainstorming: seed the template, triage issues and visual needs, stop to ask about unresolved Critical/blocking items, then scope/options/recommend/self-check."
+required_input: "Initial request, repo context, existing documents, constraints, current behavior, desired outcome, stakeholder feedback if available; session path."
+required_output: "Session DISCUSSION.md seeded from templates/DISCUSSION.template.md and filled via steps/. Incomplete if chat-only or steps skipped."
+note_important: "Do NOT skip step-01-init. Confirm-first: STOP immediately on Critical/blocking/Spec blockers; classify Ask method (confirm/choice/fact/table/diagram/html) before asking; never continue by choosing defaults or shipping quiz-as-document. Challenge Feasibility, Correctness, and Capability gaps before recommending. Create accessible HTML with Tailwind + anime.js CDN tags only after user confirmation for html Ask method unless explicitly requested. Do NOT treat assumptions/specs as facts, hide blockers, implement code, or create PLAN/TASKS."
+workflow:
+  - "Seed DISCUSSION.md from the template."
+  - "Frame facts/assumptions/unknowns; classify material issues by severity, clarity, blocking status, owner, and visual need."
+  - "Challenge specs with Feasibility, Correctness, and Capability recommendations; promote blocking gaps to clarification."
+  - "STOP and ask at most three focused blocking questions when Critical/blocking/Spec-quality items remain; record answers before continuing."
+  - "Choose text/table/diagram/HTML by decision value; HTML only for spatial/state comparison and with user confirmation."
+  - "Fill scope/options, recommendation/handoff, then run self-check."
+artifacts:
+  DISCUSSION.md:
+    required: true
+    schema:
+      source_template:
+        type: string
+        required: true
+        description: "Must be seeded from templates/DISCUSSION.template.md via step-01."
+      executive_summary:
+        type: array
+        required: true
+        description: "Maximum five bullets with direction, key facts/unknowns, recommendation, risk, and next action."
+      developer_overview:
+        type: object
+        required: true
+        description: "Status, open Critical/blocking count, visual decisions pending, next action."
+      step_ledger:
+        type: table
+        required: true
+        description: "Steps 01–05 status; no later step done while earlier is todo; Spec quality cannot be skipped."
+      charts:
+        type: array
+        required: false
+        description: "Mermaid charts for options/flows/risks when useful; otherwise N/A with reason."
+      goal:
+        type: string
+        required: true
+        description: "One sentence describing the goal."
+      desired_outcome:
+        type: string
+        required: true
+        description: "What success looks like."
+      confirmed_facts:
+        type: array
+        required: true
+        description: "Known facts from user, repo, or research."
+      constraints:
+        type: array
+        required: false
+        description: "Time, platform, tech stack, budget, tool limits."
+      assumptions:
+        type: array
+        required: false
+        description: "Assumptions with risk level and confirmation status."
+      unknowns:
+        type: array
+        required: false
+        description: "Open questions with blocking flag."
+      issue_triage:
+        type: array
+        required: true
+        description: "Issue ID, decision, severity, clarity, blocking, owner, status."
+      clarification_checkpoint:
+        type: array
+        required: true
+        description: "Issue ID, Ask method (confirm/choice/fact/table/diagram/html), focused question, why it blocks, user answer/evidence, resolved status."
+      spec_quality_review:
+        type: object
+        required: true
+        description: "Feasibility, Correctness, and Capability recommendations that challenge specs before recommending."
+      visual_triage:
+        type: array
+        required: true
+        description: "Issue ID, visual need, format, reason, user confirmation, artifact/status."
+      scope_in:
+        type: array
+        required: true
+        description: "What is in scope."
+      scope_out:
+        type: array
+        required: true
+        description: "What is out of scope."
+      non_goals:
+        type: array
+        required: false
+        description: "Goals explicitly not pursued."
+      options_considered:
+        type: table
+        required: true
+        description: "Option, pros, cons, effort, risk, reversibility, verify method."
+      recommendation:
+        type: string
+        required: true
+        description: "Recommended option with reason and confidence."
+      risks:
+        type: array
+        required: false
+        description: "Risks with impact and mitigation."
+      handoff:
+        type: string
+        required: true
+        description: "Next skill: business-analysis, basic-design, planning, research, or execution."
+  VISUAL_DECISION.html:
+    required: false
+    description: "User-confirmed accessible decision aid for html-recommended issues; must include Tailwind + anime.js CDN tags for static viewing; serve via session-serve to record choices; no sensitive data."

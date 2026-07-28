@@ -1,0 +1,18 @@
+display_name: "Reverse doc"
+short_description: "Rebuild SPEC_SRS from scattered Word/PDF/images/Excel; cite sources; no invention."
+default_prompt: "Use $reverse-doc to inventory sources into REVERSE_DOC.md and rebuild SPEC_SRS.md with citations."
+required_input: "Source files (docx/pdf/images/xlsx/md), target shape (srs default), optional glossary."
+required_output: "REVERSE_DOC.md + SPEC_SRS.md (or linked specify artifact) with source citations."
+note_important: "Do NOT invent requirements. Mark OCR guesses. Prefer excel-doc-convert for JP Excel forms."
+artifacts:
+  REVERSE_DOC.md:
+    required: true
+    schema:
+      executive_summary: { type: array, required: true }
+      sources: { type: array, required: true }
+      conflicts: { type: array, required: true }
+      handoff: { type: string, required: true }
+  SPEC_SRS.md:
+    required: false
+    schema:
+      executive_summary: { type: array, required: true }

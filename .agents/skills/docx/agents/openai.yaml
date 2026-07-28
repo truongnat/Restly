@@ -1,0 +1,26 @@
+display_name: "DOCX"
+short_description: "Inspect/create/edit/validate .docx with supported-lossless coverage manifests (Python/python-docx)."
+default_prompt: "Use $docx and skills/docx/scripts/cli.py for Word work. Require coverage_ratio=1.0 before publishing any .docx."
+required_input: ".docx path and/or JSON create/edit spec; optional manifest path."
+required_output: ".docx deliverable for create/edit plus coverage manifest JSON with coverage_ratio=1.0."
+note_important: "Do NOT publish when unsupported OOXML parts/macros/OLE/signatures exist. Do NOT claim legacy .doc support. Do NOT silently drop paragraphs/tables."
+artifacts:
+  coverage.json:
+    required: true
+    schema:
+      format:
+        type: string
+        required: true
+        description: "Must be docx."
+      operation:
+        type: string
+        required: true
+        description: "inspect | create | edit | validate"
+      coverage_ratio:
+        type: number
+        required: true
+        description: "Must equal 1.0 before publish."
+      items:
+        type: array
+        required: true
+        description: "Coverage inventory entries."

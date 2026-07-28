@@ -1,0 +1,58 @@
+import type { CollectionRepository } from '@/application/ports/collection.port'
+import type { RequestClient } from '@/application/ports/request.port'
+import { createListCollections } from '@/application/use-cases/list-collections'
+import { createSendRequest } from '@/application/use-cases/send-request'
+import type { RequestDraft } from '@/entities'
+import type { CollectionFolder } from '@/entities'
+import type { HttpExchangeResult } from '@/entities/response'
+import { Container } from '@/infrastructure/di/container'
+import { TOKENS } from '@/infrastructure/di/tokens'
+
+/** In-memory RequestClient for use-case / DI tests (no React, no network). */
+export function createFakeRequestClient(
+  result?: Partial<HttpExchangeResult>,
+): RequestClient & { lastDraft: RequestDraft | null } {
+  const client = {
+    lastDraft: null as RequestDraft | null,
+    async send(draft: RequestDraft): Promise<HttpExchangeResult> {
+      client.lastDraft = draft
+      return {
+        status: 200,
+        statusText: 'OK',
+        durationMs: 1,
+        size: '0 B',
+        body: '{}',
+        ...result,
+      }
+    },
+  }
+  return client
+}
+
+export function createFakeCollectionRepository(
+  folders: CollectionFolder[] = [],
+): CollectionRepository {
+  return {
+    async listFolders() {
+      return folders
+    },
+  }
+}
+
+/** Minimal container for a single use-case binding — unit-test friendly. */
+export function createTestContainer(overrides?: {
+  requestClient?: RequestClient
+  collections?: CollectionRepository
+}): Container {
+  const container = new Container()
+  const requestClient = overrides?.requestClient ?? createFakeRequestClient()
+  const collections = overrides?.collections ?? createFakeCollectionRepository()
+
+  container
+    .register(TOKENS.RequestClient, requestClient)
+    .register(TOKENS.CollectionRepository, collections)
+    .register(TOKENS.SendRequest, createSendRequest(requestClient))
+    .register(TOKENS.ListCollections, createListCollections(collections))
+
+  return container
+}

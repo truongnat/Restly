@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "description": "Required Markdown/HTML section headings for session lifecycle artifacts. validate_artifacts.py enforces these when a file is present.",
+  "artifacts": {
+    "DISCUSSION": {
+      "required_headings": [
+        "Step ledger",
+        "Executive summary",
+        "Developer overview",
+        "Keywords",
+        "Spec quality review",
+        "Goal",
+        "Recommendation"
+      ]
+    },
+    "BUSINESS_ANALYSIS": {
+      "required_headings": [
+        "Step ledger",
+        "Executive summary",
+        "Developer overview",
+        "Spec quality review",
+        "User stories",
+        "Acceptance criteria",
+        "Handoff"
+      ]
+    },
+    "PLAN": {
+      "required_headings": [
+        "Step ledger",
+        "Executive summary",
+        "Developer overview",
+        "Spec quality review",
+        "Goal",
+        "Approach",
+        "Definition of done",
+        "Handoff"
+      ]
+    },
+    "TASKS": {
+      "required_headings": [
+        "Work inventory",
+        "Progress board",
+        "Execution order",
+        "Tasks"
+      ]
+    },
+    "EXECUTION": {
+      "required_headings": [
+        "Executive summary",
+        "Developer overview"
+      ]
+    },
+    "REVIEW": {
+      "required_headings": [
+        "Executive summary",
+        "Developer overview",
+        "Recommendation"
+      ]
+    },
+    "DONE": {
+      "required_headings": [
+        "Executive summary",
+        "Developer overview"
+      ]
+    },
+    "SYNC": {
+      "required_headings": [
+        "Executive summary",
+        "Developer overview",
+        "Implementation readiness"
+      ]
+    },
+    "INVESTIGATE": {
+      "required_headings": [
+        "Executive summary",
+        "Developer overview",
+        "Keywords",
+        "Doc reality check"
+      ]
+    },
+    "RESEARCH": {
+      "required_headings": [
+        "Executive summary",
+        "Developer overview",
+        "Keywords"
+      ]
+    },
+    "REVIEW_PR": {
+      "required_headings": [
+        "Executive summary",
+        "Developer overview"
+      ]
+    },
+    "TESTCASES": {
+      "required_headings": [
+        "Executive summary",
+        "Developer overview"
+      ]
+    },
+    "BASIC_DESIGN": {
+      "required_headings": [
+        "Executive summary",
+        "Developer overview",
+        "Doc reality check"
+      ]
+    },
+    "DETAIL_DESIGN": {
+      "required_headings": [
+        "Executive summary",
+        "Developer overview",
+        "Doc reality check"
+      ]
+    }
+  }
+}

@@ -1,0 +1,50 @@
+---
+description: Restly clean architecture — layers, dependency rules, feature folders
+alwaysApply: true
+---
+
+# Restly Clean Architecture
+
+Follow Simple Skills kit in `.agents/` and skills under `.cursor/skills/` (especially `architecture-patterns`, `web-component-design`, `javascript-testing-patterns`).
+
+## Layer map (frontend-first)
+
+Dependencies point **inward only**. Outer layers may import inner; never the reverse.
+
+```
+src/
+  app/                  # bootContainer(), router, React providers, Zustand
+  application/
+    ports/              # driven ports (API interfaces)
+    use-cases/          # biz logic — framework-free
+    query-keys.ts       # TanStack key factories
+  pages/                # thin route screens
+  features/<feature>/
+    ui/                 # presentational React
+    model/              # resolve(DI) + TanStack hooks
+    lib/                # feature-local pure helpers
+  entities/             # domain types + Zod — no React
+  shared/               # constants, lib, styles — no feature imports
+  infrastructure/
+    adapters/           # port implementations
+    di/                 # module-level container (NOT React Context)
+    mock/ query/
+```
+
+## Rules
+
+1. **Domain (`entities/`)** — plain TypeScript + Zod. No React, no DOM, no Zustand, no DI runtime.
+2. **Application** — ports + use-cases only. No React, no concrete adapters.
+3. **Features** — `ui` presentational; `model` resolves use-cases and wires TanStack. No feature→feature deep imports.
+4. **Pages** — compose features; no business rules; no `fetch`.
+5. **Infrastructure** — adapters implement ports; register in `createAppContainer`. UI never imports adapters.
+6. **DI** — `bootContainer()` in `main.tsx`. Resolve via `resolve(TOKENS.*)`. Never React Context for the container. See `di.mdc`.
+7. Zustand stores are **UI adapters**, not the domain.
+8. Comments in source: English. Chat: `.agents/settings.yaml` `language`.
+9. Lint/format with **OXC**: `npm run lint`, `npm run fmt`.
+
+## When scaffolding or refactoring
+
+1. Read `.agents/START_HERE.md` and `.agents/SKILL_PREAMBLE.md`.
+2. Use skill `architecture-patterns` for Clean / Hexagonal guidance.
+3. Follow `.cursor/rules/code-organization.mdc`, `constants.mdc`, `react-features.mdc`, `di.mdc`, `docs/CODING_STANDARDS.md`.

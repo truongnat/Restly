@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Restly - Request Editor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .mac-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .mac-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .mac-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+        .mac-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.2);
+            background-clip: content-box;
+        }
+        .glass-sidebar {
+            background: rgba(252, 249, 248, 0.7);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+        }
+        .method-badge {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 10px;
+            letter-spacing: 0.02em;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-highest": "#e5e2e1",
+                      "on-secondary-fixed-variant": "#2f2ebe",
+                      "on-tertiary-fixed": "#351000",
+                      "on-surface": "#1b1b1c",
+                      "on-primary-fixed": "#0c006a",
+                      "background": "#fcf9f8",
+                      "on-secondary-fixed": "#07006c",
+                      "on-primary-container": "#bcbbff",
+                      "surface-variant": "#e5e2e1",
+                      "primary-container": "#3f3bbd",
+                      "on-primary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-tint": "#4f4ccd",
+                      "secondary-container": "#6063ee",
+                      "on-error": "#ffffff",
+                      "surface-bright": "#fcf9f8",
+                      "surface": "#fcf9f8",
+                      "on-secondary-container": "#fffbff",
+                      "on-tertiary": "#ffffff",
+                      "tertiary-container": "#893500",
+                      "surface-container": "#f0eded",
+                      "outline": "#777585",
+                      "secondary-fixed": "#e1e0ff",
+                      "inverse-surface": "#303030",
+                      "surface-container-low": "#f6f3f2",
+                      "tertiary": "#642500",
+                      "error": "#ba1a1a",
+                      "tertiary-fixed": "#ffdbcc",
+                      "secondary-fixed-dim": "#c0c1ff",
+                      "on-tertiary-fixed-variant": "#7b2f00",
+                      "primary-fixed": "#e2dfff",
+                      "secondary": "#4648d4",
+                      "surface-container-high": "#eae7e7",
+                      "on-tertiary-container": "#ffaf8a",
+                      "error-container": "#ffdad6",
+                      "on-background": "#1b1b1c",
+                      "inverse-primary": "#c2c1ff",
+                      "outline-variant": "#c7c4d6",
+                      "primary": "#261ca6",
+                      "on-surface-variant": "#464554",
+                      "primary-fixed-dim": "#c2c1ff",
+                      "surface-dim": "#dcd9d9",
+                      "inverse-on-surface": "#f3f0ef",
+                      "tertiary-fixed-dim": "#ffb694",
+                      "on-primary-fixed-variant": "#3630b4",
+                      "on-secondary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "toolbar-height": "52px",
+                      "margin-window": "20px",
+                      "unit": "4px",
+                      "sidebar-width": "260px",
+                      "gutter": "16px"
+              },
+              "fontFamily": {
+                      "headline-md": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "mono-code": ["JetBrains Mono"],
+                      "headline-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "label-caps": ["Inter"]
+              },
+              "fontSize": {
+                      "headline-md": ["18px", {"lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-sm": ["12px", {"lineHeight": "18px", "fontWeight": "400"}],
+                      "mono-code": ["12px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "body-md": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface font-body-md overflow-hidden h-screen flex">
+<!-- Sidebar (Left Pane) -->
+<aside class="glass-sidebar w-sidebar-width h-full border-r border-outline-variant/50 flex flex-col pt-12 relative">
+<!-- Traffic Lights Placeholder -->
+<div class="absolute top-[18px] left-[20px] flex gap-2">
+<div class="w-3 h-3 rounded-full bg-[#FF5F57]"></div>
+<div class="w-3 h-3 rounded-full bg-[#FEBC2E]"></div>
+<div class="w-3 h-3 rounded-full bg-[#28C840]"></div>
+</div>
+<div class="px-4 mb-6">
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Restly</h1>
+<p class="text-body-sm text-on-surface-variant opacity-60">API Development</p>
+</div>
+<div class="px-3 mb-4">
+<button class="w-full py-2 px-3 bg-primary text-on-primary rounded-lg font-medium text-body-md flex items-center justify-center gap-2 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                New Collection
+            </button>
+</div>
+<nav class="flex-1 overflow-y-auto mac-scrollbar px-2 space-y-1">
+<div class="flex items-center gap-2 px-3 py-2 bg-primary text-on-primary rounded-lg cursor-pointer">
+<span class="material-symbols-outlined text-[20px]">folder_open</span>
+<span class="font-body-md">Collections</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 text-on-surface-variant hover:bg-surface-variant/50 rounded-lg cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[20px]">history</span>
+<span class="font-body-md">History</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 text-on-surface-variant hover:bg-surface-variant/50 rounded-lg cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[20px]">swipe_left</span>
+<span class="font-body-md">Environments</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 text-on-surface-variant hover:bg-surface-variant/50 rounded-lg cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[20px]">lock</span>
+<span class="font-body-md">Auth</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 text-on-surface-variant hover:bg-surface-variant/50 rounded-lg cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[20px]">cloud</span>
+<span class="font-body-md">Mock Servers</span>
+</div>
+</nav>
+<div class="p-4 border-t border-outline-variant/30 mt-auto flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-xs">
+                JD
+            </div>
+<div class="flex-1 min-w-0">
+<p class="text-body-sm font-medium truncate">John Doe</p>
+<p class="text-[10px] text-on-surface-variant opacity-70 truncate">Pro Plan</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-on-surface transition-colors">settings</span>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-full bg-surface-container-lowest">
+<!-- Top Toolbar -->
+<header class="h-toolbar-height flex items-center justify-between px-margin-window border-b border-outline-variant bg-surface">
+<div class="flex items-center gap-4 flex-1">
+<div class="flex items-center gap-2 bg-surface-container border border-outline-variant rounded px-3 py-1.5 flex-1 max-w-2xl">
+<span class="method-badge bg-primary/10 text-primary">POST</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-md flex-1 outline-none font-mono-code" type="text" value="https://api.restly.io/v1/auth/login"/>
+</div>
+<button class="bg-primary text-on-primary px-6 py-1.5 rounded font-medium text-body-md hover:bg-primary-container transition-colors active:scale-95">
+                    Send
+                </button>
+</div>
+<div class="flex items-center gap-3 ml-4">
+<button class="text-primary hover:bg-surface-container-highest p-1.5 rounded transition-colors flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px]">save</span>
+<span class="text-body-sm font-medium">Save Request</span>
+</button>
+<div class="h-4 w-[1px] bg-outline-variant"></div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:bg-surface-container-highest p-1.5 rounded">sync</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:bg-surface-container-highest p-1.5 rounded">settings</span>
+</div>
+</header>
+<!-- Request Editor Detail -->
+<section class="flex-1 flex flex-col overflow-hidden">
+<!-- macOS Style Segmented Control / Tabs -->
+<div class="px-6 pt-4 pb-2 border-b border-outline-variant bg-surface-container-low/50">
+<div class="flex items-center bg-surface-container p-1 rounded-lg w-fit">
+<button class="tab-btn active px-4 py-1 rounded-md text-body-sm font-medium transition-all bg-surface shadow-sm text-primary" id="tab-params" onclick="switchTab('params')">Params</button>
+<button class="tab-btn px-4 py-1 rounded-md text-body-sm font-medium transition-all text-on-surface-variant hover:text-on-surface" id="tab-auth" onclick="switchTab('auth')">Auth</button>
+<button class="tab-btn px-4 py-1 rounded-md text-body-sm font-medium transition-all text-on-surface-variant hover:text-on-surface" id="tab-headers" onclick="switchTab('headers')">Headers</button>
+<button class="tab-btn px-4 py-1 rounded-md text-body-sm font-medium transition-all text-on-surface-variant hover:text-on-surface" id="tab-body" onclick="switchTab('body')">Body</button>
+</div>
+</div>
+<!-- Tab Content -->
+<div class="flex-1 overflow-y-auto mac-scrollbar p-6">
+<!-- Params Tab Content -->
+<div class="tab-content space-y-4" id="content-params">
+<div class="flex items-center justify-between">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant opacity-60">QUERY PARAMETERS</h3>
+<button class="text-primary flex items-center gap-1 text-body-sm hover:underline">
+<span class="material-symbols-outlined text-[16px]">add</span> Add Parameter
+                        </button>
+</div>
+<div class="border border-outline-variant rounded-xl overflow-hidden bg-surface">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-semibold text-on-surface-variant tracking-wider uppercase">
+<th class="w-8 px-4 py-2"></th>
+<th class="px-4 py-2 border-r border-outline-variant">Key</th>
+<th class="px-4 py-2 border-r border-outline-variant">Value</th>
+<th class="px-4 py-2">Description</th>
+<th class="w-8 px-4 py-2"></th>
+</tr>
+</thead>
+<tbody class="font-mono-code text-body-sm">
+<tr class="border-b border-outline-variant/30 hover:bg-surface-container-low transition-colors group">
+<td class="px-4 py-2 text-center"><input checked="" class="rounded border-outline-variant text-primary focus:ring-primary h-3 w-3" type="checkbox"/></td>
+<td class="px-4 py-2 border-r border-outline-variant/30 text-primary-fixed-dim">api_key</td>
+<td class="px-4 py-2 border-r border-outline-variant/30">sk_test_restly_mock_placeholder_key</td>
+<td class="px-4 py-2 text-on-surface-variant italic opacity-60">Authentication key</td>
+<td class="px-4 py-2 text-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-error text-[18px] cursor-pointer">delete</span>
+</td>
+</tr>
+<tr class="border-b border-outline-variant/30 hover:bg-surface-container-low transition-colors group">
+<td class="px-4 py-2 text-center"><input checked="" class="rounded border-outline-variant text-primary focus:ring-primary h-3 w-3" type="checkbox"/></td>
+<td class="px-4 py-2 border-r border-outline-variant/30 text-primary-fixed-dim">limit</td>
+<td class="px-4 py-2 border-r border-outline-variant/30">50</td>
+<td class="px-4 py-2 text-on-surface-variant italic opacity-60">Results per page</td>
+<td class="px-4 py-2 text-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-error text-[18px] cursor-pointer">delete</span>
+</td>
+</tr>
+<tr class="border-b border-outline-variant/30 hover:bg-surface-container-low transition-colors group">
+<td class="px-4 py-2 text-center"><input class="rounded border-outline-variant text-primary focus:ring-primary h-3 w-3" type="checkbox"/></td>
+<td class="px-4 py-2 border-r border-outline-variant/30 text-on-surface-variant/40">key</td>
+<td class="px-4 py-2 border-r border-outline-variant/30 text-on-surface-variant/40">value</td>
+<td class="px-4 py-2 text-on-surface-variant/40">description</td>
+<td class="px-4 py-2 text-center"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Auth Tab Content -->
+<div class="tab-content hidden space-y-6" id="content-auth">
+<div class="max-w-xl">
+<div class="mb-6">
+<label class="font-label-caps text-label-caps text-on-surface-variant opacity-60 block mb-2">TYPE</label>
+<select class="w-full bg-surface border border-outline-variant rounded-lg p-2 text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+<option>No Auth</option>
+<option>API Key</option>
+<option selected="">Bearer Token</option>
+<option>Basic Auth</option>
+<option>OAuth 2.0</option>
+</select>
+</div>
+<div class="space-y-4 p-4 bg-primary/5 rounded-xl border border-primary/10">
+<div>
+<label class="font-label-caps text-label-caps text-on-surface-variant opacity-60 block mb-2">TOKEN</label>
+<div class="relative">
+<input class="w-full font-mono-code bg-surface border border-outline-variant rounded-lg p-2.5 text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none pr-10" type="password" value="••••••••••••••••••••••••"/>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-on-surface-variant cursor-pointer text-[20px]">visibility</span>
+</div>
+<p class="mt-2 text-body-sm text-on-surface-variant/60">This token is added to the Authorization header as <code class="bg-surface-container px-1 rounded">Bearer <token></code>.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Headers Tab Content -->
+<div class="tab-content hidden space-y-4" id="content-headers">
+<div class="flex items-center justify-between">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant opacity-60">HTTP HEADERS</h3>
+<button class="text-primary flex items-center gap-1 text-body-sm hover:underline">
+<span class="material-symbols-outlined text-[16px]">add</span> Add Header
+                        </button>
+</div>
+<div class="border border-outline-variant rounded-xl overflow-hidden bg-surface">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant text-[11px] font-semibold text-on-surface-variant tracking-wider uppercase">
+<th class="w-8 px-4 py-2"></th>
+<th class="px-4 py-2 border-r border-outline-variant">Header Name</th>
+<th class="px-4 py-2 border-r border-outline-variant">Value</th>
+<th class="w-8 px-4 py-2"></th>
+</tr>
+</thead>
+<tbody class="font-mono-code text-body-sm">
+<tr class="border-b border-outline-variant/30 hover:bg-surface-container-low transition-colors group">
+<td class="px-4 py-2 text-center"><input checked="" class="rounded border-outline-variant text-primary focus:ring-primary h-3 w-3" type="checkbox"/></td>
+<td class="px-4 py-2 border-r border-outline-variant/30 text-on-secondary-fixed-variant">Content-Type</td>
+<td class="px-4 py-2 border-r border-outline-variant/30">application/json</td>
+<td class="px-4 py-2 text-center">
+<span class="material-symbols-outlined text-on-surface-variant/40 text-[18px]">lock</span>
+</td>
+</tr>
+<tr class="border-b border-outline-variant/30 hover:bg-surface-container-low transition-colors group">
+<td class="px-4 py-2 text-center"><input checked="" class="rounded border-outline-variant text-primary focus:ring-primary h-3 w-3" type="checkbox"/></td>
+<td class="px-4 py-2 border-r border-outline-variant/30 text-on-secondary-fixed-variant">Authorization</td>
+<td class="px-4 py-2 border-r border-outline-variant/30 italic">Inherited from Auth tab</td>
+<td class="px-4 py-2 text-center">
+<span class="material-symbols-outlined text-on-surface-variant/40 text-[18px]">lock</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Body Tab Content -->
+<div class="tab-content hidden flex flex-col h-full space-y-4" id="content-body">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3">
+<input checked="" class="text-primary focus:ring-primary h-4 w-4" id="body-json" name="body-type" type="radio"/>
+<label class="text-body-sm font-medium" for="body-json">JSON</label>
+</div>
+<div class="flex items-center gap-3">
+<input class="text-primary focus:ring-primary h-4 w-4" id="body-form" name="body-type" type="radio"/>
+<label class="text-body-sm font-medium" for="body-form">Form-data</label>
+</div>
+<div class="flex items-center gap-3">
+<input class="text-primary focus:ring-primary h-4 w-4" id="body-raw" name="body-type" type="radio"/>
+<label class="text-body-sm font-medium" for="body-raw">Raw</label>
+</div>
+<div class="flex items-center gap-3">
+<input class="text-primary focus:ring-primary h-4 w-4" id="body-binary" name="body-type" type="radio"/>
+<label class="text-body-sm font-medium" for="body-binary">Binary</label>
+</div>
+</div>
+<!-- JSON Editor Simulator -->
+<div class="flex-1 min-h-[300px] border border-outline-variant rounded-xl bg-[#1e1e1e] overflow-hidden flex flex-col">
+<div class="flex items-center justify-between px-4 py-2 bg-[#2d2d2d] border-b border-white/10">
+<span class="text-xs font-mono-code text-white/60">payload.json</span>
+<button class="text-xs text-white/60 hover:text-white transition-colors">Beautify</button>
+</div>
+<div class="flex-1 p-4 font-mono-code text-[13px] overflow-y-auto mac-scrollbar">
+<div class="flex">
+<span class="w-8 text-white/20 select-none">1</span>
+<span class="text-[#ce9178]">{</span>
+</div>
+<div class="flex">
+<span class="w-8 text-white/20 select-none">2</span>
+<span class="ml-4"><span class="text-[#9cdcfe]">"email"</span>: <span class="text-[#ce9178]">"user@example.com"</span>,</span>
+</div>
+<div class="flex">
+<span class="w-8 text-white/20 select-none">3</span>
+<span class="ml-4"><span class="text-[#9cdcfe]">"password"</span>: <span class="text-[#ce9178]">"********"</span>,</span>
+</div>
+<div class="flex">
+<span class="w-8 text-white/20 select-none">4</span>
+<span class="ml-4"><span class="text-[#9cdcfe]">"remember_me"</span>: <span class="text-[#b5cea8]">true</span></span>
+</div>
+<div class="flex">
+<span class="w-8 text-white/20 select-none">5</span>
+<span class="text-[#ce9178]">}</span>
+</div>
+<div class="flex">
+<span class="w-8 text-white/20 select-none">6</span>
+<span class="text-[#ce9178] cursor-text">|</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Response Status Area -->
+<footer class="h-12 border-t border-outline-variant bg-surface-container flex items-center justify-between px-6">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-error animate-pulse"></div>
+<span class="text-body-sm font-medium text-on-surface-variant">Not Sent</span>
+</div>
+<div class="h-3 w-[1px] bg-outline-variant"></div>
+<span class="text-body-sm text-on-surface-variant opacity-60">Ready to execute</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-[11px] font-mono-code text-on-surface-variant opacity-60">0 ms</span>
+<span class="text-[11px] font-mono-code text-on-surface-variant opacity-60">0 B</span>
+</div>
+</footer>
+</main>
+<!-- Side Panel (Response View - Tucked) -->
+<section class="w-80 h-full border-l border-outline-variant/30 bg-surface flex flex-col">
+<div class="h-toolbar-height border-b border-outline-variant flex items-center px-4 justify-between">
+<h3 class="font-headline-md text-body-md font-semibold">Response</h3>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer text-[20px]">close_fullscreen</span>
+</div>
+<div class="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
+<div class="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-[32px] text-on-surface-variant/30">send</span>
+</div>
+<div>
+<p class="text-body-md font-medium">Hit Send to see result</p>
+<p class="text-body-sm text-on-surface-variant opacity-60 mt-1">Request history and detailed timing will appear here.</p>
+</div>
+<button class="text-primary text-body-sm font-medium border border-primary/20 px-4 py-1.5 rounded hover:bg-primary/5 transition-colors">
+                Configure Response View
+            </button>
+</div>
+</section>
+<!-- Floating Toast Notification (Micro-interaction) -->
+<div class="fixed bottom-16 left-1/2 -translate-x-1/2 bg-surface shadow-2xl rounded-lg border border-outline-variant/30 py-2 px-4 flex items-center gap-3 opacity-0 translate-y-4 transition-all duration-300 pointer-events-none" id="toast">
+<span class="material-symbols-outlined text-primary text-[20px]">info</span>
+<span class="text-body-sm font-medium">Auto-saved to 'Auth Flow'</span>
+</div>
+<script>
+        function switchTab(tabId) {
+            // Update Buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-surface', 'shadow-sm', 'text-primary');
+                btn.classList.add('text-on-surface-variant', 'hover:text-on-surface');
+            });
+            const activeBtn = document.getElementById('tab-' + tabId);
+            activeBtn.classList.remove('text-on-surface-variant', 'hover:text-on-surface');
+            activeBtn.classList.add('bg-surface', 'shadow-sm', 'text-primary');
+
+            // Update Content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById('content-' + tabId).classList.remove('hidden');
+        }
+
+        // Simulate a toast on "Save" intent
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                const toast = document.getElementById('toast');
+                toast.classList.remove('opacity-0', 'translate-y-4');
+                toast.classList.add('opacity-100', 'translate-y-0');
+                
+                setTimeout(() => {
+                    toast.classList.remove('opacity-100', 'translate-y-0');
+                    toast.classList.add('opacity-0', 'translate-y-4');
+                }, 3000);
+            }
+        });
+    </script>
+</body></html>

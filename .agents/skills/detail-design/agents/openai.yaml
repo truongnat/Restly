@@ -1,0 +1,46 @@
+display_name: "Detail Design"
+short_description: "Implementable design from BASIC_DESIGN after Doc reality check — contracts, data model, sequences — before planning."
+default_prompt: "Use $detail-design. Seed DETAIL_DESIGN.template.md. Re-run Doc reality check; on Blocking prefer visual Ask method (diagram/table/html) before contracts."
+required_input: "BASIC_DESIGN.md; DISCUSSION/BA when available; repo inspection of existing contracts; wiki LLD/API when docs enabled."
+required_output: "DETAIL_DESIGN.md with Doc reality check, contracts/models/sequences as applicable, assumptions with Confirmed?, handoff to planning."
+note_important: "Do NOT invent fields as facts. Do NOT fill contracts while Doc reality Blocking=Yes — Confirm-first with visual when user must see the diff (SSOT). Do NOT hand off with High-impact Confirmed?=No unless user accepts. Do NOT create PLAN.md."
+artifacts:
+  DETAIL_DESIGN.md:
+    required: true
+    schema:
+      executive_summary:
+        type: array
+        required: true
+        description: "Max five bullets: direction, key contract, top Doc reality risk, next action."
+      developer_overview:
+        type: object
+        required: true
+        description: "Status, Doc reality blockers, unconfirmed assumptions, gaps, next action."
+      doc_reality_check:
+        type: object
+        required: true
+        description: "Claims/surfaces with doc vs code (known) or Proposed; Blocking; Clarification checkpoint."
+      charts:
+        type: array
+        required: true
+        description: "Mermaid sequence/state/data-flow or N/A."
+      goal:
+        type: string
+        required: true
+        description: "One sentence linked to basic-design."
+      sequences:
+        type: array
+        required: true
+        description: "Happy path plus error paths when needed."
+      error_and_state_handling:
+        type: array
+        required: true
+        description: "Error codes/states and caller behavior."
+      assumptions:
+        type: array
+        required: true
+        description: "Assumptions with risk and Confirmed? Yes/No."
+      handoff:
+        type: string
+        required: true
+        description: "Next skill: planning; call out blockers."

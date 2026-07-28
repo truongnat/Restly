@@ -1,0 +1,20 @@
+display_name: "Gap analysis / CR"
+short_description: "Gap analysis (/gap) or change-request impact (/cr) with doc update plan."
+default_prompt: "Use $gap-analysis with mode=gap|cr. Write GAP.md or CR.md; Confirm-first on Blocking items."
+required_input: "Mode; feature/specs for gap; change description + affected artifacts for cr."
+required_output: "GAP.md or CR.md from templates."
+note_important: "Do NOT invent gaps without expectation source. Do NOT silently rewrite docs in cr mode."
+artifacts:
+  GAP.md:
+    required: false
+    schema:
+      executive_summary: { type: array, required: true }
+      gaps: { type: array, required: true }
+      open_questions: { type: array, required: true }
+  CR.md:
+    required: false
+    schema:
+      executive_summary: { type: array, required: true }
+      impact_matrix: { type: array, required: true }
+      artifacts_to_update: { type: array, required: true }
+      open_questions: { type: array, required: true }

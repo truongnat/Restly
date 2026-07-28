@@ -1,0 +1,17 @@
+display_name: "Biz model (diagrams)"
+short_description: "BA diagrams: sequence, activity, swimlane, bpmn, state, erd, usecase — Mermaid/PlantUML."
+default_prompt: "Use $biz-model with diagram=sequence|activity|activity-swimlane|bpmn|state|erd|usecase-diagram. Write MODEL.md in the active session."
+required_input: "diagram mode, subject, actors/entities, related requirement IDs, format preference."
+required_output: "MODEL.md with executive summary, diagram source, trace refs, limitations, handoff."
+note_important: "Do NOT invent actors/systems. Do NOT claim Camunda/Bizagi import unless XML was produced. Confirm-first on Blocking unknowns."
+artifacts:
+  MODEL.md:
+    required: true
+    schema:
+      executive_summary: { type: array, required: true }
+      developer_overview: { type: object, required: true }
+      diagram: { type: string, required: true }
+      format: { type: string, required: true }
+      diagram_source: { type: string, required: true }
+      open_questions: { type: array, required: true }
+      handoff: { type: string, required: true }

@@ -1,0 +1,30 @@
+display_name: "Scaffold (new project bootstrap)"
+short_description: "Bootstrap a greenfield project: stack, structure, tooling, repo, and .agents/ wiring, then hand off to the lifecycle."
+default_prompt: "Use $scaffold to start a brand-new project from an empty directory. It creates the skeleton and wires the workflow, then hands off to init + the lifecycle."
+required_input: "Target directory, user intent, DISCUSSION.md/BUSINESS_ANALYSIS.md when present, .agents/settings.yaml (language/branch/code/docs), .agent-work/memory/, confirmed stack/tooling choices."
+required_output: "Project skeleton (structure, manifests with real build/test/lint/run scripts, tooling + CI, README/.gitignore/.env.example including .agent-work/, minimal runnable entry), initialized repo + .agents/ kit + .agent-work/ work wiring, stack ADRs, and SCAFFOLD.md in the active session."
+note_important: "Greenfield ONLY — run the scanner first; if real manifests/source exist, stop and route to init, never scaffold over an existing project. Do NOT overwrite files without confirmation. Do NOT install dependencies or run project code without approval (print the commands). Do NOT invent versions or secrets — use known-stable or ask, and mark assumptions. Record every significant stack choice as an ADR; follow rules.branch.mode and .agents/CODE_COMMENTS.md. Hand off to init then the lifecycle."
+workflow:
+  - "Resolve the active session (session.sh) and read settings; write SCAFFOLD.md there."
+  - "Greenfield guard via scan_workspaces.sh; stop and route to init if a project already exists."
+  - "Resolve intent and stack from DISCUSSION/BUSINESS_ANALYSIS or focused questions (<=3 at a time); record each choice as an ADR."
+  - "Create the skeleton: layout, manifests + scripts, tooling/CI, README/.gitignore/.editorconfig/.env.example, minimal runnable entry."
+  - "git init and branch per rules.branch.mode; wire .agents/ kit + .agent-work/ (session.sh work-root); add .agent-work/ to .gitignore; wiki via docs full when enabled."
+  - "Write stack ADRs and SCAFFOLD.md with created files, decisions, marked assumptions, and the exact next commands."
+  - "Hand off to init (generate PRJ_REFERENCE) then brainstorming/planning."
+artifacts:
+  project_skeleton:
+    required: true
+    description: "Directory layout for the chosen architecture with a minimal runnable entry; package/build manifests with real build/test/lint/run scripts; formatter/linter/test config; CI workflow; README, .gitignore, .editorconfig, .env.example. Code follows .agents/CODE_COMMENTS.md."
+  .agents:
+    required: true
+    description: "Kit only: settings.yaml (seeded if missing) and an initial wiki (docs full) when rules.docs.enabled. Do not put sessions/memory under .agents/."
+  .agent-work:
+    required: true
+    description: "Work root via session.sh work-root (sessions/ + memory/); product .gitignore must include .agent-work/."
+  stack_adrs:
+    required: true
+    description: "One ADR per significant choice (language/framework, monorepo tool, package manager, test framework, CI), using the docs ADR template."
+  SCAFFOLD.md:
+    required: true
+    description: "Record in the active session: created files, decisions, assumptions/gaps marked, and the exact next commands (install/build/run) as text."

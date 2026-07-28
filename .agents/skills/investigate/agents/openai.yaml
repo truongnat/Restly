@@ -1,0 +1,50 @@
+display_name: "Investigate"
+short_description: "Evidence-based investigation with Doc reality check when specs/docs are involved — before fix or design."
+default_prompt: "Use $investigate. Prefer INVESTIGATE.template.md. When docs/specs are cited, fill Doc reality check; on Blocking prefer visual Ask method before claiming root cause."
+required_input: "Problem, expected/actual, logs/repro, codebase context; docs/specs when cited or implied."
+required_output: "INVESTIGATE.md with evidence, status, Doc reality check (or N/A+reason), recommendation, handoff."
+note_important: "Read-only by default. Do NOT treat 設計書/wiki as root cause without code/runtime evidence. Do NOT close Confirmed on doc alone when Doc reality Blocking=Yes. Prefer diagram/table/html so the user sees the conflict (SSOT)."
+artifacts:
+  INVESTIGATE.md:
+    required: true
+    schema:
+      executive_summary:
+        type: array
+        required: true
+        description: "Max five bullets: status, cause, evidence, impact, next action."
+      developer_overview:
+        type: object
+        required: true
+        description: "Status, Doc reality blockers or n/a, hypothesis, next action."
+      doc_reality_check:
+        type: object
+        required: true
+        description: "Doc vs code/runtime table, or N/A with reason."
+      question:
+        type: string
+        required: true
+        description: "Investigation question."
+      status:
+        type: string
+        required: true
+        description: "Root Cause Confirmed / Likely / Hypotheses / Needs More Evidence / Blocked."
+      evidence:
+        type: array
+        required: true
+        description: "Evidence rows with source and confidence."
+      observed_facts:
+        type: array
+        required: true
+        description: "Facts with sources."
+      impact:
+        type: array
+        required: true
+        description: "Impact areas with confidence."
+      recommendation:
+        type: string
+        required: true
+        description: "Fix / workaround / next investigation / docs refresh."
+      handoff:
+        type: string
+        required: true
+        description: "Next skill suggestion."

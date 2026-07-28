@@ -1,0 +1,21 @@
+display_name: "Quick Fix"
+short_description: "Path=Quick tiny fix: QUICK.md + 1–3 TASK cards with Dev context; no BA/design."
+default_prompt: "Use $quick-fix for a tiny clear change. Create QUICK.md + slim TASKS.md, then sync → execution."
+required_input: "Clear user ask, repo, settings.yaml."
+required_output: "QUICK.md + TASKS.md (1–3 cards with Dev context) + CONTEXT.md; Path=Quick."
+note_important: "Forbidden: BA/design/Spec matrices on Quick. Upgrade to Lite/Full when blocked. Lint before handoff."
+workflow:
+  - "session.sh new/current; write QUICK.md with Path=Quick."
+  - "Write 1–3 TASK cards with Dev context Sources."
+  - "build_context.py + lint_artifacts.py."
+  - "Handoff sync → execution → review → done."
+artifacts:
+  QUICK.md:
+    required: true
+    description: "Goal, facts, out of scope, handoff; Path=Quick."
+  TASKS.md:
+    required: true
+    description: "1–3 cards with Dev context."
+  CONTEXT.md:
+    required: true
+    description: "Compact pack from build_context.py."

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Restly - Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#e5e2e1",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "on-tertiary-fixed": "#351000",
+                        "on-surface": "#1b1b1c",
+                        "on-primary-fixed": "#0c006a",
+                        "background": "#fcf9f8",
+                        "on-secondary-fixed": "#07006c",
+                        "on-primary-container": "#bcbbff",
+                        "surface-variant": "#e5e2e1",
+                        "primary-container": "#3f3bbd",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#4f4ccd",
+                        "secondary-container": "#6063ee",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#fcf9f8",
+                        "surface": "#fcf9f8",
+                        "on-secondary-container": "#fffbff",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#893500",
+                        "surface-container": "#f0eded",
+                        "outline": "#777585",
+                        "secondary-fixed": "#e1e0ff",
+                        "inverse-surface": "#303030",
+                        "surface-container-low": "#f6f3f2",
+                        "tertiary": "#642500",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed": "#ffdbcc",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "on-tertiary-fixed-variant": "#7b2f00",
+                        "primary-fixed": "#e2dfff",
+                        "secondary": "#4648d4",
+                        "surface-container-high": "#eae7e7",
+                        "on-tertiary-container": "#ffaf8a",
+                        "error-container": "#ffdad6",
+                        "on-background": "#1b1b1c",
+                        "inverse-primary": "#c2c1ff",
+                        "outline-variant": "#c7c4d6",
+                        "primary": "#261ca6",
+                        "on-surface-variant": "#464554",
+                        "primary-fixed-dim": "#c2c1ff",
+                        "surface-dim": "#dcd9d9",
+                        "inverse-on-surface": "#f3f0ef",
+                        "tertiary-fixed-dim": "#ffb694",
+                        "on-primary-fixed-variant": "#3630b4",
+                        "on-secondary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "toolbar-height": "52px",
+                        "margin-window": "20px",
+                        "unit": "4px",
+                        "sidebar-width": "260px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "mono-code": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["18px", {"lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-sm": ["12px", {"lineHeight": "18px", "fontWeight": "400"}],
+                        "mono-code": ["12px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-md": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .mac-traffic-lights {
+            display: flex;
+            gap: 8px;
+            padding: 18px 20px;
+        }
+        .light-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .light-close { background-color: #ff5f56; border: 0.5px solid #e0443e; }
+        .light-minimize { background-color: #ffbd2e; border: 0.5px solid #dea123; }
+        .light-expand { background-color: #27c93f; border: 0.5px solid #1aab29; }
+        
+        .glass-sidebar {
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .toggle-switch {
+            width: 32px;
+            height: 18px;
+            background-color: #d1d1d1;
+            border-radius: 9px;
+            position: relative;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        .toggle-switch.active {
+            background-color: #3f3bbd;
+        }
+        .toggle-knob {
+            width: 14px;
+            height: 14px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .active .toggle-knob {
+            transform: translateX(14px);
+        }
+    </style>
+</head>
+<body class="bg-[#f0f0f0] flex items-center justify-center min-h-screen p-8">
+<!-- Settings Window Container -->
+<div class="w-[840px] h-[600px] bg-white rounded-xl shadow-[0px_10px_30px_rgba(0,0,0,0.15)] overflow-hidden flex border border-outline-variant/30">
+<!-- Sidebar Navigation (macOS 3-pane style left) -->
+<aside class="w-[200px] bg-surface-container/30 glass-sidebar flex flex-col border-r border-outline-variant/30 select-none">
+<!-- Traffic Lights -->
+<div class="mac-traffic-lights">
+<div class="light-dot light-close"></div>
+<div class="light-dot light-minimize"></div>
+<div class="light-dot light-expand"></div>
+</div>
+<!-- Sidebar Items -->
+<nav class="flex-1 px-3 mt-2 space-y-1">
+<div class="flex items-center gap-3 px-3 py-1.5 rounded-lg bg-primary/10 text-primary font-body-md text-body-md transition-all">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+<span>General</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-variant/50 font-body-md text-body-md transition-all cursor-pointer">
+<span class="material-symbols-outlined text-[18px]">palette</span>
+<span>Themes</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-variant/50 font-body-md text-body-md transition-all cursor-pointer">
+<span class="material-symbols-outlined text-[18px]">keyboard</span>
+<span>Keyboard</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-variant/50 font-body-md text-body-md transition-all cursor-pointer">
+<span class="material-symbols-outlined text-[18px]">vpn_lock</span>
+<span>Proxy</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-variant/50 font-body-md text-body-md transition-all cursor-pointer">
+<span class="material-symbols-outlined text-[18px]">person</span>
+<span>Account</span>
+</div>
+</nav>
+<!-- Bottom Brand Anchor -->
+<div class="p-4 border-t border-outline-variant/20">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center">
+<span class="text-on-primary font-bold text-[14px]">R</span>
+</div>
+<div>
+<p class="font-headline-md text-body-md leading-none text-on-surface">Restly</p>
+<p class="text-[10px] text-on-surface-variant opacity-60 uppercase tracking-widest font-bold">Version 2.4.0</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Settings Content Area -->
+<main class="flex-1 flex flex-col bg-surface-container-lowest overflow-hidden">
+<!-- Header Toolbar -->
+<header class="h-toolbar-height px-margin-window flex items-center border-b border-outline-variant/30">
+<h1 class="font-headline-md text-headline-md text-on-surface">General</h1>
+</header>
+<!-- Scrollable Settings Sections -->
+<div class="flex-1 overflow-y-auto p-8 space-y-10 no-scrollbar">
+<!-- Theme Appearance Section -->
+<section>
+<h2 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-4">Appearance</h2>
+<div class="grid grid-cols-3 gap-4">
+<!-- System Default -->
+<button class="flex flex-col gap-2 group text-left outline-none">
+<div class="aspect-[4/3] rounded-lg border-2 border-primary bg-surface-container flex overflow-hidden">
+<div class="w-1/2 h-full bg-white border-r border-outline-variant/20"></div>
+<div class="w-1/2 h-full bg-[#1b1b1c]"></div>
+</div>
+<span class="font-body-md text-body-sm text-on-surface px-1">System</span>
+</button>
+<!-- Light Mode -->
+<button class="flex flex-col gap-2 group text-left outline-none">
+<div class="aspect-[4/3] rounded-lg border border-outline-variant/30 bg-white shadow-sm flex items-center justify-center">
+<span class="material-symbols-outlined text-outline-variant">light_mode</span>
+</div>
+<span class="font-body-md text-body-sm text-on-surface px-1">Light</span>
+</button>
+<!-- Dark Mode -->
+<button class="flex flex-col gap-2 group text-left outline-none">
+<div class="aspect-[4/3] rounded-lg border border-outline-variant/30 bg-[#1b1b1c] shadow-sm flex items-center justify-center">
+<span class="material-symbols-outlined text-outline-variant">dark_mode</span>
+</div>
+<span class="font-body-md text-body-sm text-on-surface px-1">Dark</span>
+</button>
+</div>
+</section>
+<!-- Configuration Section -->
+<section class="space-y-4">
+<h2 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-2">Configuration</h2>
+<!-- Language Selection -->
+<div class="flex items-center justify-between py-2">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface">Language</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">The display language for the application interface.</span>
+</div>
+<div class="relative">
+<select class="appearance-none bg-surface-container-low border border-outline-variant/50 rounded-lg px-4 py-1.5 pr-10 font-body-md text-body-md text-on-surface outline-none focus:border-primary transition-colors cursor-pointer">
+<option>English (United States)</option>
+<option>Deutsch</option>
+<option>Español</option>
+<option>Français</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[16px] pointer-events-none opacity-50">unfold_more</span>
+</div>
+</div>
+<!-- Telemetry Toggle -->
+<div class="flex items-center justify-between py-2">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface">Anonymous Telemetry</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Help improve Restly by sending anonymous usage data.</span>
+</div>
+<div class="toggle-switch active" onclick="this.classList.toggle('active')">
+<div class="toggle-knob"></div>
+</div>
+</div>
+</section>
+<!-- Keyboard Shortcuts Section -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h2 class="font-label-caps text-label-caps text-on-surface-variant uppercase">Keyboard Shortcuts</h2>
+<button class="text-primary font-body-sm text-body-sm hover:underline">Reset to Default</button>
+</div>
+<div class="border border-outline-variant/30 rounded-xl overflow-hidden bg-white">
+<table class="w-full text-left border-collapse">
+<tbody>
+<tr class="border-b border-outline-variant/20 hover:bg-surface-container-low/50 transition-colors">
+<td class="py-3 px-4 font-body-md text-body-md text-on-surface">Send Request</td>
+<td class="py-3 px-4 text-right">
+<div class="inline-flex gap-1 items-center">
+<kbd class="px-2 py-1 bg-surface-container-high rounded text-[11px] font-mono-code border border-outline-variant/50 min-w-[28px] text-center shadow-sm">⌘</kbd>
+<kbd class="px-2 py-1 bg-surface-container-high rounded text-[11px] font-mono-code border border-outline-variant/50 min-w-[28px] text-center shadow-sm">Enter</kbd>
+<button class="ml-3 p-1.5 rounded-md hover:bg-surface-container-high text-on-surface-variant transition-all">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="border-b border-outline-variant/20 hover:bg-surface-container-low/50 transition-colors">
+<td class="py-3 px-4 font-body-md text-body-md text-on-surface">New Request</td>
+<td class="py-3 px-4 text-right">
+<div class="inline-flex gap-1 items-center">
+<kbd class="px-2 py-1 bg-surface-container-high rounded text-[11px] font-mono-code border border-outline-variant/50 min-w-[28px] text-center shadow-sm">⌘</kbd>
+<kbd class="px-2 py-1 bg-surface-container-high rounded text-[11px] font-mono-code border border-outline-variant/50 min-w-[28px] text-center shadow-sm">N</kbd>
+<button class="ml-3 p-1.5 rounded-md hover:bg-surface-container-high text-on-surface-variant transition-all">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="border-b border-outline-variant/20 hover:bg-surface-container-low/50 transition-colors">
+<td class="py-3 px-4 font-body-md text-body-md text-on-surface">Save Workspace</td>
+<td class="py-3 px-4 text-right">
+<div class="inline-flex gap-1 items-center">
+<kbd class="px-2 py-1 bg-surface-container-high rounded text-[11px] font-mono-code border border-outline-variant/50 min-w-[28px] text-center shadow-sm">⌘</kbd>
+<kbd class="px-2 py-1 bg-surface-container-high rounded text-[11px] font-mono-code border border-outline-variant/50 min-w-[28px] text-center shadow-sm">S</kbd>
+<button class="ml-3 p-1.5 rounded-md hover:bg-surface-container-high text-on-surface-variant transition-all">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-3 px-4 font-body-md text-body-md text-on-surface">Open Search</td>
+<td class="py-3 px-4 text-right">
+<div class="inline-flex gap-1 items-center">
+<kbd class="px-2 py-1 bg-surface-container-high rounded text-[11px] font-mono-code border border-outline-variant/50 min-w-[28px] text-center shadow-sm">⌘</kbd>
+<kbd class="px-2 py-1 bg-surface-container-high rounded text-[11px] font-mono-code border border-outline-variant/50 min-w-[28px] text-center shadow-sm">K</kbd>
+<button class="ml-3 p-1.5 rounded-md hover:bg-surface-container-high text-on-surface-variant transition-all">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+<!-- Footer Toolbar / Actions -->
+<footer class="h-[64px] px-8 flex items-center justify-end gap-3 border-t border-outline-variant/30 bg-surface-container-low/50">
+<button class="px-5 py-2 font-body-md text-body-md text-on-surface hover:bg-surface-variant/50 rounded-lg transition-colors">Cancel</button>
+<button class="px-6 py-2 bg-primary text-on-primary font-body-md text-body-md rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all">Apply Changes</button>
+</footer>
+</main>
+</div>
+<!-- Micro-interaction for sidebar feedback -->
+<script>
+        document.querySelectorAll('nav div').forEach(item => {
+            item.addEventListener('click', function() {
+                // Remove active class from all
+                document.querySelectorAll('nav div').forEach(i => {
+                    i.classList.remove('bg-primary/10', 'text-primary');
+                    i.classList.add('text-on-surface-variant');
+                });
+                // Add to current
+                this.classList.add('bg-primary/10', 'text-primary');
+                this.classList.remove('text-on-surface-variant');
+            });
+        });
+
+        // Simple mock toggle functionality for appearance buttons
+        document.querySelectorAll('section:first-of-type button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('section:first-of-type button div').forEach(d => {
+                    d.classList.remove('border-primary');
+                    d.classList.add('border-outline-variant/30');
+                });
+                this.querySelector('div').classList.add('border-primary');
+                this.querySelector('div').classList.remove('border-outline-variant/30');
+            });
+        });
+    </script>
+</body></html>

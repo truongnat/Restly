@@ -1,0 +1,81 @@
+display_name: "Execution"
+short_description: "Execute TASKS.md (task cards + order) guided by PLAN.md: modify files, mark TASKS progress, run verification, record EXECUTION.md, handle failures, and handoff to review."
+default_prompt: "Use $execution to execute locked TASKS.md items (guided by PLAN.md DoD/rollback) in a controlled, safe, and verifiable way. Update TASKS.md Status, Progress board, and Work item checkboxes as you go."
+required_input: "TASKS.md (task cards + Progress board + execution_order), PLAN.md (strategy/DoD/rollback), .agents/PRJ_REFERENCE.md, project settings, locked scope, affected files, constraints, verification commands."
+required_output: "Workspace changes within scope, updated TASKS.md progress, EXECUTION.md with files changed, commands run, verification evidence, tasks_progress, blockers, deviations."
+note_important: "Do NOT modify outside scope. Execute by task ID from TASKS.md; use PLAN.md for DoD/rollback only. Add concise why/rationale comments for non-obvious flows, business rules, invariants, security boundaries, and trade-offs; avoid narrating obvious code. Do NOT leave TASKS.md progress stale after finishing a Work item or card. Do NOT put secrets in files/logs. Do NOT delete sensitive files/config/migration/data without a plan or confirmation. Do NOT revert changes not belonging to you without permission. Do NOT claim completion without verification or documenting skipped checks."
+artifacts:
+  TASKS.md:
+    required: true
+    schema:
+      progress_updates:
+        type: string
+        required: true
+        description: "In-place progress: card Status, Work item checkboxes ([ ]→[x]), Progress board Done/Status kept in sync."
+  EXECUTION.md:
+    required: true
+    schema:
+      executive_summary:
+        type: array
+        required: true
+        description: "Maximum five bullets with outcome, progress, verification, blocker/risk, and next action."
+      developer_overview:
+        type: object
+        required: true
+        description: "Status, current task, done/total, blockers, next action."
+      charts:
+        type: array
+        required: false
+        description: "Mermaid progress/flow chart when useful; otherwise N/A."
+      plan_source:
+        type: string
+        required: true
+        description: "Reference to PLAN.md and TASKS.md (or clear scope source)."
+      current_task:
+        type: string
+        required: true
+        description: "Task ID from TASKS.md currently being executed."
+      scope:
+        type: string
+        required: true
+        description: "Scope this execution covers."
+      execution_log:
+        type: array
+        required: true
+        description: "Step, Task ID, Action, Files, Result, Notes per step."
+      tasks_progress:
+        type: array
+        required: true
+        description: "Task ID, Status, Work items done/total, notes — mirror of TASKS.md at handoff."
+      files_changed:
+        type: array
+        required: true
+        description: "File path, change summary, reason, in-plan? (yes/deviation)."
+      commands_run:
+        type: array
+        required: true
+        description: "Command, purpose, result (pass/fail/skipped), notes."
+      verification_evidence:
+        type: array
+        required: true
+        description: "Check name, command/method, result, evidence."
+      deviations:
+        type: array
+        required: false
+        description: "Deviation, reason, risk, follow-up."
+      issues_blockers:
+        type: array
+        required: false
+        description: "Issue, type, impact, next action."
+      rollback_notes:
+        type: string
+        required: true
+        description: "How to roll back this execution."
+      final_status:
+        type: string
+        required: true
+        description: "Completed / Partially completed / Blocked."
+      handoff:
+        type: string
+        required: true
+        description: "Ready for review? Suggested focus area. List remaining todo/in_progress/blocked IDs."

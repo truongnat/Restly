@@ -1,0 +1,17 @@
+display_name: "User flow"
+short_description: "Happy/error/edge user journeys for a goal; optional Mermaid."
+default_prompt: "Use $user-flow to document happy path, error paths, and edge cases in USER_FLOW.md."
+required_input: "Goal, persona/actor, entry point, related US/UC/AC, constraints."
+required_output: "USER_FLOW.md with paths, optional diagram, open questions, handoff."
+note_important: "Do NOT omit error paths for submit/auth/payment flows. Mark invented screens as Assumption."
+artifacts:
+  USER_FLOW.md:
+    required: true
+    schema:
+      executive_summary: { type: array, required: true }
+      developer_overview: { type: object, required: true }
+      happy_path: { type: array, required: true }
+      error_paths: { type: array, required: true }
+      edge_cases: { type: array, required: true }
+      open_questions: { type: array, required: true }
+      handoff: { type: string, required: true }

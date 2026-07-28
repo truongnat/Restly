@@ -1,0 +1,15 @@
+display_name: "BA dashboard"
+short_description: "Session BA progress/coverage/risks dashboard — honest status only."
+default_prompt: "Use $ba-dashboard to write DASHBOARD.md from active session artifacts and session.sh status when available."
+required_input: "Active session artifacts; optional TASKS/PLAN/memory."
+required_output: "DASHBOARD.md with inventory, coverage, risks, blockers, next actions."
+note_important: "Do NOT invent coverage percentages. Do NOT mark Ready with open Blocking gaps."
+artifacts:
+  DASHBOARD.md:
+    required: true
+    schema:
+      executive_summary: { type: array, required: true }
+      developer_overview: { type: object, required: true }
+      artifact_inventory: { type: array, required: true }
+      risks: { type: array, required: true }
+      handoff: { type: string, required: true }

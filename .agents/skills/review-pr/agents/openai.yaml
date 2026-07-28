@@ -1,0 +1,68 @@
+display_name: "Review PR"
+short_description: "Review pull requests, merge requests, or branch diffs as a responsible code reviewer. Quality gate before merge."
+default_prompt: "Use $review-pr to review a PR/MR or branch diff as a quality-responsible reviewer before merge."
+required_input: "Base ref, head ref (branch/PR/commit, may differ from the checked-out branch), PR description when available, changed files, test/CI results, codebase context."
+required_output: "REVIEW_PR.md with review mode, base/head, findings, testing gaps, residual risks, PR description coverage, merge recommendation."
+note_important: "Default to remote-diff (git diff base...head, no checkout). For runtime verification, use a detached worktree outside the repository or an existing ignored location; never edit .gitignore during review. Do NOT checkout/stash/reset the current branch or working tree. Never force-remove a dirty worktree. Do NOT auto-fix the PR if the user only requested review. Do NOT approve on behalf of the user. Do NOT create findings without evidence. Do NOT claim merge-safe if verification is missing. Do NOT ignore security/data risks."
+workflow:
+  - "Step 1: git fetch origin; resolve base (PR target, e.g. origin/develop) and head (e.g. origin/A). Pull PR metadata via gh pr view when available."
+  - "Step 2: choose review mode — remote-diff (default), worktree (needs tests/full source), or current-branch (head already checked out and clean)."
+  - "Step 3: get diff with three-dot scope: git diff --find-renames base...head (or HEAD inside a detached worktree)."
+  - "Step 4: verification — remote-diff relies on CI (mark local runtime skipped); worktree/current-branch run project test/build and separate pre-existing failures."
+  - "Step 5: write REVIEW_PR.md under .agent-work/sessions/<task>/, safely remove a clean worktree without --force, confirm current branch/tree unchanged."
+artifacts:
+  REVIEW_PR.md:
+    required: true
+    schema:
+      executive_summary:
+        type: array
+        required: true
+        description: "Maximum five bullets with merge recommendation, top findings/risks, verification status, and next action."
+      developer_overview:
+        type: object
+        required: true
+        description: "Merge recommendation, finding counts, verification status, next action."
+      charts:
+        type: array
+        required: false
+        description: "Mermaid finding/coverage chart when useful; otherwise N/A."
+      review_mode:
+        type: string
+        required: true
+        description: "remote-diff / worktree / current-branch."
+      base:
+        type: string
+        required: true
+        description: "Base branch or commit (e.g. origin/develop)."
+      head:
+        type: string
+        required: true
+        description: "Head branch or commit being reviewed (e.g. origin/A)."
+      pr_description_accuracy:
+        type: string
+        required: true
+        description: "Does the diff match the description? yes/partial/no."
+      changed_areas:
+        type: array
+        required: true
+        description: "Area, files, risk level, notes."
+      findings:
+        type: array
+        required: false
+        description: "Finding ID, severity, category, location, evidence, impact, recommendation, confidence."
+      verification_reviewed:
+        type: array
+        required: true
+        description: "Check, result (pass/fail/skipped/missing), evidence, concern."
+      testing_gaps:
+        type: array
+        required: false
+        description: "Gap, risk, suggested follow-up."
+      residual_risks:
+        type: array
+        required: false
+        description: "Risk, impact, acceptance/mitigation."
+      merge_recommendation:
+        type: string
+        required: true
+        description: "Approve / Approve with comments / Request changes / Needs more info / Needs more verification / Blocked."

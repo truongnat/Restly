@@ -1,0 +1,365 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+/* Geist variable font — self-hosted from @fontsource-variable/geist */
+@import '@fontsource-variable/geist';
+
+@custom-variant dark (&:is(.dark *));
+
+/* ==========================================================================
+   Restly design tokens — Friendly light theme (UI-REMAKE-01)
+   Vibe: Linear / Insomnia — calm, restrained, developer-friendly.
+   Palette: warm-neutral base + single indigo accent. No AI-purple gradient.
+   ========================================================================== */
+@theme {
+  /* --- Surfaces (warm-neutral, NOT blue-gray) --- */
+  --color-background: #f7f7f6;
+  --color-surface: #f7f7f6;
+  --color-surface-bright: #ffffff;
+  --color-surface-dim: #e4e3e1;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f2f1ef;
+  --color-surface-container: #eceae8;
+  --color-surface-container-high: #e4e3e1;
+  --color-surface-container-highest: #dddbd9;
+  --color-surface-variant: #e4e3e1;
+
+  /* --- On-surface --- */
+  --color-on-surface: #18181a;
+  --color-on-surface-variant: #52515e;
+  --color-on-background: #18181a;
+
+  /* --- Outline --- */
+  --color-outline: #87868f;
+  --color-outline-variant: #d1d0db;
+
+  /* --- Primary (calm indigo, less saturated than Stitch) --- */
+  --color-primary: #3730a3;
+  --color-primary-container: #4338ca;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #c7d2fe;
+  --color-primary-fixed: #e0e7ff;
+  --color-primary-fixed-dim: #c7d2fe;
+
+  /* --- Secondary (muted indigo tint) --- */
+  --color-secondary: #4f46e5;
+  --color-secondary-container: #6366f1;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #f0f0ff;
+  --color-on-secondary-fixed-variant: #3730a3;
+
+  /* --- Inverse / utility --- */
+  --color-inverse-surface: #2a2a2e;
+  --color-inverse-on-surface: #f0efed;
+
+  /* --- Error --- */
+  --color-error: #b91c1c;
+  --color-error-container: #fee2e2;
+  --color-on-error: #ffffff;
+
+  /* --- Shell sidebar --- */
+  --color-shell-sidebar: rgba(247, 247, 246, 0.85);
+
+  /* --- Typography --- */
+  /* Geist Variable is available; JetBrains Mono kept for code */
+  --font-sans: 'Geist Variable', 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* --- Spacing (consistent with prior shell spec) --- */
+  --spacing-toolbar: 48px;
+  --spacing-sidebar: 248px;
+  --spacing-gutter: 16px;
+  --spacing-window: 16px;
+  --spacing-unit: 4px;
+
+  /* --- Border radius — single coherent scale (soft) --- */
+  --radius-sm: 0.25rem; /* 4px — inputs, badges */
+  --radius-md: 0.375rem; /* 6px — buttons, menu items */
+  --radius-lg: 0.5rem; /* 8px — cards, panels */
+  --radius-xl: 0.75rem; /* 12px — dialogs, drawers */
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    @apply border-border outline-ring/50;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    color: var(--color-on-surface);
+    background: var(--color-background);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    @apply bg-background text-foreground;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  html {
+    @apply font-sans;
+    scroll-behavior: smooth;
+  }
+}
+
+/* ==========================================================================
+   Typography utilities — Restly friendly type scale
+   headline-lg  22/30 semibold -0.02em
+   headline-md  16/22 semibold -0.01em
+   body-md      13/20 regular
+   body-sm      12/18 regular
+   label-caps   11/16 semibold +0.04em uppercase
+   mono-code    12/20 regular (JetBrains Mono)
+   ========================================================================== */
+@utility headline-lg {
+  font-family: var(--font-sans);
+  font-size: 22px;
+  line-height: 30px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+@utility headline-md {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+@utility body-md {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+}
+
+@utility body-sm {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 400;
+}
+
+@utility label-caps {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@utility mono-code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 20px;
+  font-weight: 400;
+}
+
+/* ==========================================================================
+   Shared layout utilities
+   ========================================================================== */
+@utility glass-sidebar {
+  background: var(--color-shell-sidebar);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+}
+
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Subtle ambient gradient — calm, not AI-purple */
+@utility workspace-bg {
+  background-color: #f7f7f6;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(67, 56, 202, 0.04) 0px, transparent 55%),
+    radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.03) 0px, transparent 55%);
+}
+
+/* ==========================================================================
+   shadcn @theme inline mapping — bridge tokens → shadcn CSS vars
+   ========================================================================== */
+@theme inline {
+  --font-heading: 'Geist Variable', 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Geist Variable', 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  /* Radius bridge — consistent soft scale */
+  --radius-sm: calc(var(--radius) * 0.67);
+  --radius-md: calc(var(--radius) * 1);
+  --radius-lg: calc(var(--radius) * 1.33);
+  --radius-xl: calc(var(--radius) * 2);
+  --radius-2xl: calc(var(--radius) * 2.67);
+  --radius-3xl: calc(var(--radius) * 3.33);
+  --radius-4xl: calc(var(--radius) * 4);
+}
+
+/* ==========================================================================
+   shadcn :root — light theme (friendly remake values)
+   ========================================================================== */
+:root {
+  /* surfaces */
+  --background: #f7f7f6;
+  --foreground: #18181a;
+  --card: #ffffff;
+  --card-foreground: #18181a;
+  --popover: #ffffff;
+  --popover-foreground: #18181a;
+  /* primary = calm indigo */
+  --primary: #3730a3;
+  --primary-foreground: #ffffff;
+  /* secondary = muted warm-neutral (for secondary buttons) */
+  --secondary: #f2f1ef;
+  --secondary-foreground: #18181a;
+  /* muted = surface-container */
+  --muted: #eceae8;
+  --muted-foreground: #52515e;
+  /* accent = primary-fixed (light indigo tint) */
+  --accent: #e0e7ff;
+  --accent-foreground: #3730a3;
+  /* destructive */
+  --destructive: #b91c1c;
+  /* outline */
+  --border: #d1d0db;
+  --input: #e4e3e1;
+  --ring: #3730a3;
+  /* charts */
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  /* radius — 6px base */
+  --radius: 0.375rem;
+  /* shadcn sidebar tokens */
+  --sidebar: #f2f1ef;
+  --sidebar-foreground: #18181a;
+  --sidebar-primary: #3730a3;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e0e7ff;
+  --sidebar-accent-foreground: #3730a3;
+  --sidebar-border: #d1d0db;
+  --sidebar-ring: #3730a3;
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.787 0.148 264);
+  --primary-foreground: oklch(0.145 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0.04 264);
+  --accent-foreground: oklch(0.787 0.148 264);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.787 0.148 264);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.787 0.148 264);
+  --sidebar-primary-foreground: oklch(0.145 0 0);
+  --sidebar-accent: oklch(0.269 0.04 264);
+  --sidebar-accent-foreground: oklch(0.787 0.148 264);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.787 0.148 264);
+  /* Keep glass-sidebar in sync (was hardcoded light → mixed theme) */
+  --color-shell-sidebar: oklch(0.205 0 0 / 0.9);
+}
+
+/* ==========================================================================
+   Scrollbar styling — thin, neutral
+   ========================================================================== */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-outline-variant) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--color-outline-variant);
+  border-radius: 99px;
+}
+
+/* ==========================================================================
+   Reduced motion — honor preference
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

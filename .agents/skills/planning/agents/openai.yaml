@@ -1,0 +1,136 @@
+display_name: "Planning"
+short_description: "Step workflow: seed PLAN/TASKS, inventory→specific micro-tasks, self-check. Implement before tests."
+default_prompt: "Use $planning: seed templates, run the pre-planning decision gate, stop to ask about unresolved Critical/blocking items, then fill PLAN/TASKS and self-check."
+required_input: "DETAIL_DESIGN.md when present; else BASIC_DESIGN.md / DISCUSSION.md / BUSINESS_ANALYSIS.md; issue/visual triage and answers; user request; codebase mapping; session path; constraints."
+required_output: "Session PLAN.md + TASKS.md with Work inventory, specific cards, and per-card Dev context ([Source:] cites). Incomplete if steps skipped, PLAN-only, empty template, vague layer/epic tasks, or missing Dev context."
+note_important: "Seed templates, then STOP and ask focused questions before strategy/tasks when Critical issues, blocking unknowns, Spec quality Fail/Unknown findings, or unconfirmed html-recommended decisions remain. Never choose defaults silently or invent omitted feature policy. Planning classifies visual need but routes confirmed HTML work to brainstorming/basic-design. Do NOT skip Work inventory, emit vague cards, set Ready=Yes with blockers, or implement code."
+workflow:
+  - "Seed PLAN.md and TASKS.md, then inherit issue/blocker/visual triage from upstream artifacts."
+  - "Classify new issues by severity, clarity, blocking status, owner, and visual format."
+  - "Re-check Spec quality: Feasibility, Correctness, Capability recommendations; promote blocking gaps."
+  - "STOP and ask at most three focused blocking questions; record answers before strategy/tasks."
+  - "Route confirmed html-recommended issues to brainstorming/basic-design; resume only after decision evidence exists."
+  - "Fill PLAN strategy, then TASKS inventory/cards, then self-check the decision gate and readiness."
+artifacts:
+  PLAN.md:
+    required: true
+    schema:
+      source_template:
+        type: string
+        required: true
+        description: "Must be seeded from templates/PLAN.template.md via step-01."
+      executive_summary:
+        type: array
+        required: true
+        description: "Maximum five bullets with goal, approach, key risk, readiness, and next action."
+      developer_overview:
+        type: object
+        required: true
+        description: "Status, cards drafted, critical open decisions, next action."
+      step_ledger:
+        type: table
+        required: true
+        description: "Steps 01–04 status; TASKS cannot start before Spec quality gate passes."
+      charts:
+        type: array
+        required: false
+        description: "Mermaid charts for plan flow/progress/risks when useful; otherwise N/A with reason."
+      pre_planning_decision_gate:
+        type: array
+        required: true
+        description: "Issue/source, decision, severity, clarity, blocking, visual need, resolution evidence, status."
+      clarification_questions:
+        type: array
+        required: true
+        description: "Focused question, why the plan changes, user answer/evidence."
+      visual_triage:
+        type: array
+        required: true
+        description: "Issue, text/table/diagram/html-recommended/none, rationale, handoff/status."
+      spec_quality_review:
+        type: object
+        required: true
+        description: "Feasibility, Correctness, and Capability recommendations re-checked before planning."
+      goal:
+        type: string
+        required: true
+        description: "One sentence."
+      scope:
+        type: string
+        required: true
+        description: "In scope summary."
+      non_goals:
+        type: array
+        required: false
+        description: "Excluded outcomes."
+      assumptions:
+        type: array
+        required: true
+        description: "Assumptions with risk and confirmation."
+      approach:
+        type: string
+        required: true
+        description: "Phased strategy only. No per-task AC/Verify/Files."
+      affected_areas:
+        type: array
+        required: false
+        description: "High-level areas with confidence."
+      test_strategy:
+        type: string
+        required: false
+        description: "After-code verification approach."
+      verification_strategy:
+        type: string
+        required: true
+        description: "Automated and manual verification."
+      definition_of_done:
+        type: array
+        required: true
+        description: "Falsifiable checklist."
+      rollback_strategy:
+        type: string
+        required: true
+        description: "Undo per code/config/data."
+      risks:
+        type: array
+        required: false
+        description: "Risks with impact and mitigation."
+      task_index:
+        type: array
+        required: true
+        description: "ID + short title only; implement before tests."
+      handoff:
+        type: string
+        required: true
+        description: "Ready only after step-04 pass; else blockers."
+  TASKS.md:
+    required: true
+    schema:
+      source_template:
+        type: string
+        required: true
+        description: "Must be seeded from templates/TASKS.template.md via step-01."
+      work_inventory:
+        type: array
+        required: true
+        description: "Full Mode: one row per implementable unit from design (before cards)."
+      plan_ref:
+        type: string
+        required: true
+        description: "PLAN.md in same session folder."
+      tasks:
+        type: array
+        required: true
+        description: "Micro-task cards: Trace§, Status=todo, Work items≥2, observable AC, Flow/comment notes (or N/A), concrete Files/scope, confidence, and #### Dev context with [Source:] cites or 'No specific guidance found.'. No vague layer epithets; never invent tech details."
+      progress_board:
+        type: array
+        required: true
+        description: "One row per card: Done checkbox, ID, Title, Status (seeded todo)."
+      execution_order:
+        type: array
+        required: true
+        description: "Ordered IDs matching PLAN task_index. Implement before tests."
+      notes:
+        type: array
+        required: false
+        description: "Sequencing notes or blockers."
