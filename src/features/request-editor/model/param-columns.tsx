@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import type { ParamRow } from '@/entities/request'
+import { EnvAwareInput } from '@/shared/ui/env-aware-input'
 
 interface ParamColumnCallbacks {
   onUpdate: (id: string, field: keyof ParamRow, value: boolean | string) => void
@@ -32,7 +33,7 @@ export function createParamColumns({
       accessorKey: 'key',
       header: 'Key',
       cell: ({ row }) => (
-        <Input
+        <EnvAwareInput
           value={row.original.key}
           onChange={(e) => onUpdate(row.original.id, 'key', e.target.value)}
           placeholder="Key"
@@ -44,7 +45,7 @@ export function createParamColumns({
       accessorKey: 'value',
       header: 'Value',
       cell: ({ row }) => (
-        <Input
+        <EnvAwareInput
           value={row.original.value}
           onChange={(e) => onUpdate(row.original.id, 'value', e.target.value)}
           placeholder="Value"

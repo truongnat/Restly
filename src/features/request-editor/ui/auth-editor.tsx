@@ -1,5 +1,4 @@
 import { useRestlyStore } from '@/app/store/restly-store'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -9,6 +8,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import type { RequestAuth, RequestAuthType } from '@/entities/request'
+import { EnvAwareInput } from '@/shared/ui/env-aware-input'
 
 export function AuthEditor() {
   const auth = useRestlyStore((s) => s.auth)
@@ -62,7 +62,7 @@ export function AuthEditor() {
             <Label htmlFor="bearer-token" className="text-xs">
               Token
             </Label>
-            <Input
+            <EnvAwareInput
               id="bearer-token"
               value={auth.bearerToken ?? ''}
               onChange={(e) => handleFieldChange('bearerToken', e.target.value)}
@@ -79,7 +79,7 @@ export function AuthEditor() {
             <Label htmlFor="basic-username" className="text-xs">
               Username
             </Label>
-            <Input
+            <EnvAwareInput
               id="basic-username"
               value={auth.basicUsername ?? ''}
               onChange={(e) => handleFieldChange('basicUsername', e.target.value)}
@@ -91,7 +91,7 @@ export function AuthEditor() {
             <Label htmlFor="basic-password" className="text-xs">
               Password
             </Label>
-            <Input
+            <EnvAwareInput
               id="basic-password"
               type="password"
               value={auth.basicPassword ?? ''}
@@ -109,7 +109,7 @@ export function AuthEditor() {
             <Label htmlFor="oauth-client-id" className="text-xs">
               Client ID
             </Label>
-            <Input
+            <EnvAwareInput
               id="oauth-client-id"
               value={auth.oauthClientId ?? ''}
               onChange={(e) => handleFieldChange('oauthClientId', e.target.value)}
@@ -121,7 +121,7 @@ export function AuthEditor() {
             <Label htmlFor="oauth-client-secret" className="text-xs">
               Client Secret
             </Label>
-            <Input
+            <EnvAwareInput
               id="oauth-client-secret"
               type="password"
               value={auth.oauthClientSecret ?? ''}
@@ -134,7 +134,7 @@ export function AuthEditor() {
             <Label htmlFor="oauth-auth-url" className="text-xs">
               Auth URL
             </Label>
-            <Input
+            <EnvAwareInput
               id="oauth-auth-url"
               value={auth.oauthAuthUrl ?? ''}
               onChange={(e) => handleFieldChange('oauthAuthUrl', e.target.value)}
@@ -146,7 +146,7 @@ export function AuthEditor() {
             <Label htmlFor="oauth-token-url" className="text-xs">
               Access Token URL
             </Label>
-            <Input
+            <EnvAwareInput
               id="oauth-token-url"
               value={auth.oauthTokenUrl ?? ''}
               onChange={(e) => handleFieldChange('oauthTokenUrl', e.target.value)}

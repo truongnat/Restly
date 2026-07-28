@@ -3,9 +3,11 @@ import { useState } from 'react'
 
 import { useRestlyStore } from '@/app/store/restly-store'
 import { resolveActiveEnvironment } from '@/application/use-cases/list-environments'
+import type { RequestAuth } from '@/entities/request'
 import type { HttpExchangeResult } from '@/entities/response'
 import { resolve, TOKENS } from '@/infrastructure/di'
-import { substituteEnv } from '@/shared/lib/substitute-env'
+import { substituteEnv, type EnvVarSubstituteItem } from '@/shared/lib/substitute-env'
+import { validateBody } from '@/shared/lib/validate-body'
 
 const INITIAL_META: Omit<HttpExchangeResult, 'body'> = {
   status: 0,
@@ -15,6 +17,42 @@ const INITIAL_META: Omit<HttpExchangeResult, 'body'> = {
 }
 
 const INITIAL_BODY = ''
+
+function substituteAuth(auth: RequestAuth, vars: EnvVarSubstituteItem[]): RequestAuth {
+  if (auth.type === 'bearer') {
+    return {
+      ...auth,
+      bearerToken: auth.bearerToken ? substituteEnv(auth.bearerToken, vars) : auth.bearerToken,
+    }
+  }
+  if (auth.type === 'basic') {
+    return {
+      ...auth,
+      basicUsername: auth.basicUsername
+        ? substituteEnv(auth.basicUsername, vars)
+        : auth.basicUsername,
+      basicPassword: auth.basicPassword
+        ? substituteEnv(auth.basicPassword, vars)
+        : auth.basicPassword,
+    }
+  }
+  if (auth.type === 'oauth') {
+    return {
+      ...auth,
+      oauthClientId: auth.oauthClientId
+        ? substituteEnv(auth.oauthClientId, vars)
+        : auth.oauthClientId,
+      oauthClientSecret: auth.oauthClientSecret
+        ? substituteEnv(auth.oauthClientSecret, vars)
+        : auth.oauthClientSecret,
+      oauthAuthUrl: auth.oauthAuthUrl ? substituteEnv(auth.oauthAuthUrl, vars) : auth.oauthAuthUrl,
+      oauthTokenUrl: auth.oauthTokenUrl
+        ? substituteEnv(auth.oauthTokenUrl, vars)
+        : auth.oauthTokenUrl,
+    }
+  }
+  return auth
+}
 
 export function useSendRequestMutation() {
   const notifySent = useRestlyStore((s) => s.sendRequest)
@@ -57,20 +95,36 @@ export function useSendRequestMutation() {
   const environmentId = useRestlyStore((s) => s.environmentId)
   const environments = useRestlyStore((s) => s.environments)
 
+  const bodyValidation = validateBody(body, contentType)
+  const isSendDisabled = mutation.isPending || !bodyValidation.isValid
+
   const onSend = () => {
+    if (!bodyValidation.isValid) return
+
     const activeEnv = resolveActiveEnvironment(environments, environmentId)
     const vars = activeEnv?.variables ?? []
     const resolvedUrl = substituteEnv(url, vars)
     const resolvedBody = substituteEnv(body, vars)
+    const resolvedParams = params.map((p) => ({
+      ...p,
+      key: substituteEnv(p.key, vars),
+      value: substituteEnv(p.value, vars),
+    }))
+    const resolvedHeaders = headers.map((h) => ({
+      ...h,
+      key: substituteEnv(h.key, vars),
+      value: substituteEnv(h.value, vars),
+    }))
+    const resolvedAuth = substituteAuth(auth, vars)
 
     mutation.mutate({
       method,
       url: resolvedUrl,
-      params,
-      headers,
+      params: resolvedParams,
+      headers: resolvedHeaders,
       body: resolvedBody,
       contentType,
-      auth,
+      auth: resolvedAuth,
     })
   }
 
@@ -83,6 +137,7 @@ export function useSendRequestMutation() {
     responseBody,
     meta,
     isPending: mutation.isPending,
+    isSendDisabled,
     onSend,
   }
 }

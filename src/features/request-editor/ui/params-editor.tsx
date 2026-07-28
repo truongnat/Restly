@@ -12,46 +12,46 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import type { HeaderRow } from '@/entities/request'
-import { createHeaderColumns } from '@/features/request-editor/model/header-columns'
+import type { ParamRow } from '@/entities/request'
+import { createParamColumns } from '@/features/request-editor/model/param-columns'
 
-export function HeadersEditor() {
-  const headers = useRestlyStore((s) => s.headers)
+export function ParamsEditor() {
+  const params = useRestlyStore((s) => s.params)
 
-  const handleUpdateHeader = useCallback(
-    (id: string, field: keyof HeaderRow, value: boolean | string) => {
-      const currentHeaders = useRestlyStore.getState().headers
-      const updated = currentHeaders.map((h) => (h.id === id ? { ...h, [field]: value } : h))
-      useRestlyStore.getState().setHeaders(updated)
+  const handleUpdateParam = useCallback(
+    (id: string, field: keyof ParamRow, value: boolean | string) => {
+      const currentParams = useRestlyStore.getState().params
+      const updated = currentParams.map((p) => (p.id === id ? { ...p, [field]: value } : p))
+      useRestlyStore.getState().setParams(updated)
     },
     [],
   )
 
-  const handleDeleteHeader = useCallback((id: string) => {
-    const currentHeaders = useRestlyStore.getState().headers
-    const updated = currentHeaders.filter((h) => h.id !== id)
-    useRestlyStore.getState().setHeaders(updated)
+  const handleDeleteParam = useCallback((id: string) => {
+    const currentParams = useRestlyStore.getState().params
+    const updated = currentParams.filter((p) => p.id !== id)
+    useRestlyStore.getState().setParams(updated)
   }, [])
 
-  const handleAddHeader = useCallback(() => {
-    const currentHeaders = useRestlyStore.getState().headers
-    const newHeader: HeaderRow = {
-      id: `header-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+  const handleAddParam = useCallback(() => {
+    const currentParams = useRestlyStore.getState().params
+    const newParam: ParamRow = {
+      id: `param-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       enabled: true,
       key: '',
       value: '',
       description: '',
     }
-    useRestlyStore.getState().setHeaders([...currentHeaders, newHeader])
+    useRestlyStore.getState().setParams([...currentParams, newParam])
   }, [])
 
   const columns = useMemo(
-    () => createHeaderColumns({ onUpdate: handleUpdateHeader, onDelete: handleDeleteHeader }),
-    [handleUpdateHeader, handleDeleteHeader],
+    () => createParamColumns({ onUpdate: handleUpdateParam, onDelete: handleDeleteParam }),
+    [handleUpdateParam, handleDeleteParam],
   )
 
   const table = useReactTable({
-    data: headers,
+    data: params,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
@@ -75,7 +75,7 @@ export function HeadersEditor() {
             {table.getRowModel().rows.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="py-4 text-center text-xs text-muted-foreground">
-                  No headers specified.
+                  No parameters specified.
                 </TableCell>
               </TableRow>
             ) : (
@@ -93,9 +93,9 @@ export function HeadersEditor() {
         </Table>
       </div>
       <div className="px-2">
-        <Button variant="outline" size="sm" onClick={handleAddHeader} className="h-7 text-xs">
+        <Button variant="outline" size="sm" onClick={handleAddParam} className="h-7 text-xs">
           <Plus className="mr-1 size-3.5" />
-          Add Header
+          Add Param
         </Button>
       </div>
     </div>

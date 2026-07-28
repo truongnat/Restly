@@ -1,10 +1,11 @@
+import { FileCode, FileText } from 'lucide-react'
+
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 interface ResponsePreviewProps {
   body: string
 }
 
-/** Check if text looks like HTML */
 function isHtmlContent(text: string): boolean {
   const trimmed = text.trim()
   return (
@@ -15,7 +16,6 @@ function isHtmlContent(text: string): boolean {
   )
 }
 
-/** Formatted JSON preview if valid JSON */
 function tryFormatJson(text: string): string | null {
   try {
     const parsed = JSON.parse(text)
@@ -27,32 +27,57 @@ function tryFormatJson(text: string): string | null {
 
 export function ResponsePreview({ body }: ResponsePreviewProps) {
   if (!body) {
-    return <div className="p-5 text-xs text-muted-foreground">No response body to preview.</div>
+    return (
+      <div className="flex h-full items-center justify-center p-5 text-xs text-muted-foreground">
+        No response body to preview.
+      </div>
+    )
   }
 
   const isHtml = isHtmlContent(body)
 
   if (isHtml) {
     return (
-      <div className="h-full w-full p-4">
-        <iframe
-          srcDoc={body}
-          title="Response HTML Preview"
-          className="h-full w-full rounded-md border border-border bg-white shadow-sm"
-          sandbox="allow-same-origin"
-        />
+      <div className="flex h-full flex-col">
+        <div className="flex items-center gap-2 border-b border-border/50 px-4 py-2">
+          <FileCode className="size-3.5 text-muted-foreground" />
+          <span className="text-[11px] font-medium text-muted-foreground">HTML Preview</span>
+        </div>
+        <div className="min-h-0 flex-1 p-4">
+          <iframe
+            srcDoc={body}
+            title="Response HTML Preview"
+            className="h-full w-full rounded-md border border-border bg-white shadow-sm"
+            sandbox="allow-same-origin"
+          />
+        </div>
       </div>
     )
   }
 
   const formattedJson = tryFormatJson(body)
   const contentToDisplay = formattedJson ?? body
+  const isJson = formattedJson !== null
 
   return (
-    <ScrollArea className="h-full p-5">
-      <pre className="font-mono text-xs leading-relaxed whitespace-pre-wrap text-foreground">
-        {contentToDisplay}
-      </pre>
-    </ScrollArea>
+    <div className="flex h-full flex-col">
+      <div className="flex items-center gap-2 border-b border-border/50 px-4 py-2">
+        <FileText className="size-3.5 text-muted-foreground" />
+        <span className="text-[11px] font-medium text-muted-foreground">
+          {isJson ? 'Formatted JSON' : 'Plain Text'}
+        </span>
+      </div>
+      <ScrollArea className="min-h-0 flex-1 p-5">
+        <pre
+          className={
+            isJson
+              ? 'font-mono text-xs leading-relaxed whitespace-pre-wrap'
+              : 'font-mono text-xs leading-relaxed whitespace-pre-wrap text-muted-foreground'
+          }
+        >
+          {contentToDisplay}
+        </pre>
+      </ScrollArea>
+    </div>
   )
 }

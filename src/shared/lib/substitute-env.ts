@@ -19,3 +19,23 @@ export function substituteEnv(template: string, vars: EnvVarSubstituteItem[] = [
   }
   return result
 }
+
+/**
+ * Checks if a string contains `{{var}}` placeholders.
+ */
+export function hasEnvTokens(template: string): boolean {
+  if (!template) return false
+  return /\{\{\s*[^}\s]+\s*\}\}/.test(template)
+}
+
+/**
+ * Returns the resolved template string for tooltip preview if `template` contains `{{...}}` tokens,
+ * otherwise returns null.
+ */
+export function getEnvResolutionTooltip(
+  template: string,
+  vars: EnvVarSubstituteItem[] = [],
+): string | null {
+  if (!template || !hasEnvTokens(template)) return null
+  return substituteEnv(template, vars)
+}

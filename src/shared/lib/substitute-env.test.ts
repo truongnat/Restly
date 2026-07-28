@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { substituteEnv } from './substitute-env'
+import { getEnvResolutionTooltip, hasEnvTokens, substituteEnv } from './substitute-env'
 
 describe('substituteEnv', () => {
   it('replaces enabled key placeholder with value', () => {
@@ -33,5 +33,30 @@ describe('substituteEnv', () => {
     const vars = [{ key: 'token', value: '$100$price', enabled: true }]
     const template = 'Bearer {{token}}'
     expect(substituteEnv(template, vars)).toBe('Bearer $100$price')
+  })
+})
+
+describe('hasEnvTokens', () => {
+  it('returns true when text contains {{var}} tokens', () => {
+    expect(hasEnvTokens('https://{{host}}/api')).toBe(true)
+    expect(hasEnvTokens('{{ token }}')).toBe(true)
+  })
+
+  it('returns false when text does not contain {{var}} tokens', () => {
+    expect(hasEnvTokens('https://api.example.com')).toBe(false)
+    expect(hasEnvTokens('')).toBe(false)
+  })
+})
+
+describe('getEnvResolutionTooltip', () => {
+  it('returns null when no env tokens exist', () => {
+    const vars = [{ key: 'host', value: 'example.com', enabled: true }]
+    expect(getEnvResolutionTooltip('https://api.com', vars)).toBeNull()
+    expect(getEnvResolutionTooltip('', vars)).toBeNull()
+  })
+
+  it('returns substituted text when env tokens exist', () => {
+    const vars = [{ key: 'host', value: 'example.com', enabled: true }]
+    expect(getEnvResolutionTooltip('https://{{host}}/api', vars)).toBe('https://example.com/api')
   })
 })

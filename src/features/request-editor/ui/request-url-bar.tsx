@@ -1,7 +1,6 @@
 import { SendHorizonal } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -13,13 +12,14 @@ import type { HttpMethod } from '@/entities/http'
 import type { SendRequestState } from '@/features/request-editor/model/use-send-request'
 import { HTTP_METHODS } from '@/shared/constants/http'
 import { cn, methodColorLight } from '@/shared/lib/utils'
+import { EnvAwareInput } from '@/shared/ui/env-aware-input'
 
 interface RequestUrlBarProps {
   sendState: SendRequestState
 }
 
 export function RequestUrlBar({ sendState }: RequestUrlBarProps) {
-  const { method, setMethod, url, setUrl, isPending, onSend } = sendState
+  const { method, setMethod, url, setUrl, isPending, isSendDisabled, onSend } = sendState
 
   return (
     <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -45,7 +45,7 @@ export function RequestUrlBar({ sendState }: RequestUrlBarProps) {
         </SelectContent>
       </Select>
 
-      <Input
+      <EnvAwareInput
         className="flex-1 rounded-md border-border/70 bg-card font-mono text-[12px] shadow-none placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-primary/40"
         value={url}
         onChange={(e) => setUrl(e.target.value)}
@@ -55,7 +55,7 @@ export function RequestUrlBar({ sendState }: RequestUrlBarProps) {
 
       <Button
         onClick={onSend}
-        disabled={isPending}
+        disabled={isSendDisabled}
         className="min-w-[80px] gap-1.5 rounded-md text-[13px] shadow-none"
         id="btn-send"
       >

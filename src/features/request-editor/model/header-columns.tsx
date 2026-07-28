@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import type { HeaderRow } from '@/entities/request'
+import { EnvAwareInput } from '@/shared/ui/env-aware-input'
+import { HttpKeyInput } from '@/shared/ui/http-key-input'
 
 interface HeaderColumnCallbacks {
   onUpdate: (id: string, field: keyof HeaderRow, value: boolean | string) => void
@@ -32,9 +34,9 @@ export function createHeaderColumns({
       accessorKey: 'key',
       header: 'Key',
       cell: ({ row }) => (
-        <Input
+        <HttpKeyInput
           value={row.original.key}
-          onChange={(e) => onUpdate(row.original.id, 'key', e.target.value)}
+          onChange={(val) => onUpdate(row.original.id, 'key', val)}
           placeholder="Header"
           className="h-8 font-mono text-xs"
         />
@@ -44,7 +46,7 @@ export function createHeaderColumns({
       accessorKey: 'value',
       header: 'Value',
       cell: ({ row }) => (
-        <Input
+        <EnvAwareInput
           value={row.original.value}
           onChange={(e) => onUpdate(row.original.id, 'value', e.target.value)}
           placeholder="Value"
