@@ -26,8 +26,15 @@ export const EnvAwareInput = React.forwardRef<HTMLInputElement, EnvAwareInputPro
       <Input
         ref={ref}
         value={value}
+        spellCheck={false}
+        autoCorrect="off"
+        autoCapitalize="off"
         aria-invalid={hasUnresolved ? true : props['aria-invalid']}
-        className={cn(className, hasUnresolved && '!text-destructive text-destructive')}
+        className={cn(
+          'font-mono [font-variant-ligatures:none] [font-kerning:none]',
+          className,
+          hasUnresolved && '!text-destructive text-destructive',
+        )}
         {...props}
       />
     )
@@ -67,8 +74,15 @@ export const EnvAwareTextarea = React.forwardRef<HTMLTextAreaElement, EnvAwareTe
       <Textarea
         ref={ref}
         value={value}
+        spellCheck={false}
+        autoCorrect="off"
+        autoCapitalize="off"
         aria-invalid={hasUnresolved ? true : props['aria-invalid']}
-        className={cn(className, hasUnresolved && '!text-destructive text-destructive')}
+        className={cn(
+          'font-mono [font-variant-ligatures:none] [font-kerning:none]',
+          className,
+          hasUnresolved && '!text-destructive text-destructive',
+        )}
         {...props}
       />
     )

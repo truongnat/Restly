@@ -190,7 +190,7 @@ function JsonBodyEditor({
       <pre
         ref={preRef}
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 overflow-auto p-2.5 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap text-foreground"
+        className="pointer-events-none absolute inset-0 overflow-auto p-2.5 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap text-foreground [font-variant-ligatures:none] [font-kerning:none]"
       >
         {renderHighlightedJson(value + (value.endsWith('\n') ? ' ' : ''), vars)}
       </pre>
@@ -203,8 +203,11 @@ function JsonBodyEditor({
             preRef.current.scrollLeft = e.currentTarget.scrollLeft
           }
         }}
+        spellCheck={false}
+        autoCorrect="off"
+        autoCapitalize="off"
         placeholder={placeholder}
-        className="absolute inset-0 h-full w-full resize-none overflow-auto border-0 bg-transparent p-2.5 font-mono text-xs leading-relaxed text-transparent caret-foreground outline-none selection:bg-accent selection:text-accent-foreground placeholder:text-muted-foreground"
+        className="absolute inset-0 h-full w-full resize-none overflow-auto border-0 bg-transparent p-2.5 font-mono text-xs leading-relaxed text-transparent caret-foreground outline-none selection:bg-accent selection:text-accent-foreground placeholder:text-muted-foreground [font-variant-ligatures:none] [font-kerning:none]"
       />
     </div>
   )
