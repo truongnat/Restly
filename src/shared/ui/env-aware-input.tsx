@@ -5,12 +5,13 @@ import { resolveActiveEnvironment } from '@/application/use-cases/list-environme
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { getEnvResolutionTooltip } from '@/shared/lib/substitute-env'
+import { cn } from '@/lib/utils'
+import { getEnvResolutionTooltip, hasUnresolvedEnvTokens } from '@/shared/lib/substitute-env'
 
 export interface EnvAwareInputProps extends React.ComponentProps<typeof Input> {}
 
 export const EnvAwareInput = React.forwardRef<HTMLInputElement, EnvAwareInputProps>(
-  ({ value, ...props }, ref) => {
+  ({ value, className, ...props }, ref) => {
     const environmentId = useRestlyStore((s) => s.environmentId)
     const environments = useRestlyStore((s) => s.environments)
 
@@ -19,8 +20,17 @@ export const EnvAwareInput = React.forwardRef<HTMLInputElement, EnvAwareInputPro
 
     const strValue = typeof value === 'string' ? value : ''
     const tooltipText = getEnvResolutionTooltip(strValue, vars)
+    const hasUnresolved = hasUnresolvedEnvTokens(strValue, vars)
 
-    const inputEl = <Input ref={ref} value={value} {...props} />
+    const inputEl = (
+      <Input
+        ref={ref}
+        value={value}
+        aria-invalid={hasUnresolved ? true : props['aria-invalid']}
+        className={cn(className, hasUnresolved && '!text-destructive text-destructive')}
+        {...props}
+      />
+    )
 
     if (!tooltipText) {
       return inputEl
@@ -29,7 +39,7 @@ export const EnvAwareInput = React.forwardRef<HTMLInputElement, EnvAwareInputPro
     return (
       <Tooltip>
         <TooltipTrigger asChild>{inputEl}</TooltipTrigger>
-        <TooltipContent side="bottom" className="max-w-xs font-mono text-xs break-all">
+        <TooltipContent side="top" className="max-w-xs font-mono text-xs break-all">
           {tooltipText}
         </TooltipContent>
       </Tooltip>
@@ -42,7 +52,7 @@ EnvAwareInput.displayName = 'EnvAwareInput'
 export interface EnvAwareTextareaProps extends React.ComponentProps<typeof Textarea> {}
 
 export const EnvAwareTextarea = React.forwardRef<HTMLTextAreaElement, EnvAwareTextareaProps>(
-  ({ value, ...props }, ref) => {
+  ({ value, className, ...props }, ref) => {
     const environmentId = useRestlyStore((s) => s.environmentId)
     const environments = useRestlyStore((s) => s.environments)
 
@@ -51,8 +61,17 @@ export const EnvAwareTextarea = React.forwardRef<HTMLTextAreaElement, EnvAwareTe
 
     const strValue = typeof value === 'string' ? value : ''
     const tooltipText = getEnvResolutionTooltip(strValue, vars)
+    const hasUnresolved = hasUnresolvedEnvTokens(strValue, vars)
 
-    const textareaEl = <Textarea ref={ref} value={value} {...props} />
+    const textareaEl = (
+      <Textarea
+        ref={ref}
+        value={value}
+        aria-invalid={hasUnresolved ? true : props['aria-invalid']}
+        className={cn(className, hasUnresolved && '!text-destructive text-destructive')}
+        {...props}
+      />
+    )
 
     if (!tooltipText) {
       return textareaEl
@@ -61,7 +80,7 @@ export const EnvAwareTextarea = React.forwardRef<HTMLTextAreaElement, EnvAwareTe
     return (
       <Tooltip>
         <TooltipTrigger asChild>{textareaEl}</TooltipTrigger>
-        <TooltipContent side="bottom" className="max-w-xs font-mono text-xs break-all">
+        <TooltipContent side="top" className="max-w-xs font-mono text-xs break-all">
           {tooltipText}
         </TooltipContent>
       </Tooltip>

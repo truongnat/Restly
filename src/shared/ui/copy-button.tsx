@@ -24,7 +24,7 @@ export function CopyButton({ text, label = 'Copy' }: CopyButtonProps) {
   return (
     <Button
       variant="ghost"
-      size={label ? 'sm' : 'icon-sm'}
+      size="icon-sm"
       aria-label={label}
       onClick={handleCopy}
       disabled={!text}
@@ -35,7 +35,6 @@ export function CopyButton({ text, label = 'Copy' }: CopyButtonProps) {
       ) : (
         <Copy className="size-[14px]" />
       )}
-      {label === 'Copy' ? null : <span className="ml-1">{label}</span>}
     </Button>
   )
 }

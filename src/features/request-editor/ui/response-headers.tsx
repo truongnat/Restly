@@ -1,4 +1,4 @@
-import { Copy } from 'lucide-react'
+import { Check, Copy } from 'lucide-react'
 import { useCallback, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -11,7 +11,6 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { copyToClipboard } from '@/shared/lib/clipboard'
-import { cn } from '@/shared/lib/utils'
 import { CopyButton } from '@/shared/ui/copy-button'
 
 function CopyCell({ value }: { value: string }) {
@@ -38,7 +37,11 @@ function CopyCell({ value }: { value: string }) {
         title={copied ? 'Copied!' : 'Copy value'}
         className="shrink-0 opacity-0 group-hover/row:opacity-100"
       >
-        <Copy className={cn('size-3', copied ? 'text-emerald-600' : 'text-muted-foreground')} />
+        {copied ? (
+          <Check className="size-3 text-emerald-600" />
+        ) : (
+          <Copy className="size-3 text-muted-foreground" />
+        )}
       </Button>
     </div>
   )

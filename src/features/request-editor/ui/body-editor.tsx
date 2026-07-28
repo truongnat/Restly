@@ -1,4 +1,8 @@
+import * as React from 'react'
+import { useRef } from 'react'
+
 import { useRestlyStore } from '@/app/store/restly-store'
+import { resolveActiveEnvironment } from '@/application/use-cases/list-environments'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import {
@@ -8,6 +12,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import type { EnvVarSubstituteItem } from '@/shared/lib/substitute-env'
+import { getEnvResolutionTooltip, hasUnresolvedEnvTokens } from '@/shared/lib/substitute-env'
 import { formatBody, validateBody } from '@/shared/lib/validate-body'
 import { EnvAwareTextarea } from '@/shared/ui/env-aware-input'
 
@@ -19,13 +26,230 @@ const CONTENT_TYPES = [
   { label: 'Multipart Form', value: 'multipart/form-data' },
 ]
 
+const EXAMPLES: Record<string, string> = {
+  'application/json':
+    '{\n  "name": "John Doe",\n  "email": "john@example.com",\n  "age": 30,\n  "isActive": true\n}',
+  'text/plain': 'Hello World',
+  'application/xml':
+    '<?xml version="1.0" encoding="UTF-8"?>\n<note>\n  <to>Tove</to>\n  <from>Jani</from>\n  <heading>Reminder</heading>\n  <body>Don\'t forget me this weekend!</body>\n</note>',
+  'application/x-www-form-urlencoded': 'name=John+Doe&email=john%40example.com&age=30',
+  'multipart/form-data':
+    '--boundary\nContent-Disposition: form-data; name="name"\n\nJohn Doe\n--boundary\nContent-Disposition: form-data; name="file"; filename="example.txt"\nContent-Type: text/plain\n\nFile content here\n--boundary--',
+}
+
+function renderHighlightedJson(text: string, vars: EnvVarSubstituteItem[] = []): React.ReactNode {
+  if (!text) return null
+
+  const JSON_TOKEN_REGEX =
+    /("(\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?|\{\{\s*[^}\s]+\s*\}\})/g
+
+  const nodes: React.ReactNode[] = []
+  let lastIndex = 0
+  let match: RegExpExecArray | null
+
+  const enabledKeys = new Set(
+    vars.filter((v) => v.enabled !== false && Boolean(v.key)).map((v) => v.key.trim()),
+  )
+
+  const renderTextOrEnv = (str: string, keyPrefix: string, defaultClass?: string) => {
+    const envRegex = /\{\{\s*([^}\s]+)\s*\}\}/g
+    const result: React.ReactNode[] = []
+    let lIdx = 0
+    let eMatch: RegExpExecArray | null
+
+    while ((eMatch = envRegex.exec(str)) !== null) {
+      if (eMatch.index > lIdx) {
+        const plain = str.slice(lIdx, eMatch.index)
+        result.push(
+          defaultClass ? (
+            <span key={`${keyPrefix}-p-${lIdx}`} className={defaultClass}>
+              {plain}
+            </span>
+          ) : (
+            plain
+          ),
+        )
+      }
+      const fullToken = eMatch[0]
+      const varName = eMatch[1]
+      const isResolved = enabledKeys.has(varName)
+      result.push(
+        <span
+          key={`${keyPrefix}-env-${eMatch.index}`}
+          className={
+            isResolved
+              ? 'font-semibold text-teal-500 dark:text-teal-400'
+              : 'rounded bg-destructive/10 px-0.5 font-bold text-destructive'
+          }
+        >
+          {fullToken}
+        </span>,
+      )
+      lIdx = envRegex.lastIndex
+    }
+    if (lIdx < str.length) {
+      const remaining = str.slice(lIdx)
+      result.push(
+        defaultClass ? (
+          <span key={`${keyPrefix}-p-${lIdx}`} className={defaultClass}>
+            {remaining}
+          </span>
+        ) : (
+          remaining
+        ),
+      )
+    }
+    return result
+  }
+
+  let count = 0
+  while ((match = JSON_TOKEN_REGEX.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      const plain = text.slice(lastIndex, match.index)
+      nodes.push(<span key={`plain-${count++}`}>{plain}</span>)
+    }
+
+    const token = match[0]
+    if (token.startsWith('"')) {
+      if (token.endsWith(':')) {
+        const keyText = token.slice(0, -1)
+        nodes.push(
+          <span key={`key-${count++}`}>
+            <span className="font-medium text-sky-600 dark:text-sky-400">
+              {renderTextOrEnv(keyText, `k-${count}`, 'font-medium text-sky-600 dark:text-sky-400')}
+            </span>
+            <span className="text-foreground">:</span>
+          </span>,
+        )
+      } else {
+        nodes.push(
+          <span key={`str-${count++}`} className="text-emerald-600 dark:text-emerald-400">
+            {renderTextOrEnv(token, `s-${count}`, 'text-emerald-600 dark:text-emerald-400')}
+          </span>,
+        )
+      }
+    } else if (token === 'true' || token === 'false' || token === 'null') {
+      nodes.push(
+        <span key={`bool-${count++}`} className="font-medium text-indigo-600 dark:text-indigo-400">
+          {token}
+        </span>,
+      )
+    } else if (/^-?\d/.test(token)) {
+      nodes.push(
+        <span key={`num-${count++}`} className="text-amber-600 dark:text-amber-400">
+          {token}
+        </span>,
+      )
+    } else if (token.startsWith('{{')) {
+      const varName = token.replace(/\{\{\s*|\s*\}\}/g, '')
+      const isResolved = enabledKeys.has(varName)
+      nodes.push(
+        <span
+          key={`env-${count++}`}
+          className={
+            isResolved
+              ? 'font-semibold text-teal-500 dark:text-teal-400'
+              : 'rounded bg-destructive/10 px-0.5 font-bold text-destructive'
+          }
+        >
+          {token}
+        </span>,
+      )
+    }
+    lastIndex = JSON_TOKEN_REGEX.lastIndex
+  }
+
+  if (lastIndex < text.length) {
+    nodes.push(<span key={`plain-${count++}`}>{text.slice(lastIndex)}</span>)
+  }
+
+  return <>{nodes}</>
+}
+
+function JsonBodyEditor({
+  value,
+  onChange,
+  placeholder,
+  vars,
+}: {
+  value: string
+  onChange: (val: string) => void
+  placeholder?: string
+  vars: EnvVarSubstituteItem[]
+}) {
+  const preRef = useRef<HTMLPreElement>(null)
+  const tooltipText = getEnvResolutionTooltip(value, vars)
+  const hasUnresolved = hasUnresolvedEnvTokens(value, vars)
+
+  const editorContainer = (
+    <div
+      className={`relative min-h-[220px] w-full rounded-lg border bg-transparent font-mono text-xs leading-relaxed transition-colors ${
+        hasUnresolved ? 'border-destructive ring-1 ring-destructive/20' : 'border-input'
+      }`}
+    >
+      <pre
+        ref={preRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 overflow-auto p-2.5 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap text-foreground"
+      >
+        {renderHighlightedJson(value + (value.endsWith('\n') ? ' ' : ''), vars)}
+      </pre>
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onScroll={(e) => {
+          if (preRef.current) {
+            preRef.current.scrollTop = e.currentTarget.scrollTop
+            preRef.current.scrollLeft = e.currentTarget.scrollLeft
+          }
+        }}
+        placeholder={placeholder}
+        className="absolute inset-0 h-full w-full resize-none overflow-auto border-0 bg-transparent p-2.5 font-mono text-xs leading-relaxed text-transparent caret-foreground outline-none selection:bg-accent selection:text-accent-foreground placeholder:text-muted-foreground"
+      />
+    </div>
+  )
+
+  if (!tooltipText) return editorContainer
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{editorContainer}</TooltipTrigger>
+      <TooltipContent side="top" className="max-w-xs font-mono text-xs break-all">
+        {tooltipText}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
 export function BodyEditor() {
   const body = useRestlyStore((s) => s.body)
   const contentType = useRestlyStore((s) => s.contentType)
+  const environmentId = useRestlyStore((s) => s.environmentId)
+  const environments = useRestlyStore((s) => s.environments)
   const setBody = useRestlyStore((s) => s.setBody)
   const setContentType = useRestlyStore((s) => s.setContentType)
 
+  const activeEnv = resolveActiveEnvironment(environments, environmentId)
+  const vars = activeEnv?.variables ?? []
+
   const validation = validateBody(body, contentType)
+
+  const handleContentTypeChange = (newContentType: string) => {
+    setContentType(newContentType)
+    if (!body || !body.trim()) {
+      const example = EXAMPLES[newContentType]
+      if (example) {
+        setBody(example)
+      }
+    }
+  }
+
+  const handleInsertExample = () => {
+    const example = EXAMPLES[contentType]
+    if (example) {
+      setBody(example)
+    }
+  }
 
   const handleFormat = () => {
     const res = formatBody(body, contentType)
@@ -42,7 +266,7 @@ export function BodyEditor() {
           >
             Content-Type:
           </Label>
-          <Select value={contentType} onValueChange={setContentType}>
+          <Select value={contentType} onValueChange={handleContentTypeChange}>
             <SelectTrigger id="content-type-select" size="sm" className="w-[240px]">
               <SelectValue placeholder="Select content type" />
             </SelectTrigger>
@@ -55,18 +279,32 @@ export function BodyEditor() {
             </SelectContent>
           </Select>
         </div>
-        <Button variant="outline" size="sm" onClick={handleFormat} className="h-8 text-xs">
-          Format
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleInsertExample} className="h-8 text-xs">
+            Insert Example
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleFormat} className="h-8 text-xs">
+            Format
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <EnvAwareTextarea
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="Enter request body here..."
-          className="min-h-[220px] font-mono text-xs leading-relaxed"
-        />
+        {contentType === 'application/json' ? (
+          <JsonBodyEditor
+            value={body}
+            onChange={setBody}
+            placeholder={EXAMPLES['application/json']}
+            vars={vars}
+          />
+        ) : (
+          <EnvAwareTextarea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder={EXAMPLES[contentType] || 'Enter request body here...'}
+            className="min-h-[220px] font-mono text-xs leading-relaxed"
+          />
+        )}
         {!validation.isValid && validation.error && (
           <p className="text-xs font-medium text-destructive">{validation.error}</p>
         )}

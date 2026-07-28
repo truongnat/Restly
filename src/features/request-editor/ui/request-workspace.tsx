@@ -15,47 +15,16 @@ import { HeadersEditor } from '@/features/request-editor/ui/headers-editor'
 import { ParamsEditor } from '@/features/request-editor/ui/params-editor'
 import { ResponseHeaders } from '@/features/request-editor/ui/response-headers'
 import { ResponsePreview } from '@/features/request-editor/ui/response-preview'
+import { formatJsonValue, getValueType, tryParseJson } from '@/shared/lib/json-pretty'
 import { cn } from '@/shared/lib/utils'
 import { CopyButton } from '@/shared/ui/copy-button'
 
-function tryParseJson(value: string): unknown {
-  try {
-    return JSON.parse(value)
-  } catch {
-    return null
-  }
-}
-
-function formatJsonValue(value: unknown, indent = 0): string {
-  const pad = '  '.repeat(indent)
-  if (value === null) return 'null'
-  if (typeof value === 'string') {
-    const parsed = tryParseJson(value)
-    if (parsed !== null && (typeof parsed === 'object' || Array.isArray(parsed))) {
-      const formatted = formatJsonValue(parsed, indent)
-      const lines = formatted.split('\n')
-      if (lines.length === 1) return `"${value}"`
-      return lines.map((l, i) => (i === 0 ? `${pad}${l}` : l)).join('\n')
-    }
-    return JSON.stringify(value)
-  }
-  if (typeof value === 'number' || typeof value === 'boolean') {
-    return String(value)
-  }
-  if (Array.isArray(value)) {
-    if (value.length === 0) return '[]'
-    const items = value.map((item) => `${pad}  ${formatJsonValue(item, indent + 1)}`)
-    return `[\n${items.join(',\n')}\n${pad}]`
-  }
-  if (typeof value === 'object') {
-    const entries = Object.entries(value as Record<string, unknown>)
-    if (entries.length === 0) return '{}'
-    const props = entries.map(
-      ([k, v]) => `${pad}  ${JSON.stringify(k)}: ${formatJsonValue(v, indent + 1)}`,
-    )
-    return `{\n${props.join(',\n')}\n${pad}}`
-  }
-  return String(value)
+const tokenColors: Record<string, string> = {
+  string: 'text-amber-600',
+  number: 'text-cyan-600',
+  boolean: 'text-violet-600',
+  null: 'text-rose-500',
+  other: 'text-foreground',
 }
 
 function JsonView({ text }: { text: string }) {
@@ -70,23 +39,30 @@ function JsonView({ text }: { text: string }) {
   return (
     <pre className="font-mono text-xs leading-relaxed whitespace-pre-wrap text-foreground">
       {lines.map((line, i) => {
-        const keyMatch = line.match(/^(\s*)"([^"]+)":\s*(.*)$/)
-        if (!keyMatch) return <div key={i}>{line}</div>
+        const keyMatch = line.match(/^(\s*)"((?:[^"\\]|\\.)*)":\s*(.*)$/)
+        if (!keyMatch) {
+          const trimmed = line.trim()
+          const type = getValueType(trimmed)
+          if (type !== 'other') {
+            return (
+              <div key={i}>
+                <span className={tokenColors[type]}>{line}</span>
+              </div>
+            )
+          }
+          return <div key={i}>{line}</div>
+        }
         const [, indent, key, rest] = keyMatch
-        const isString = rest.startsWith('"')
-        const isActive = rest.includes('"active"')
+        const cleanRest = rest.replace(/,?\s*$/, '')
+        const trailingComma = /,\s*$/.test(rest) ? ',' : ''
+        const type = getValueType(cleanRest)
+
         return (
           <div key={i}>
             {indent}
             <span className="text-primary/70">"{key}"</span>:{' '}
-            <span
-              className={cn(
-                isActive ? 'text-emerald-600' : isString ? 'text-amber-700' : 'text-foreground',
-              )}
-            >
-              {rest.replace(/,?$/, '')}
-            </span>
-            {rest.endsWith(',') ? ',' : ''}
+            <span className={tokenColors[type]}>{cleanRest}</span>
+            {trailingComma}
           </div>
         )
       })}

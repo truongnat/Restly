@@ -1,6 +1,7 @@
 import { FileCode, FileText } from 'lucide-react'
 
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { formatJsonValue, tryParseJson } from '@/shared/lib/json-pretty'
 
 interface ResponsePreviewProps {
   body: string
@@ -14,15 +15,6 @@ function isHtmlContent(text: string): boolean {
     trimmed.startsWith('<html') ||
     /<[a-z][\s\S]*>/i.test(trimmed)
   )
-}
-
-function tryFormatJson(text: string): string | null {
-  try {
-    const parsed = JSON.parse(text)
-    return JSON.stringify(parsed, null, 2)
-  } catch {
-    return null
-  }
 }
 
 export function ResponsePreview({ body }: ResponsePreviewProps) {
@@ -55,9 +47,9 @@ export function ResponsePreview({ body }: ResponsePreviewProps) {
     )
   }
 
-  const formattedJson = tryFormatJson(body)
-  const contentToDisplay = formattedJson ?? body
-  const isJson = formattedJson !== null
+  const parsed = tryParseJson(body)
+  const contentToDisplay = parsed !== null ? formatJsonValue(parsed) : body
+  const isJson = parsed !== null
 
   return (
     <div className="flex h-full flex-col">

@@ -58,7 +58,7 @@ export function HeadersEditor() {
 
   return (
     <div className="flex flex-col gap-2 p-2">
-      <div className="overflow-hidden">
+      <div className="overflow-visible">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((hg) => (

@@ -55,8 +55,17 @@ describe('getEnvResolutionTooltip', () => {
     expect(getEnvResolutionTooltip('', vars)).toBeNull()
   })
 
-  it('returns substituted text when env tokens exist', () => {
+  it('returns substituted text with Resolved label when env tokens exist', () => {
     const vars = [{ key: 'host', value: 'example.com', enabled: true }]
-    expect(getEnvResolutionTooltip('https://{{host}}/api', vars)).toBe('https://example.com/api')
+    expect(getEnvResolutionTooltip('https://{{host}}/api', vars)).toBe(
+      'Resolved: https://example.com/api',
+    )
+  })
+
+  it('returns unresolved tokens when tokens are missing or disabled', () => {
+    const vars = [{ key: 'host', value: 'example.com', enabled: false }]
+    expect(getEnvResolutionTooltip('https://{{host}}/{{unknown}}', vars)).toBe(
+      'Unresolved: {{host}}, {{unknown}}',
+    )
   })
 })
