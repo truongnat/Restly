@@ -1,8 +1,10 @@
 import type {
+  AuthProfile,
   CollectionFolder,
   Environment,
   HeaderRow,
   HistoryItem,
+  MockServer,
   ParamRow,
   RequestAuth,
 } from '@/entities'
@@ -406,6 +408,106 @@ export const mockEnvironments: Environment[] = [
         key: 'debug',
         value: 'true',
         description: 'Toggle verbose logging (disabled by default)',
+      },
+    ],
+  },
+]
+
+export const mockAuthProfiles: AuthProfile[] = [
+  {
+    id: 'auth-prod-bearer',
+    name: 'Production Bearer',
+    description: 'Live API access token',
+    auth: {
+      type: 'bearer',
+      bearerToken: '{{api_key}}',
+    },
+  },
+  {
+    id: 'auth-basic-admin',
+    name: 'Admin Basic',
+    description: 'Internal admin tools',
+    auth: {
+      type: 'basic',
+      basicUsername: 'admin',
+      basicPassword: 'restly-dev',
+    },
+  },
+  {
+    id: 'auth-oauth-github',
+    name: 'GitHub OAuth (Mock)',
+    description: 'Authorization code flow — form only',
+    auth: {
+      type: 'oauth',
+      oauthClientId: 'restly_oauth_client',
+      oauthClientSecret: 'oauth_secret_mock',
+      oauthAuthUrl: 'https://github.com/login/oauth/authorize',
+      oauthTokenUrl: 'https://github.com/login/oauth/access_token',
+    },
+  },
+]
+
+export const mockServers: MockServer[] = [
+  {
+    id: 'mock-users',
+    name: 'Users API Mock',
+    baseUrl: 'https://mock.restly.local/users',
+    running: true,
+    description: 'Echo user CRUD for local demos',
+    routes: [
+      {
+        id: 'mr-1',
+        enabled: true,
+        method: 'GET',
+        path: '/v1/user',
+        status: 200,
+        delayMs: 120,
+        responseBody: '{\n  "id": "usr_mock",\n  "name": "Mock User"\n}',
+      },
+      {
+        id: 'mr-2',
+        enabled: true,
+        method: 'POST',
+        path: '/v1/user',
+        status: 201,
+        delayMs: 80,
+        responseBody: '{\n  "ok": true,\n  "created": true\n}',
+      },
+      {
+        id: 'mr-3',
+        enabled: false,
+        method: 'DELETE',
+        path: '/v1/user/:id',
+        status: 204,
+        delayMs: 40,
+        responseBody: '',
+      },
+    ],
+  },
+  {
+    id: 'mock-payments',
+    name: 'Payments Stub',
+    baseUrl: 'https://mock.restly.local/payments',
+    running: false,
+    description: 'Card charge / refund stubs',
+    routes: [
+      {
+        id: 'mr-4',
+        enabled: true,
+        method: 'POST',
+        path: '/v1/charges',
+        status: 200,
+        delayMs: 250,
+        responseBody: '{\n  "id": "ch_mock",\n  "status": "succeeded"\n}',
+      },
+      {
+        id: 'mr-5',
+        enabled: true,
+        method: 'GET',
+        path: '/v1/charges/:id',
+        status: 404,
+        delayMs: 60,
+        responseBody: '{\n  "error": "not_found"\n}',
       },
     ],
   },

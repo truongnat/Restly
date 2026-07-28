@@ -1,8 +1,8 @@
 # Restly
 
-Desktop-first API client UI (Postman alternative) — **UI phase**.
+Desktop-first API client UI (Postman alternative) — **mock-phase** (no real HTTP / Tauri yet).
 
-Design source: Google Stitch project **Restly API Client**.
+Design under `design/` is **reference only**, not pixel SSOT.
 
 ## Stack
 
@@ -13,7 +13,7 @@ Design source: Google Stitch project **Restly API Client**.
 | Data       | TanStack Query, TanStack Table, TanStack Form, Zustand |
 | Routing    | TanStack Router                                        |
 | Validation | Zod 4                                                  |
-| Tooling    | OXC (oxlint + oxfmt)                                   |
+| Tooling    | OXC (oxlint + oxfmt), Vitest                           |
 
 ## Architecture
 
@@ -21,12 +21,28 @@ Design source: Google Stitch project **Restly API Client**.
 src/app | pages | features | entities | shared | components/ui | infrastructure
 ```
 
+Clean / hexagonal frontend layering — see `.cursor/rules/clean-architecture.mdc`.
+
+## Routes (mock UI)
+
+| Path            | Screen                          |
+| --------------- | ------------------------------- |
+| `/`             | Welcome + import + recent       |
+| `/workspace`    | Request editor + mock Send      |
+| `/history`      | Grouped history, restore/delete |
+| `/environments` | Env + variables CRUD            |
+| `/auth`         | Auth profiles (apply to request)|
+| `/mocks`        | Mock servers + routes           |
+| `/settings`     | Theme / prefs / stubs           |
+
+Persist key: `restly.mock.v1` (folders, envs, history, auth profiles, mock servers, prefs).
+
 ## Develop
 
 ```bash
 npm install
 npm run dev
-npm run check   # fmt + lint + build
+npm run check   # fmt + lint + test + build
 ```
 
 ## Agent skills

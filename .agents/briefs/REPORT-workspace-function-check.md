@@ -1,21 +1,20 @@
 # Brief REPORT — Workspace function check (orchestrator)
 
-Role: **Cursor = brief / review only**. Coders: **agy** + **opencode** (đã có trên VPS).
+Role: **Cursor = brief / review only** (updated after F08 depth).
 
 Date: 2026-07-28  
-Session: `.agent-work/sessions/Task-1-workspace-functions-inventory`  
-Canvas: `.cursor/projects/root-Restly/canvases/restly-workspace-function-check.canvas.tsx`
+Sessions: Task-1…Task-4 + Auth/Mocks/context-menu wave  
+Canvas: `.cursor/projects/root-Restly/canvases/restly-workspace-function-check.canvas.tsx` (may be stale)
 
 ## Verdict
 
-Mock-phase UI **đã xong** theo PLAN (F01–F16 + F19-lite). Màn chính `/workspace` đủ editors + Send mock echo + env substitute. Không còn trạng thái “UI shell + stub tabs” như `INVESTIGATE.md` cũ.
+Mock-phase UI **complete** for planned surface: F01–F16 + **F08 depth** (Auth profiles + Mock Servers) + F19-lite persist + context menus. Màn chính `/workspace` đủ editors + Send mock echo + env substitute. `/auth` và `/mocks` không còn placeholder.
 
 | Metric | Value |
 | --- | --- |
-| TASKS cards | 16/16 `done` (`session.sh status` COMPLETE) |
-| Unit tests | 15/15 pass |
-| Product git | chưa commit (untracked) |
-| Session archive | chưa |
+| Unit tests | `npm run check` green (39+) |
+| Persist | `restly.mock.v1` incl. authProfiles + mockServers |
+| Out of scope | F17 Stitch sync / F18 real HTTP / F20 Tauri |
 
 ## `/workspace` — function matrix
 
@@ -23,39 +22,33 @@ Mock-phase UI **đã xong** theo PLAN (F01–F16 + F19-lite). Màn chính `/work
 | --- | --- | --- | --- |
 | F01 | Auth tab | mock done | `auth-editor.tsx` |
 | F02 | Headers tab | mock done | `headers-editor.tsx` |
-| F03 | Body tab | mock done | `body-editor.tsx` |
+| F03 | Body tab | mock done | `body-editor.tsx` (+ multipart / XML) |
 | F04 | Params editable | mock done | `param-columns.tsx` |
 | F05 | Response Headers/Preview/Copy/Download | mock done | `response-*.tsx` |
 | L1 | Send full draft echo | mock done | `mock-request.adapter.ts` |
 | L2 | `{{var}}` substitute | mock done | `substitute-env.ts` + env pill |
 | F06 | New Request | mock done | `sidebar` `createRequest` |
-| F07 | New Collection | mock done | `sidebar` `createCollection` |
+| F07 | New Collection | mock done | `sidebar` + context menu CRUD |
 | T-010 | TopBar search filter | mock done | `searchQuery` → tree |
 | chrome | Method/URL/Env/select | mock done | url-bar + toolbar |
 | — | Bell / Help / More | **stub** | icons, no handlers |
 
-## Off-workspace (cùng phase)
+## Off-workspace
 
 | ID | Status | Note |
 | --- | --- | --- |
-| F08 | **nav only** | Route OK; `/auth` `/mocks` vẫn placeholder |
-| F09–F11 | mock done | History |
-| F12–F13 | mock done | Environments |
+| F08 | **mock done** | `/auth` profiles + apply; `/mocks` servers/routes/start-stop/use-in-request |
+| F09–F11 | mock done | History + context menu |
+| F12–F13 | mock done | Environments + context menu |
 | F14–F15 | mock done | Settings + prefs |
-| F16 | mock done | Welcome Import mock |
-| F19-lite | mock done | localStorage persist |
+| F16 | mock done | Welcome Import + recent context menu |
+| F19-lite | mock done | localStorage persist (incl. auth + mocks) |
+| Context menus | mock done | Collections, history, env, auth, mocks, welcome |
 | F17 / F18 / F20 | **out** | Stitch sync / real HTTP / Tauri |
 
-## Simple Skills lifecycle
+## Next options (user pick)
 
-`investigate` → `brainstorming` → `planning` → `sync` PASS → `execution` (swarm) = **complete**.  
-Pending hygiene: `done` + `session.sh archive`; optionally refresh INVESTIGATE + `restly-ui-status.canvas.tsx` (stale).
-
-## Không dispatch coder trừ khi user chọn
-
-- **A** — docs/archive only (có thể Cursor housekeeping hoặc brief nhỏ)
-- **B** — F18 Real HTTP → split agy (adapter) / opencode (wire UI cancel/error)
-- **C** — F08 depth Auth/Mocks mock pages
-- **D** — Bell/Help/More menus
-
-Chờ user chọn trước khi viết brief execution mới.
+- **A** — docs/archive hygiene only
+- **B** — F18 Real HTTP (adapter + cancel/error UI)
+- **D** — Bell / Help / More menus
+- **E** — Polish / a11y / keyboard density pass

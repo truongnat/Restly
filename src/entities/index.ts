@@ -4,6 +4,9 @@ export type { HistoryItem, HistoryGroup, HistoryDraftSnapshot } from '@/entities
 export { HISTORY_MAX_ITEMS, HISTORY_BODY_MAX_CHARS } from '@/entities/history'
 export type { Environment, EnvVar } from '@/entities/environment'
 export { ENV_COLOR_OPTIONS } from '@/entities/environment'
+export type { AuthProfile } from '@/entities/auth-profile'
+export { authTypeLabel } from '@/entities/auth-profile'
+export type { MockServer, MockRoute } from '@/entities/mock-server'
 export type { NavId } from '@/entities/navigation'
 export type {
   HeaderRow,

@@ -14,6 +14,13 @@ import {
 
 import { useRestlyStore } from '@/app/store/restly-store'
 import { Button } from '@/components/ui/button'
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu'
 import type { CollectionFolder } from '@/entities/collection'
 import type { NavId } from '@/entities/navigation'
 import { useCollectionsQuery } from '@/features/shell/model/use-collections-query'
@@ -46,7 +53,13 @@ export function Sidebar() {
   const toggleFolder = useRestlyStore((s) => s.toggleFolder)
   const searchQuery = useRestlyStore((s) => s.searchQuery)
   const createRequest = useRestlyStore((s) => s.createRequest)
+  const createRequestInCollection = useRestlyStore((s) => s.createRequestInCollection)
   const createCollection = useRestlyStore((s) => s.createCollection)
+  const renameCollection = useRestlyStore((s) => s.renameCollection)
+  const deleteCollection = useRestlyStore((s) => s.deleteCollection)
+  const renameRequest = useRestlyStore((s) => s.renameRequest)
+  const duplicateRequest = useRestlyStore((s) => s.duplicateRequest)
+  const deleteRequest = useRestlyStore((s) => s.deleteRequest)
 
   const folders = storeFolders.length > 0 ? storeFolders : queryFolders
 
@@ -181,40 +194,98 @@ export function Sidebar() {
             ) : (
               tree.map((folder) => (
                 <div key={folder.id}>
-                  <Button
-                    variant="ghost"
-                    type="button"
-                    onClick={() => toggleFolder(folder.id)}
-                    className="w-full justify-start gap-2 rounded-md px-2 py-[6px] text-foreground hover:bg-muted/60"
-                  >
-                    {folder.open ? (
-                      <ChevronDown className="size-[13px] shrink-0 text-muted-foreground" />
-                    ) : (
-                      <ChevronRight className="size-[13px] shrink-0 text-muted-foreground" />
-                    )}
-                    <FolderOpen className="size-[13px] shrink-0 text-primary/70" />
-                    <span className="truncate text-[13px]">{folder.name}</span>
-                  </Button>
+                  <ContextMenu>
+                    <ContextMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        type="button"
+                        onClick={() => toggleFolder(folder.id)}
+                        className="w-full justify-start gap-2 rounded-md px-2 py-[6px] text-foreground hover:bg-muted/60"
+                      >
+                        {folder.open ? (
+                          <ChevronDown className="size-[13px] shrink-0 text-muted-foreground" />
+                        ) : (
+                          <ChevronRight className="size-[13px] shrink-0 text-muted-foreground" />
+                        )}
+                        <FolderOpen className="size-[13px] shrink-0 text-primary/70" />
+                        <span className="truncate text-[13px]">{folder.name}</span>
+                      </Button>
+                    </ContextMenuTrigger>
+                    <ContextMenuContent className="w-48">
+                      <ContextMenuItem onClick={() => createRequestInCollection(folder.id)}>
+                        New request
+                      </ContextMenuItem>
+                      <ContextMenuItem
+                        onClick={() => {
+                          const next = window.prompt('Rename collection', folder.name)
+                          if (next != null) renameCollection(folder.id, next)
+                        }}
+                      >
+                        Rename
+                      </ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem
+                        variant="destructive"
+                        onClick={() => {
+                          if (window.confirm(`Delete collection “${folder.name}”?`)) {
+                            deleteCollection(folder.id)
+                          }
+                        }}
+                      >
+                        Delete
+                      </ContextMenuItem>
+                    </ContextMenuContent>
+                  </ContextMenu>
                   {folder.open && (
                     <div className="ml-6 flex flex-col gap-0.5 border-l border-border/50 pl-2">
                       {folder.requests.map((req) => {
                         const selected = req.id === activeRequestId
                         return (
-                          <Button
-                            key={req.id}
-                            variant="ghost"
-                            type="button"
-                            onClick={() => selectRequest(req.id)}
-                            className={cn(
-                              'w-full justify-start gap-2 rounded-md px-2 py-[5px] text-left duration-100',
-                              selected
-                                ? 'bg-accent text-accent-foreground hover:bg-accent'
-                                : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
-                            )}
-                          >
-                            <MethodBadge method={req.method} />
-                            <span className="truncate body-sm">{req.name}</span>
-                          </Button>
+                          <ContextMenu key={req.id}>
+                            <ContextMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                type="button"
+                                onClick={() => selectRequest(req.id)}
+                                className={cn(
+                                  'w-full justify-start gap-2 rounded-md px-2 py-[5px] text-left duration-100',
+                                  selected
+                                    ? 'bg-accent text-accent-foreground hover:bg-accent'
+                                    : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
+                                )}
+                              >
+                                <MethodBadge method={req.method} />
+                                <span className="truncate body-sm">{req.name}</span>
+                              </Button>
+                            </ContextMenuTrigger>
+                            <ContextMenuContent className="w-48">
+                              <ContextMenuItem onClick={() => selectRequest(req.id)}>
+                                Open
+                              </ContextMenuItem>
+                              <ContextMenuItem onClick={() => duplicateRequest(req.id)}>
+                                Duplicate
+                              </ContextMenuItem>
+                              <ContextMenuItem
+                                onClick={() => {
+                                  const next = window.prompt('Rename request', req.name)
+                                  if (next != null) renameRequest(req.id, next)
+                                }}
+                              >
+                                Rename
+                              </ContextMenuItem>
+                              <ContextMenuSeparator />
+                              <ContextMenuItem
+                                variant="destructive"
+                                onClick={() => {
+                                  if (window.confirm(`Delete “${req.name}”?`)) {
+                                    deleteRequest(req.id)
+                                  }
+                                }}
+                              >
+                                Delete
+                              </ContextMenuItem>
+                            </ContextMenuContent>
+                          </ContextMenu>
                         )
                       })}
                     </div>

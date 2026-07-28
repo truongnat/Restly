@@ -4,6 +4,13 @@ import { useRef } from 'react'
 
 import { useRestlyStore } from '@/app/store/restly-store'
 import { Button } from '@/components/ui/button'
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu'
 import type { CollectionFolder } from '@/entities'
 import { ROUTES } from '@/shared/constants/app'
 import { MethodBadge } from '@/shared/ui/method-badge'
@@ -38,6 +45,7 @@ export function WelcomePage() {
   const importCollection = useRestlyStore((s) => s.importCollection)
   const history = useRestlyStore((s) => s.history)
   const reopenHistoryItem = useRestlyStore((s) => s.reopenHistoryItem)
+  const removeHistoryItem = useRestlyStore((s) => s.removeHistoryItem)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const recentHistory = history.slice(0, 3)
 
@@ -164,24 +172,44 @@ export function WelcomePage() {
             </div>
             <div className="divide-y divide-border/50 rounded-lg border border-border/60 bg-card">
               {recentHistory.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => {
-                    reopenHistoryItem(item)
-                    void navigate({ to: ROUTES.workspace })
-                  }}
-                  className="group flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors first:rounded-t-lg last:rounded-b-lg hover:bg-muted/40"
-                >
-                  <MethodBadge method={item.method} className="w-[40px]" />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-mono text-[12px] text-foreground">{item.url}</p>
-                    <p className="body-sm text-muted-foreground/70">
-                      {item.status} {item.statusText} · {item.when}
-                    </p>
-                  </div>
-                  <ArrowRight className="size-[13px] text-muted-foreground/40 transition-transform group-hover:translate-x-0.5 group-hover:text-muted-foreground" />
-                </button>
+                <ContextMenu key={item.id}>
+                  <ContextMenuTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        reopenHistoryItem(item)
+                        void navigate({ to: ROUTES.workspace })
+                      }}
+                      className="group flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors first:rounded-t-lg last:rounded-b-lg hover:bg-muted/40"
+                    >
+                      <MethodBadge method={item.method} className="w-[40px]" />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-mono text-[12px] text-foreground">{item.url}</p>
+                        <p className="body-sm text-muted-foreground/70">
+                          {item.status} {item.statusText} · {item.when}
+                        </p>
+                      </div>
+                      <ArrowRight className="size-[13px] text-muted-foreground/40 transition-transform group-hover:translate-x-0.5 group-hover:text-muted-foreground" />
+                    </button>
+                  </ContextMenuTrigger>
+                  <ContextMenuContent className="w-44">
+                    <ContextMenuItem
+                      onClick={() => {
+                        reopenHistoryItem(item)
+                        void navigate({ to: ROUTES.workspace })
+                      }}
+                    >
+                      Restore
+                    </ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem
+                      variant="destructive"
+                      onClick={() => removeHistoryItem(item.id)}
+                    >
+                      Delete
+                    </ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
               ))}
             </div>
           </div>

@@ -62,9 +62,16 @@ Use `UPPER_SNAKE` + `as const`. No magic strings/numbers in UI.
 | Local widget state | `useState` / `useReducer`               |
 | Validation         | Zod in `entities`                       |
 
+## Mock phase
+
+- No real network / Tauri. Persist UI state via `shared/lib/persist.ts` (`restly.mock.v1`).
+- Pages: kebab-case (`auth-page.tsx`, `mocks-page.tsx`). Domain extras: `entities/auth-profile.ts`, `entities/mock-server.ts`.
+- Prefer shadcn primitives under `components/ui` (incl. `context-menu`).
+- Store actions must not be named `use*` (oxlint treats them as hooks).
+
 ## Tooling
 
 - Format: `npm run fmt` (oxfmt)
 - Lint: `npm run lint` (oxlint)
 - Test: `npm test` (Vitest)
-- Gate: `npm run check`
+- Gate: `npm run check` (fmt + lint + test + build)

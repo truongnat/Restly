@@ -1,4 +1,10 @@
-import type { CollectionFolder, Environment, HistoryItem } from '@/entities'
+import type {
+  CollectionFolder,
+  Environment,
+  HistoryItem,
+  AuthProfile,
+  MockServer,
+} from '@/entities'
 
 export const PERSIST_KEY = 'restly.mock.v1'
 
@@ -20,6 +26,10 @@ export type PersistedState = {
   accentColor?: string
   generalToggles?: Record<string, boolean>
   bodyFiles?: PersistedBodyFile[]
+  authProfiles?: AuthProfile[]
+  authProfileId?: string
+  mockServers?: MockServer[]
+  mockServerId?: string
 }
 
 export function loadPersistedState(): PersistedState | null {

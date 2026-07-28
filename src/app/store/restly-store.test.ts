@@ -207,4 +207,132 @@ describe('useRestlyStore remaining mock cards actions', () => {
     state = useRestlyStore.getState()
     expect(state.history.length).toBe(100)
   })
+
+  it('handles collection and request CRUD for context menus', () => {
+    const store = useRestlyStore.getState()
+    const folderId = store.folders[0]!.id
+    const before = store.folders.find((f) => f.id === folderId)!.requests.length
+
+    store.createRequestInCollection(folderId)
+    let state = useRestlyStore.getState()
+    const folder = state.folders.find((f) => f.id === folderId)!
+    expect(folder.requests.length).toBe(before + 1)
+    const created = folder.requests[folder.requests.length - 1]!
+    expect(state.activeRequestId).toBe(created.id)
+
+    store.renameRequest(created.id, 'Renamed Req')
+    state = useRestlyStore.getState()
+    expect(
+      state.folders.find((f) => f.id === folderId)!.requests.find((r) => r.id === created.id)?.name,
+    ).toBe('Renamed Req')
+
+    store.duplicateRequest(created.id)
+    state = useRestlyStore.getState()
+    expect(state.folders.find((f) => f.id === folderId)!.requests.length).toBe(before + 2)
+    expect(state.toast).toBe('Request duplicated')
+
+    store.renameCollection(folderId, 'Renamed Folder')
+    state = useRestlyStore.getState()
+    expect(state.folders.find((f) => f.id === folderId)?.name).toBe('Renamed Folder')
+
+    const dupId = state.folders
+      .find((f) => f.id === folderId)!
+      .requests.find((r) => r.name === 'Renamed Req Copy')!.id
+    store.deleteRequest(dupId)
+    state = useRestlyStore.getState()
+    expect(state.folders.find((f) => f.id === folderId)!.requests.some((r) => r.id === dupId)).toBe(
+      false,
+    )
+
+    store.createCollection()
+    state = useRestlyStore.getState()
+    const empty = state.folders.find((f) => f.name === 'New Collection')!
+    expect(empty).toBeDefined()
+    store.deleteCollection(empty.id)
+    state = useRestlyStore.getState()
+    expect(state.folders.some((f) => f.id === empty.id)).toBe(false)
+  })
+
+  it('handles auth profiles and mock servers CRUD (F08)', () => {
+    const store = useRestlyStore.getState()
+    const authCount = store.authProfiles.length
+    const mockCount = store.mockServers.length
+
+    store.createAuthProfile('CI Token')
+    let state = useRestlyStore.getState()
+    expect(state.authProfiles.length).toBe(authCount + 1)
+    const profile = state.authProfiles.find((p) => p.name === 'CI Token')!
+    expect(profile.auth.type).toBe('bearer')
+
+    store.updateAuthProfile(profile.id, {
+      auth: { type: 'basic', basicUsername: 'ci', basicPassword: 'secret' },
+    })
+    state = useRestlyStore.getState()
+    expect(state.authProfiles.find((p) => p.id === profile.id)?.auth.type).toBe('basic')
+
+    store.applyAuthProfile(profile.id)
+    state = useRestlyStore.getState()
+    expect(state.auth.type).toBe('basic')
+    expect(state.auth.basicUsername).toBe('ci')
+    expect(state.requestTab).toBe('auth')
+    expect(state.authProfileId).toBe(profile.id)
+
+    store.setAuthProfileType(profile.id, 'bearer')
+    state = useRestlyStore.getState()
+    expect(state.authProfiles.find((p) => p.id === profile.id)?.auth.type).toBe('bearer')
+
+    store.duplicateAuthProfile(profile.id)
+    state = useRestlyStore.getState()
+    expect(state.authProfiles.some((p) => p.name === 'CI Token Copy')).toBe(true)
+
+    store.createMockServer('Demo Mock')
+    state = useRestlyStore.getState()
+    expect(state.mockServers.length).toBe(mockCount + 1)
+    const server = state.mockServers.find((s) => s.name === 'Demo Mock')!
+    expect(server.running).toBe(false)
+    expect(server.routes.length).toBe(1)
+
+    store.toggleMockServerRunning(server.id)
+    state = useRestlyStore.getState()
+    expect(state.mockServers.find((s) => s.id === server.id)?.running).toBe(true)
+
+    store.addMockRoute(server.id)
+    state = useRestlyStore.getState()
+    const routes = state.mockServers.find((s) => s.id === server.id)!.routes
+    expect(routes.length).toBe(2)
+    const last = routes[routes.length - 1]!
+    store.updateMockRoute(server.id, last.id, {
+      method: 'POST',
+      path: 'echo',
+      status: 999,
+      delayMs: -5,
+    })
+    state = useRestlyStore.getState()
+    const updated = state.mockServers
+      .find((s) => s.id === server.id)!
+      .routes.find((r) => r.id === last.id)!
+    expect(updated.method).toBe('POST')
+    expect(updated.path).toBe('/echo')
+    expect(updated.status).toBe(599)
+    expect(updated.delayMs).toBe(0)
+
+    store.applyMockRouteToRequest(server.id, last.id)
+    state = useRestlyStore.getState()
+    expect(state.method).toBe('POST')
+    expect(state.url).toContain('/echo')
+
+    store.deleteMockRoute(server.id, last.id)
+    state = useRestlyStore.getState()
+    expect(
+      state.mockServers.find((s) => s.id === server.id)!.routes.some((r) => r.id === last.id),
+    ).toBe(false)
+
+    store.deleteMockServer(server.id)
+    state = useRestlyStore.getState()
+    expect(state.mockServers.some((s) => s.id === server.id)).toBe(false)
+
+    store.deleteAuthProfile(profile.id)
+    state = useRestlyStore.getState()
+    expect(state.authProfiles.some((p) => p.id === profile.id)).toBe(false)
+  })
 })

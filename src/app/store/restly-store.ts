@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 
 import type {
+  AuthProfile,
   CollectionFolder,
   Environment,
   EnvVar,
@@ -8,6 +9,8 @@ import type {
   HistoryItem,
   HistoryDraftSnapshot,
   HttpMethod,
+  MockRoute,
+  MockServer,
   NavId,
   ParamRow,
   RequestAuth,
@@ -19,6 +22,7 @@ import { ENV_COLOR_OPTIONS } from '@/entities/environment'
 import { HISTORY_BODY_MAX_CHARS, HISTORY_MAX_ITEMS } from '@/entities/history'
 import {
   mockAuth,
+  mockAuthProfiles,
   mockBody,
   mockContentType,
   mockEnvironments,
@@ -26,6 +30,7 @@ import {
   mockHeaders,
   mockHistory,
   mockParams,
+  mockServers as mockServerFixtures,
 } from '@/infrastructure/mock/fixtures'
 import {
   applyTheme,
@@ -67,6 +72,41 @@ export type BodyFileItem = {
   file?: File
 }
 
+function flashToast(
+  get: () => { toast: string | null },
+  set: (partial: { toast: string | null }) => void,
+  message: string,
+  stillActive: (toast: string | null) => boolean = (t) => t === message,
+) {
+  set({ toast: message })
+  window.setTimeout(() => {
+    if (stillActive(get().toast)) set({ toast: null })
+  }, 2800)
+}
+
+function authSkeleton(type: RequestAuth['type'], prev?: RequestAuth): RequestAuth {
+  switch (type) {
+    case 'bearer':
+      return { type, bearerToken: prev?.bearerToken ?? '' }
+    case 'basic':
+      return {
+        type,
+        basicUsername: prev?.basicUsername ?? '',
+        basicPassword: prev?.basicPassword ?? '',
+      }
+    case 'oauth':
+      return {
+        type,
+        oauthClientId: prev?.oauthClientId ?? '',
+        oauthClientSecret: prev?.oauthClientSecret ?? '',
+        oauthAuthUrl: prev?.oauthAuthUrl ?? '',
+        oauthTokenUrl: prev?.oauthTokenUrl ?? '',
+      }
+    default:
+      return { type: 'none' }
+  }
+}
+
 type UiState = {
   showWelcome: boolean
   activeNav: NavId
@@ -86,6 +126,10 @@ type UiState = {
   folders: CollectionFolder[]
   history: HistoryItem[]
   environments: Environment[]
+  authProfiles: AuthProfile[]
+  authProfileId: string
+  mockServers: MockServer[]
+  mockServerId: string
   searchQuery: string
   theme: ThemeMode
   accentColor: string
@@ -124,7 +168,13 @@ type UiState = {
   ) => void
   reopenHistoryItem: (item: HistoryItem) => void
   createRequest: () => void
+  createRequestInCollection: (folderId: string) => void
   createCollection: () => void
+  renameCollection: (folderId: string, name: string) => void
+  deleteCollection: (folderId: string) => void
+  renameRequest: (requestId: string, name: string) => void
+  duplicateRequest: (requestId: string) => void
+  deleteRequest: (requestId: string) => void
   importCollection: (collection?: CollectionFolder) => void
   createEnvironment: (name?: string) => void
   deleteEnvironment: (id: string) => void
@@ -134,6 +184,24 @@ type UiState = {
   addVariable: (envId: string) => void
   updateVariable: (envId: string, varId: string, patch: Partial<EnvVar>) => void
   deleteVariable: (envId: string, varId: string) => void
+  setAuthProfileId: (id: string) => void
+  createAuthProfile: (name?: string) => void
+  deleteAuthProfile: (id: string) => void
+  duplicateAuthProfile: (id: string) => void
+  updateAuthProfile: (id: string, patch: Partial<Omit<AuthProfile, 'id'>>) => void
+  applyAuthProfile: (id: string) => void
+  setAuthProfileType: (id: string, type: RequestAuth['type']) => void
+  setMockServerId: (id: string) => void
+  createMockServer: (name?: string) => void
+  deleteMockServer: (id: string) => void
+  duplicateMockServer: (id: string) => void
+  updateMockServer: (id: string, patch: Partial<Omit<MockServer, 'id' | 'routes'>>) => void
+  toggleMockServerRunning: (id: string) => void
+  addMockRoute: (serverId: string) => void
+  updateMockRoute: (serverId: string, routeId: string, patch: Partial<MockRoute>) => void
+  deleteMockRoute: (serverId: string, routeId: string) => void
+  applyMockRouteToRequest: (serverId: string, routeId: string) => void
+  copyText: (text: string, label?: string) => void
   setTheme: (theme: ThemeMode) => void
   setAccentColor: (color: string) => void
   setGeneralToggle: (id: string, value: boolean) => void
@@ -163,6 +231,14 @@ export const useRestlyStore = create<UiState>((set, get) => ({
   folders: initialPersisted?.folders ?? mockFolders,
   history: resolveInitialHistory(),
   environments: resolveInitialEnvironments(),
+  authProfiles: initialPersisted?.authProfiles?.length
+    ? initialPersisted.authProfiles
+    : mockAuthProfiles,
+  authProfileId: initialPersisted?.authProfileId ?? mockAuthProfiles[0]?.id ?? '',
+  mockServers: initialPersisted?.mockServers?.length
+    ? initialPersisted.mockServers
+    : mockServerFixtures,
+  mockServerId: initialPersisted?.mockServerId ?? mockServerFixtures[0]?.id ?? '',
   searchQuery: '',
   theme: initialTheme,
   accentColor: initialPersisted?.accentColor ?? 'emerald',
@@ -280,6 +356,123 @@ export const useRestlyStore = create<UiState>((set, get) => ({
       requests: [],
     }
     set({ folders: [...get().folders, newFolder] })
+  },
+  renameCollection: (folderId, name) => {
+    const trimmed = name.trim()
+    if (!trimmed) return
+    set({
+      folders: get().folders.map((f) => (f.id === folderId ? { ...f, name: trimmed } : f)),
+    })
+  },
+  deleteCollection: (folderId) => {
+    const { folders, activeRequestId } = get()
+    const folder = folders.find((f) => f.id === folderId)
+    if (!folder) return
+    const nextFolders = folders.filter((f) => f.id !== folderId)
+    const activeWasInside = folder.requests.some((r) => r.id === activeRequestId)
+    const fallback = nextFolders.flatMap((f) => f.requests)[0]
+    set({
+      folders: nextFolders,
+      ...(activeWasInside
+        ? {
+            activeRequestId: fallback?.id ?? '',
+            method: fallback?.method ?? get().method,
+            url: fallback?.url ?? get().url,
+          }
+        : {}),
+      toast: `Deleted “${folder.name}”`,
+    })
+    window.setTimeout(() => {
+      if (get().toast?.startsWith('Deleted')) set({ toast: null })
+    }, 2800)
+  },
+  createRequestInCollection: (folderId) => {
+    const newReqId = `req-${Date.now()}`
+    const newReq: RequestItem = {
+      id: newReqId,
+      name: 'Untitled Request',
+      method: 'GET',
+      url: 'https://',
+    }
+    set({
+      folders: get().folders.map((f) =>
+        f.id === folderId ? { ...f, open: true, requests: [...f.requests, newReq] } : f,
+      ),
+      activeRequestId: newReqId,
+      activeNav: 'collections',
+      method: 'GET',
+      url: 'https://',
+      params: [],
+      headers: [],
+      body: '',
+      contentType: 'application/json',
+      auth: { type: 'none' },
+    })
+  },
+  renameRequest: (requestId, name) => {
+    const trimmed = name.trim()
+    if (!trimmed) return
+    set({
+      folders: get().folders.map((f) => ({
+        ...f,
+        requests: f.requests.map((r) => (r.id === requestId ? { ...r, name: trimmed } : r)),
+      })),
+    })
+  },
+  duplicateRequest: (requestId) => {
+    const { folders } = get()
+    let clone: RequestItem | null = null
+    let parentId: string | null = null
+    for (const f of folders) {
+      const found = f.requests.find((r) => r.id === requestId)
+      if (found) {
+        parentId = f.id
+        clone = {
+          ...found,
+          id: `req-${Date.now()}`,
+          name: `${found.name} Copy`,
+        }
+        break
+      }
+    }
+    if (!clone || !parentId) return
+    const cloned = clone
+    set({
+      folders: folders.map((f) =>
+        f.id === parentId ? { ...f, open: true, requests: [...f.requests, cloned] } : f,
+      ),
+      activeRequestId: cloned.id,
+      method: cloned.method,
+      url: cloned.url,
+      toast: 'Request duplicated',
+    })
+    window.setTimeout(() => {
+      if (get().toast === 'Request duplicated') set({ toast: null })
+    }, 2800)
+  },
+  deleteRequest: (requestId) => {
+    const { folders, activeRequestId } = get()
+    let removedName = 'Request'
+    const nextFolders = folders.map((f) => {
+      const hit = f.requests.find((r) => r.id === requestId)
+      if (hit) removedName = hit.name
+      return { ...f, requests: f.requests.filter((r) => r.id !== requestId) }
+    })
+    const fallback = nextFolders.flatMap((f) => f.requests)[0]
+    set({
+      folders: nextFolders,
+      ...(activeRequestId === requestId
+        ? {
+            activeRequestId: fallback?.id ?? '',
+            method: fallback?.method ?? 'GET',
+            url: fallback?.url ?? 'https://',
+          }
+        : {}),
+      toast: `Deleted “${removedName}”`,
+    })
+    window.setTimeout(() => {
+      if (get().toast?.startsWith('Deleted')) set({ toast: null })
+    }, 2800)
   },
   createRequest: () => {
     const { folders, activeRequestId } = get()
@@ -477,6 +670,225 @@ export const useRestlyStore = create<UiState>((set, get) => ({
       ),
     })
   },
+  setAuthProfileId: (id) => set({ authProfileId: id }),
+  createAuthProfile: (name) => {
+    const id = `auth-${Date.now()}`
+    const profile: AuthProfile = {
+      id,
+      name: name?.trim() || 'New Auth Profile',
+      description: '',
+      auth: authSkeleton('bearer'),
+    }
+    set({
+      authProfiles: [...get().authProfiles, profile],
+      authProfileId: id,
+    })
+    flashToast(get, set, 'Auth profile created')
+  },
+  deleteAuthProfile: (id) => {
+    const next = get().authProfiles.filter((p) => p.id !== id)
+    const fallback = next[0]
+    set({
+      authProfiles: next,
+      authProfileId: get().authProfileId === id ? (fallback?.id ?? '') : get().authProfileId,
+    })
+    flashToast(get, set, 'Auth profile deleted')
+  },
+  duplicateAuthProfile: (id) => {
+    const source = get().authProfiles.find((p) => p.id === id)
+    if (!source) return
+    const clone: AuthProfile = {
+      ...source,
+      id: `auth-${Date.now()}`,
+      name: `${source.name} Copy`,
+      auth: { ...source.auth },
+    }
+    set({
+      authProfiles: [...get().authProfiles, clone],
+      authProfileId: clone.id,
+    })
+    flashToast(get, set, 'Auth profile duplicated')
+  },
+  updateAuthProfile: (id, patch) => {
+    set({
+      authProfiles: get().authProfiles.map((p) => {
+        if (p.id !== id) return p
+        const nextName = patch.name !== undefined ? patch.name : p.name
+        return {
+          ...p,
+          ...patch,
+          name: nextName,
+          auth: patch.auth ? { ...p.auth, ...patch.auth } : p.auth,
+        }
+      }),
+    })
+  },
+  setAuthProfileType: (id, type) => {
+    set({
+      authProfiles: get().authProfiles.map((p) =>
+        p.id === id ? { ...p, auth: authSkeleton(type, p.auth) } : p,
+      ),
+    })
+  },
+  applyAuthProfile: (id) => {
+    const profile = get().authProfiles.find((p) => p.id === id)
+    if (!profile) return
+    set({
+      authProfileId: id,
+      auth: { ...profile.auth },
+      requestTab: 'auth',
+    })
+    flashToast(get, set, `Applied “${profile.name}” to request`, (t) =>
+      Boolean(t?.startsWith('Applied')),
+    )
+  },
+  setMockServerId: (id) => set({ mockServerId: id }),
+  createMockServer: (name) => {
+    const id = `mock-${Date.now()}`
+    const server: MockServer = {
+      id,
+      name: name?.trim() || 'New Mock Server',
+      baseUrl: `https://mock.restly.local/${id.slice(-4)}`,
+      running: false,
+      description: '',
+      routes: [
+        {
+          id: `mr-${Date.now()}`,
+          enabled: true,
+          method: 'GET',
+          path: '/',
+          status: 200,
+          delayMs: 0,
+          responseBody: '{\n  "ok": true\n}',
+        },
+      ],
+    }
+    set({
+      mockServers: [...get().mockServers, server],
+      mockServerId: id,
+    })
+    flashToast(get, set, 'Mock server created')
+  },
+  deleteMockServer: (id) => {
+    const next = get().mockServers.filter((s) => s.id !== id)
+    const fallback = next[0]
+    set({
+      mockServers: next,
+      mockServerId: get().mockServerId === id ? (fallback?.id ?? '') : get().mockServerId,
+    })
+    flashToast(get, set, 'Mock server deleted')
+  },
+  duplicateMockServer: (id) => {
+    const source = get().mockServers.find((s) => s.id === id)
+    if (!source) return
+    const stamp = Date.now()
+    const clone: MockServer = {
+      ...source,
+      id: `mock-${stamp}`,
+      name: `${source.name} Copy`,
+      running: false,
+      routes: source.routes.map((r, i) => ({ ...r, id: `mr-${stamp}-${i}` })),
+    }
+    set({
+      mockServers: [...get().mockServers, clone],
+      mockServerId: clone.id,
+    })
+    flashToast(get, set, 'Mock server duplicated')
+  },
+  updateMockServer: (id, patch) => {
+    set({
+      mockServers: get().mockServers.map((s) => (s.id === id ? { ...s, ...patch } : s)),
+    })
+  },
+  toggleMockServerRunning: (id) => {
+    const server = get().mockServers.find((s) => s.id === id)
+    if (!server) return
+    const running = !server.running
+    set({
+      mockServers: get().mockServers.map((s) => (s.id === id ? { ...s, running } : s)),
+    })
+    flashToast(
+      get,
+      set,
+      running ? `“${server.name}” is running` : `“${server.name}” stopped`,
+      (t) => Boolean(t?.includes('running') || t?.includes('stopped')),
+    )
+  },
+  addMockRoute: (serverId) => {
+    const route: MockRoute = {
+      id: `mr-${Date.now()}`,
+      enabled: true,
+      method: 'GET',
+      path: '/new',
+      status: 200,
+      delayMs: 0,
+      responseBody: '{\n  "ok": true\n}',
+    }
+    set({
+      mockServers: get().mockServers.map((s) =>
+        s.id === serverId ? { ...s, routes: [...s.routes, route] } : s,
+      ),
+    })
+  },
+  updateMockRoute: (serverId, routeId, patch) => {
+    const cleaned: Partial<MockRoute> = { ...patch }
+    if (typeof cleaned.status === 'number') {
+      cleaned.status = Math.min(599, Math.max(100, Math.round(cleaned.status) || 200))
+    }
+    if (typeof cleaned.delayMs === 'number') {
+      cleaned.delayMs = Math.max(0, Math.round(cleaned.delayMs) || 0)
+    }
+    if (
+      typeof cleaned.path === 'string' &&
+      cleaned.path.length > 0 &&
+      !cleaned.path.startsWith('/')
+    ) {
+      cleaned.path = `/${cleaned.path}`
+    }
+    set({
+      mockServers: get().mockServers.map((s) =>
+        s.id === serverId
+          ? {
+              ...s,
+              routes: s.routes.map((r) => (r.id === routeId ? { ...r, ...cleaned } : r)),
+            }
+          : s,
+      ),
+    })
+  },
+  deleteMockRoute: (serverId, routeId) => {
+    set({
+      mockServers: get().mockServers.map((s) =>
+        s.id === serverId ? { ...s, routes: s.routes.filter((r) => r.id !== routeId) } : s,
+      ),
+    })
+  },
+  applyMockRouteToRequest: (serverId, routeId) => {
+    const server = get().mockServers.find((s) => s.id === serverId)
+    const route = server?.routes.find((r) => r.id === routeId)
+    if (!server || !route) return
+    const base = server.baseUrl.replace(/\/$/, '')
+    const path = route.path.startsWith('/') ? route.path : `/${route.path}`
+    set({
+      method: route.method,
+      url: `${base}${path}`,
+      requestTab: 'params',
+      activeNav: 'collections',
+    })
+    flashToast(get, set, `Opened ${route.method} ${path} in request`, (t) =>
+      Boolean(t?.startsWith('Opened')),
+    )
+  },
+  copyText: (text, label = 'Copied') => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+      void navigator.clipboard.writeText(text).then(
+        () => flashToast(get, set, label),
+        () => flashToast(get, set, 'Copy failed'),
+      )
+      return
+    }
+    flashToast(get, set, 'Copy unavailable')
+  },
   setTheme: (theme) => {
     applyTheme(theme)
     set({ theme })
@@ -504,6 +916,10 @@ if (typeof window !== 'undefined') {
         size,
         fieldName,
       })),
+      authProfiles: state.authProfiles,
+      authProfileId: state.authProfileId,
+      mockServers: state.mockServers,
+      mockServerId: state.mockServerId,
     })
   })
 }

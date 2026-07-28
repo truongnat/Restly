@@ -6,6 +6,13 @@ import { useRestlyStore } from '@/app/store/restly-store'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu'
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -206,75 +213,92 @@ export function HistoryPage() {
 
                   <div className="flex flex-col gap-1">
                     {items.map((item) => (
-                      <div
-                        key={item.id}
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => restoreItem(item)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault()
-                            restoreItem(item)
-                          }
-                        }}
-                        className="group relative flex w-full cursor-pointer items-center gap-4 rounded-xl border border-transparent px-3 py-2.5 text-left shadow-sm transition-all hover:border-border/60 hover:bg-muted/40 hover:shadow-md"
-                      >
-                        <MethodBadge method={item.method} className="w-[44px]" />
-
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate font-mono text-[12px] text-foreground">
-                            {item.url}
-                          </div>
-                          <div className="mt-0.5 flex items-center gap-2">
-                            <span className="body-sm text-muted-foreground/70">{item.when}</span>
-                            <span className="size-[3px] rounded-full bg-border" />
-                            <span className="body-sm text-muted-foreground/70">
-                              {item.durationMs}ms
-                            </span>
-                          </div>
-                        </div>
-
-                        <Badge
-                          variant="secondary"
-                          className={cn(
-                            'shrink-0 font-mono text-[11px]',
-                            statusBadgeClass(item.status),
-                          )}
-                        >
-                          {item.status} {item.statusText}
-                        </Badge>
-
-                        <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            type="button"
-                            title="Restore"
-                            aria-label={`Restore ${item.method} ${item.url}`}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              restoreItem(item)
+                      <ContextMenu key={item.id}>
+                        <ContextMenuTrigger asChild>
+                          <div
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => restoreItem(item)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault()
+                                restoreItem(item)
+                              }
                             }}
-                            className="text-primary hover:bg-primary/10"
+                            className="group relative flex w-full cursor-pointer items-center gap-4 rounded-xl border border-transparent px-3 py-2.5 text-left shadow-sm transition-all hover:border-border/60 hover:bg-muted/40 hover:shadow-md"
                           >
-                            <RotateCcw className="size-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            type="button"
-                            title="Delete"
-                            aria-label={`Delete history item ${item.url}`}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              removeHistoryItem(item.id)
-                            }}
-                            className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                            <MethodBadge method={item.method} className="w-[44px]" />
+
+                            <div className="min-w-0 flex-1">
+                              <div className="truncate font-mono text-[12px] text-foreground">
+                                {item.url}
+                              </div>
+                              <div className="mt-0.5 flex items-center gap-2">
+                                <span className="body-sm text-muted-foreground/70">
+                                  {item.when}
+                                </span>
+                                <span className="size-[3px] rounded-full bg-border" />
+                                <span className="body-sm text-muted-foreground/70">
+                                  {item.durationMs}ms
+                                </span>
+                              </div>
+                            </div>
+
+                            <Badge
+                              variant="secondary"
+                              className={cn(
+                                'shrink-0 font-mono text-[11px]',
+                                statusBadgeClass(item.status),
+                              )}
+                            >
+                              {item.status} {item.statusText}
+                            </Badge>
+
+                            <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+                              <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                type="button"
+                                title="Restore"
+                                aria-label={`Restore ${item.method} ${item.url}`}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  restoreItem(item)
+                                }}
+                                className="text-primary hover:bg-primary/10"
+                              >
+                                <RotateCcw className="size-3.5" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                type="button"
+                                title="Delete"
+                                aria-label={`Delete history item ${item.url}`}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  removeHistoryItem(item.id)
+                                }}
+                                className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                              >
+                                <Trash2 className="size-3.5" />
+                              </Button>
+                            </div>
+                          </div>
+                        </ContextMenuTrigger>
+                        <ContextMenuContent className="w-44">
+                          <ContextMenuItem onClick={() => restoreItem(item)}>
+                            Restore
+                          </ContextMenuItem>
+                          <ContextMenuSeparator />
+                          <ContextMenuItem
+                            variant="destructive"
+                            onClick={() => removeHistoryItem(item.id)}
                           >
-                            <Trash2 className="size-3.5" />
-                          </Button>
-                        </div>
-                      </div>
+                            Delete
+                          </ContextMenuItem>
+                        </ContextMenuContent>
+                      </ContextMenu>
                     ))}
                   </div>
                 </section>
