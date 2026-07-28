@@ -8,6 +8,7 @@ export type PersistedBodyFile = {
   id: string
   name: string
   size: number
+  fieldName?: string
 }
 
 export type PersistedState = {
@@ -42,6 +43,7 @@ export function savePersistedState(state: PersistedState): void {
         id: f.id,
         name: f.name,
         size: f.size,
+        fieldName: f.fieldName ?? 'file',
       }))
     }
     localStorage.setItem(PERSIST_KEY, JSON.stringify(cleanState))

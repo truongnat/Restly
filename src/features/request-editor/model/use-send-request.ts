@@ -91,6 +91,7 @@ export function useSendRequestMutation() {
   const headers = useRestlyStore((s) => s.headers)
   const body = useRestlyStore((s) => s.body)
   const contentType = useRestlyStore((s) => s.contentType)
+  const bodyFiles = useRestlyStore((s) => s.bodyFiles)
   const auth = useRestlyStore((s) => s.auth)
   const environmentId = useRestlyStore((s) => s.environmentId)
   const environments = useRestlyStore((s) => s.environments)
@@ -125,6 +126,12 @@ export function useSendRequestMutation() {
       body: resolvedBody,
       contentType,
       auth: resolvedAuth,
+      bodyFiles: bodyFiles.map(({ id, fieldName, name, size }) => ({
+        id,
+        fieldName: fieldName.trim() || 'file',
+        name,
+        size,
+      })),
     })
   }
 

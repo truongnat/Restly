@@ -31,6 +31,13 @@ export const requestAuthSchema = z.object({
   oauthAuthUrl: z.string().optional(),
 })
 
+export const bodyFilePartSchema = z.object({
+  id: z.string().min(1),
+  fieldName: z.string(),
+  name: z.string(),
+  size: z.number().nonnegative(),
+})
+
 export const requestDraftSchema = z.object({
   method: httpMethodSchema,
   url: z.string().min(1, 'URL is required'),
@@ -39,6 +46,7 @@ export const requestDraftSchema = z.object({
   body: z.string().default(''),
   contentType: z.string().default('application/json'),
   auth: requestAuthSchema.default({ type: 'none' }),
+  bodyFiles: z.array(bodyFilePartSchema).default([]),
 })
 
 export const envVarSchema = z.object({

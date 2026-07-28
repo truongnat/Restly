@@ -121,10 +121,20 @@ describe('useRestlyStore remaining mock cards actions', () => {
     let state = useRestlyStore.getState()
     expect(state.bodyFiles.length).toBe(1)
     expect(state.bodyFiles[0].name).toBe('test.txt')
+    expect(state.bodyFiles[0].fieldName).toBe('file')
 
     const fileId = state.bodyFiles[0].id
+    store.updateBodyFile(fileId, { fieldName: 'avatar' })
+    state = useRestlyStore.getState()
+    expect(state.bodyFiles[0].fieldName).toBe('avatar')
+
+    store.addBodyFiles([new File(['x'], 'doc.pdf', { type: 'application/pdf' })], 'documents')
+    state = useRestlyStore.getState()
+    expect(state.bodyFiles.length).toBe(2)
+    expect(state.bodyFiles[1].fieldName).toBe('documents')
+
     store.removeBodyFile(fileId)
     state = useRestlyStore.getState()
-    expect(state.bodyFiles.length).toBe(0)
+    expect(state.bodyFiles.length).toBe(1)
   })
 })

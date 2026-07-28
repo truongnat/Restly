@@ -22,9 +22,26 @@ describe('validateBody', () => {
     expect(result.error).toBeTruthy()
   })
 
-  it('returns valid for non-JSON content types even with arbitrary text', () => {
+  it('returns valid for empty XML body', () => {
+    expect(validateBody('', 'application/xml')).toEqual({ isValid: true, error: null })
+    expect(validateBody('   ', 'application/xml')).toEqual({ isValid: true, error: null })
+  })
+
+  it('returns valid for valid XML body', () => {
+    expect(validateBody('<note><to>User</to></note>', 'application/xml')).toEqual({
+      isValid: true,
+      error: null,
+    })
+  })
+
+  it('returns invalid with error message for invalid XML body', () => {
+    const result = validateBody('<note><<to>', 'application/xml')
+    expect(result.isValid).toBe(false)
+    expect(result.error).toBeTruthy()
+  })
+
+  it('returns valid for non-JSON/XML content types even with arbitrary text', () => {
     expect(validateBody('plain text', 'text/plain')).toEqual({ isValid: true, error: null })
-    expect(validateBody('<xml></xml>', 'application/xml')).toEqual({ isValid: true, error: null })
   })
 })
 
@@ -43,7 +60,21 @@ describe('formatBody', () => {
     expect(result.error).toBeTruthy()
   })
 
-  it('returns unchanged text for non-JSON content type', () => {
+  it('formats valid XML with indentation', () => {
+    const input = '<note><to>User</to></note>'
+    const result = formatBody(input, 'application/xml')
+    expect(result.formatted).toBe('<note>\n  <to>User</to>\n</note>')
+    expect(result.error).toBeUndefined()
+  })
+
+  it('returns original text and error when formatting invalid XML', () => {
+    const input = '<note><<to>'
+    const result = formatBody(input, 'application/xml')
+    expect(result.formatted).toBe(input)
+    expect(result.error).toBeTruthy()
+  })
+
+  it('returns unchanged text for non-JSON/XML content type', () => {
     const input = 'hello world'
     const result = formatBody(input, 'text/plain')
     expect(result.formatted).toBe(input)

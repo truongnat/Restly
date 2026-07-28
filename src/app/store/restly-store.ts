@@ -41,6 +41,8 @@ export type BodyFileItem = {
   id: string
   name: string
   size: number
+  /** multipart form-data field name (`name="…"`) */
+  fieldName: string
   file?: File
 }
 
@@ -79,8 +81,9 @@ type UiState = {
   setHeaders: (v: HeaderRow[]) => void
   setBody: (v: string) => void
   setContentType: (v: string) => void
-  addBodyFiles: (files: File[]) => void
+  addBodyFiles: (files: File[], fieldName?: string) => void
   removeBodyFile: (id: string) => void
+  updateBodyFile: (id: string, patch: Partial<Pick<BodyFileItem, 'fieldName'>>) => void
   setBodyFiles: (files: BodyFileItem[]) => void
   setAuth: (v: RequestAuth) => void
   toggleFolder: (id: string) => void
@@ -123,7 +126,12 @@ export const useRestlyStore = create<UiState>((set, get) => ({
   headers: mockHeaders,
   body: mockBody,
   contentType: mockContentType,
-  bodyFiles: initialPersisted?.bodyFiles ?? [],
+  bodyFiles: (initialPersisted?.bodyFiles ?? []).map((f) => ({
+    id: f.id,
+    name: f.name,
+    size: f.size,
+    fieldName: f.fieldName?.trim() || 'file',
+  })),
   auth: mockAuth,
   toast: null,
   folders: initialPersisted?.folders ?? mockFolders,
@@ -163,16 +171,22 @@ export const useRestlyStore = create<UiState>((set, get) => ({
   setHeaders: (headers) => set({ headers }),
   setBody: (body) => set({ body }),
   setContentType: (contentType) => set({ contentType }),
-  addBodyFiles: (newFiles) => {
+  addBodyFiles: (newFiles, fieldName) => {
+    const resolvedField = fieldName?.trim() || 'file'
     const items: BodyFileItem[] = newFiles.map((file) => ({
       id: `file-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
       name: file.name,
       size: file.size,
+      fieldName: resolvedField,
       file,
     }))
     set((s) => ({ bodyFiles: [...s.bodyFiles, ...items] }))
   },
   removeBodyFile: (id) => set((s) => ({ bodyFiles: s.bodyFiles.filter((f) => f.id !== id) })),
+  updateBodyFile: (id, patch) =>
+    set((s) => ({
+      bodyFiles: s.bodyFiles.map((f) => (f.id === id ? { ...f, ...patch } : f)),
+    })),
   setBodyFiles: (bodyFiles) => set({ bodyFiles }),
   setAuth: (auth) => set({ auth }),
   toggleFolder: (id) =>
@@ -405,7 +419,12 @@ if (typeof window !== 'undefined') {
       theme: state.theme,
       accentColor: state.accentColor,
       generalToggles: state.generalToggles,
-      bodyFiles: state.bodyFiles.map(({ id, name, size }) => ({ id, name, size })),
+      bodyFiles: state.bodyFiles.map(({ id, name, size, fieldName }) => ({
+        id,
+        name,
+        size,
+        fieldName,
+      })),
     })
   })
 }

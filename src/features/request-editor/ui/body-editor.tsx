@@ -1,3 +1,5 @@
+import hljs from 'highlight.js/lib/core'
+import xml from 'highlight.js/lib/languages/xml'
 import * as React from 'react'
 import { useRef } from 'react'
 
@@ -19,6 +21,8 @@ import { getEnvResolutionTooltip, hasUnresolvedEnvTokens } from '@/shared/lib/su
 import { formatBody, validateBody } from '@/shared/lib/validate-body'
 import { EnvAwareTextarea } from '@/shared/ui/env-aware-input'
 
+hljs.registerLanguage('xml', xml)
+
 const CONTENT_TYPES = [
   { label: 'JSON (application/json)', value: 'application/json' },
   { label: 'Text (text/plain)', value: 'text/plain' },
@@ -34,8 +38,7 @@ const EXAMPLES: Record<string, string> = {
   'application/xml':
     '<?xml version="1.0" encoding="UTF-8"?>\n<note>\n  <to>Tove</to>\n  <from>Jani</from>\n  <heading>Reminder</heading>\n  <body>Don\'t forget me this weekend!</body>\n</note>',
   'application/x-www-form-urlencoded': 'name=John+Doe&email=john%40example.com&age=30',
-  'multipart/form-data':
-    '--boundary\nContent-Disposition: form-data; name="name"\n\nJohn Doe\n--boundary\nContent-Disposition: form-data; name="file"; filename="example.txt"\nContent-Type: text/plain\n\nFile content here\n--boundary--',
+  'multipart/form-data': '',
 }
 
 function renderHighlightedJson(text: string, vars: EnvVarSubstituteItem[] = []): React.ReactNode {
@@ -225,6 +228,83 @@ function JsonBodyEditor({
   )
 }
 
+function renderXmlHighlight(text: string, vars: EnvVarSubstituteItem[] = []): string {
+  if (!text) return ''
+
+  const enabledKeys = new Set(
+    vars.filter((v) => v.enabled !== false && Boolean(v.key)).map((v) => v.key.trim()),
+  )
+
+  const rawHtml = hljs.highlight(text + (text.endsWith('\n') ? ' ' : ''), {
+    language: 'xml',
+  }).value
+
+  return rawHtml.replace(/\{\{\s*([^}\s]+)\s*\}\}/g, (match, varName) => {
+    const isResolved = enabledKeys.has(varName)
+    if (isResolved) {
+      return `<span class="font-semibold text-teal-500 dark:text-teal-400">${match}</span>`
+    }
+    return `<span class="rounded bg-destructive/10 px-0.5 font-bold text-destructive">${match}</span>`
+  })
+}
+
+function XmlBodyEditor({
+  value,
+  onChange,
+  placeholder,
+  vars,
+}: {
+  value: string
+  onChange: (val: string) => void
+  placeholder?: string
+  vars: EnvVarSubstituteItem[]
+}) {
+  const preRef = useRef<HTMLPreElement>(null)
+  const tooltipText = getEnvResolutionTooltip(value, vars)
+  const hasUnresolved = hasUnresolvedEnvTokens(value, vars)
+
+  const editorContainer = (
+    <div
+      className={`relative h-full min-h-0 w-full flex-1 rounded-lg border bg-transparent font-mono text-xs leading-relaxed transition-colors ${
+        hasUnresolved ? 'border-destructive ring-1 ring-destructive/20' : 'border-input'
+      }`}
+    >
+      <pre
+        ref={preRef}
+        aria-hidden="true"
+        dangerouslySetInnerHTML={{ __html: renderXmlHighlight(value, vars) }}
+        className="pointer-events-none absolute inset-0 overflow-auto p-2.5 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap text-foreground [font-kerning:none] [font-variant-ligatures:none]"
+      />
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onScroll={(e) => {
+          if (preRef.current) {
+            preRef.current.scrollTop = e.currentTarget.scrollTop
+            preRef.current.scrollLeft = e.currentTarget.scrollLeft
+          }
+        }}
+        spellCheck={false}
+        autoCorrect="off"
+        autoCapitalize="off"
+        placeholder={placeholder}
+        className="absolute inset-0 h-full w-full resize-none overflow-auto border-0 bg-transparent p-2.5 font-mono text-xs leading-relaxed text-transparent caret-foreground outline-none [font-kerning:none] [font-variant-ligatures:none] selection:bg-accent selection:text-accent-foreground placeholder:text-muted-foreground"
+      />
+    </div>
+  )
+
+  if (!tooltipText) return editorContainer
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{editorContainer}</TooltipTrigger>
+      <TooltipContent side="top" className="max-w-xs font-mono text-xs break-all">
+        {tooltipText}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
 export function BodyEditor() {
   const body = useRestlyStore((s) => s.body)
   const contentType = useRestlyStore((s) => s.contentType)
@@ -232,6 +312,7 @@ export function BodyEditor() {
   const environments = useRestlyStore((s) => s.environments)
   const setBody = useRestlyStore((s) => s.setBody)
   const setContentType = useRestlyStore((s) => s.setContentType)
+  const setHeaders = useRestlyStore((s) => s.setHeaders)
 
   const activeEnv = resolveActiveEnvironment(environments, environmentId)
   const vars = activeEnv?.variables ?? []
@@ -242,12 +323,52 @@ export function BodyEditor() {
     setContentType(newContentType)
     const example = EXAMPLES[newContentType] ?? ''
     setBody(example)
+
+    // Keep Headers tab in sync so Content-Type looks like a real request header.
+    const headers = useRestlyStore.getState().headers
+    const ctIdx = headers.findIndex((h) => h.key.toLowerCase() === 'content-type')
+    if (newContentType === 'multipart/form-data') {
+      const value = 'multipart/form-data; boundary=----RestlyFormBoundary'
+      if (ctIdx >= 0) {
+        const next = [...headers]
+        next[ctIdx] = { ...next[ctIdx]!, value, enabled: true }
+        setHeaders(next)
+      } else {
+        setHeaders([
+          ...headers,
+          {
+            id: `h-ct-${Date.now()}`,
+            enabled: true,
+            key: 'Content-Type',
+            value,
+            description: 'Set from Body content type',
+          },
+        ])
+      }
+    } else if (ctIdx >= 0) {
+      const next = [...headers]
+      next[ctIdx] = { ...next[ctIdx]!, value: newContentType, enabled: true }
+      setHeaders(next)
+    } else if (newContentType) {
+      setHeaders([
+        ...headers,
+        {
+          id: `h-ct-${Date.now()}`,
+          enabled: true,
+          key: 'Content-Type',
+          value: newContentType,
+          description: 'Set from Body content type',
+        },
+      ])
+    }
   }
 
   const handleFormat = () => {
     const res = formatBody(body, contentType)
     setBody(res.formatted)
   }
+
+  const isXmlContent = contentType.toLowerCase().includes('xml')
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3 p-4">
@@ -273,9 +394,11 @@ export function BodyEditor() {
           </Select>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleFormat} className="h-8 text-xs">
-            Format
-          </Button>
+          {!contentType.toLowerCase().includes('multipart') && (
+            <Button variant="outline" size="sm" onClick={handleFormat} className="h-8 text-xs">
+              Format
+            </Button>
+          )}
         </div>
       </div>
 
@@ -287,12 +410,15 @@ export function BodyEditor() {
             placeholder={EXAMPLES['application/json']}
             vars={vars}
           />
-        ) : contentType === 'multipart/form-data' ? (
-          <MultipartFilesEditor
-            body={body}
-            onBodyChange={setBody}
-            placeholder={EXAMPLES['multipart/form-data']}
+        ) : isXmlContent ? (
+          <XmlBodyEditor
+            value={body}
+            onChange={setBody}
+            placeholder={EXAMPLES['application/xml']}
+            vars={vars}
           />
+        ) : contentType === 'multipart/form-data' ? (
+          <MultipartFilesEditor />
         ) : (
           <EnvAwareTextarea
             value={body}

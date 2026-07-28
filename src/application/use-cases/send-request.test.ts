@@ -25,6 +25,7 @@ const draft: RequestDraft = {
   body: '{"test":true}',
   contentType: 'application/json',
   auth: { type: 'bearer', bearerToken: 'my-token' },
+  bodyFiles: [],
 }
 
 afterEach(() => {
@@ -83,10 +84,41 @@ describe('createMockRequestClient', () => {
     const mockClient = createMockRequestClient()
     const res = await mockClient.send(draft)
     expect(res.status).toBe(200)
-    expect(res.headers?.['content-type']).toBe('application/json')
+    expect(res.headers?.['content-type']).toBe('application/json; charset=utf-8')
+    expect(res.headers?.['server']).toBe('Restly-Mock/1.0')
+    expect(res.headers?.['x-request-id']).toBeTruthy()
 
     const parsed = JSON.parse(res.body)
-    expect(parsed.echo.method).toBe('GET')
-    expect(parsed.echo.auth.type).toBe('bearer')
+    expect(parsed.request.method).toBe('GET')
+    expect(parsed.request.auth).toBe('bearer')
+    expect(parsed.request.headers['Content-Type']).toBe('application/json')
+  })
+
+  it('echoes multipart field names and returns rich headers', async () => {
+    const { createMockRequestClient } =
+      await import('@/infrastructure/adapters/mock/mock-request.adapter')
+    const mockClient = createMockRequestClient()
+    const res = await mockClient.send({
+      ...draft,
+      method: 'POST',
+      contentType: 'multipart/form-data',
+      body: '',
+      bodyFiles: [
+        { id: '1', fieldName: 'avatar', name: 'me.png', size: 1200 },
+        { id: '2', fieldName: 'docs', name: 'a.pdf', size: 4000 },
+        { id: '3', fieldName: 'docs', name: 'b.pdf', size: 5000 },
+      ],
+    })
+
+    expect(res.status).toBe(200)
+    expect(res.headers?.['content-length']).toBeTruthy()
+    expect(res.headers?.date).toBeTruthy()
+
+    const parsed = JSON.parse(res.body)
+    expect(parsed.uploaded.fieldCount).toBe(2)
+    expect(parsed.uploaded.fileCount).toBe(3)
+    expect(parsed.uploaded.fields.avatar).toHaveLength(1)
+    expect(parsed.uploaded.fields.docs).toHaveLength(2)
+    expect(parsed.request.headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=/)
   })
 })

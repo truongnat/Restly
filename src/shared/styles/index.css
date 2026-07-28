@@ -384,3 +384,38 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ==========================================================================
+   Syntax Highlighting — highlight.js XML theme
+   ========================================================================== */
+.hljs-tag {
+  color: var(--color-foreground);
+}
+.hljs-name {
+  color: #0284c7;
+}
+.dark .hljs-name {
+  color: #38bdf8;
+}
+.hljs-attr {
+  color: #4f46e5;
+}
+.dark .hljs-attr {
+  color: #818cf8;
+}
+.hljs-string {
+  color: #059669;
+}
+.dark .hljs-string {
+  color: #34d399;
+}
+.hljs-meta {
+  color: #d97706;
+}
+.dark .hljs-meta {
+  color: #fbbf24;
+}
+.hljs-comment {
+  color: var(--color-muted-foreground);
+  font-style: italic;
+}

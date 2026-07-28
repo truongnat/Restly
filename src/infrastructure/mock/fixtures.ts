@@ -52,9 +52,23 @@ export const mockHeaders: HeaderRow[] = [
   {
     id: 'h2',
     enabled: true,
+    key: 'Content-Type',
+    value: 'application/json',
+    description: 'Request body media type',
+  },
+  {
+    id: 'h3',
+    enabled: true,
     key: 'User-Agent',
     value: 'Restly/1.0.0',
     description: 'Client identifier',
+  },
+  {
+    id: 'h4',
+    enabled: true,
+    key: 'X-Request-Id',
+    value: 'req_mock_9981223',
+    description: 'Client correlation id',
   },
 ]
 
