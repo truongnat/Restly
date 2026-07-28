@@ -16,7 +16,7 @@ export type HeaderRow = {
   description?: string
 }
 
-export type RequestAuthType = 'none' | 'bearer' | 'basic' | 'oauth'
+export type RequestAuthType = 'none' | 'bearer' | 'basic' | 'oauth' | 'apikey'
 
 export type RequestAuth = {
   type: RequestAuthType
@@ -27,6 +27,9 @@ export type RequestAuth = {
   oauthClientSecret?: string
   oauthTokenUrl?: string
   oauthAuthUrl?: string
+  apiKey?: string
+  apiKeyHeader?: string
+  apiKeyIn?: 'header' | 'query'
 }
 
 export type RequestItem = {
@@ -36,5 +39,5 @@ export type RequestItem = {
   url: string
 }
 
-export type RequestTab = 'params' | 'auth' | 'headers' | 'body'
+export type RequestTab = 'params' | 'auth' | 'headers' | 'body' | 'scripts'
 export type ResponseTab = 'pretty' | 'raw' | 'preview' | 'headers'

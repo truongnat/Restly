@@ -37,18 +37,18 @@ Mock-phase UI **complete** for planned surface: F01–F16 + **F08 depth** (Auth 
 
 | ID | Status | Note |
 | --- | --- | --- |
-| F08 | **mock done** | `/auth` profiles + apply; `/mocks` servers/routes/start-stop/use-in-request |
-| F09–F11 | mock done | History + context menu |
-| F12–F13 | mock done | Environments + context menu |
+| F08 | **mock done** | Auth profiles + Mock Servers |
+| F09–F11 | mock done | History |
+| F12–F13 | mock done | Environments |
 | F14–F15 | mock done | Settings + prefs |
-| F16 | mock done | Welcome Import + recent context menu |
-| F19-lite | mock done | localStorage persist (incl. auth + mocks) |
-| Context menus | mock done | Collections, history, env, auth, mocks, welcome |
-| F17 / F18 / F20 | **out** | Stitch sync / real HTTP / Tauri |
+| F16 | mock done | Welcome Import/Export |
+| F18 | **hybrid done** | Real `fetch` Send + cancel; `VITE_USE_MOCK_HTTP` fallback; mock-route wire |
+| F19-lite | mock done | localStorage persist |
+| Power UX | done | ⌘K, codegen, GraphQL mode, WS/SSE, scripts sandbox |
+| F17 / F20 | **out** | Stitch sync / Tauri+Keychain+Sparkle |
 
-## Next options (user pick)
+## Next options
 
-- **A** — docs/archive hygiene only
-- **B** — F18 Real HTTP (adapter + cancel/error UI)
+- **B+** — deepen OAuth / nested collections / wire secret-vault into env persist
+- **F20** — Tauri + OS Keychain + Sparkle
 - **D** — Bell / Help / More menus
-- **E** — Polish / a11y / keyboard density pass

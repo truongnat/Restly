@@ -3,5 +3,5 @@ import type { HttpExchangeResult } from '@/entities/response'
 
 /** Driven port — execute an HTTP exchange (mock or real later). */
 export interface RequestClient {
-  send(draft: RequestDraft): Promise<HttpExchangeResult>
+  send(draft: RequestDraft, signal?: AbortSignal): Promise<HttpExchangeResult>
 }

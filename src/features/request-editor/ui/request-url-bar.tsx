@@ -19,7 +19,7 @@ interface RequestUrlBarProps {
 }
 
 export function RequestUrlBar({ sendState }: RequestUrlBarProps) {
-  const { method, setMethod, url, setUrl, isPending, isSendDisabled, onSend } = sendState
+  const { method, setMethod, url, setUrl, isPending, isSendDisabled, onSend, onCancel } = sendState
 
   return (
     <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -54,15 +54,15 @@ export function RequestUrlBar({ sendState }: RequestUrlBarProps) {
       />
 
       <Button
-        onClick={onSend}
-        disabled={isSendDisabled}
+        onClick={isPending ? onCancel : onSend}
+        disabled={!isPending && isSendDisabled}
         className="min-w-[80px] gap-1.5 rounded-md text-[13px] shadow-none"
         id="btn-send"
       >
         {isPending ? (
           <span className="flex items-center gap-1.5">
             <span className="size-[13px] animate-spin rounded-full border-2 border-current border-t-transparent" />
-            Sending
+            Cancel
           </span>
         ) : (
           <>

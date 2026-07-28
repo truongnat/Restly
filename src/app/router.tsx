@@ -8,6 +8,8 @@ import { EnvironmentsPage } from '@/pages/environments-page'
 import { HistoryPage } from '@/pages/history-page'
 import { MocksPage } from '@/pages/mocks-page'
 import { SettingsPage } from '@/pages/settings-page'
+import { SsePage } from '@/pages/sse-page'
+import { WebsocketPage } from '@/pages/websocket-page'
 import { WelcomePage } from '@/pages/welcome-page'
 import { WorkspacePage } from '@/pages/workspace-page'
 import { ROUTES } from '@/shared/constants/app'
@@ -70,6 +72,18 @@ const mocksRoute = createRoute({
   component: MocksPage,
 })
 
+const websocketRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: ROUTES.websocket,
+  component: WebsocketPage,
+})
+
+const sseRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: ROUTES.sse,
+  component: SsePage,
+})
+
 const routeTree = rootRoute.addChildren([
   welcomeRoute,
   workspaceRoute,
@@ -78,6 +92,8 @@ const routeTree = rootRoute.addChildren([
   settingsRoute,
   authRoute,
   mocksRoute,
+  websocketRoute,
+  sseRoute,
 ])
 
 export const router = createRouter({

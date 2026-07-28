@@ -11,10 +11,12 @@ import type { RequestTab } from '@/entities/request'
 import type { SendRequestState } from '@/features/request-editor/model/use-send-request'
 import { AuthEditor } from '@/features/request-editor/ui/auth-editor'
 import { BodyEditor } from '@/features/request-editor/ui/body-editor'
+import { CodeGeneratorButton } from '@/features/request-editor/ui/code-generator'
 import { HeadersEditor } from '@/features/request-editor/ui/headers-editor'
 import { ParamsEditor } from '@/features/request-editor/ui/params-editor'
 import { ResponseHeaders } from '@/features/request-editor/ui/response-headers'
 import { ResponsePreview } from '@/features/request-editor/ui/response-preview'
+import { ScriptsEditor } from '@/features/request-editor/ui/scripts-editor'
 import { formatJsonValue, getValueType, tryParseJson } from '@/shared/lib/json-pretty'
 import { cn } from '@/shared/lib/utils'
 import { CopyButton } from '@/shared/ui/copy-button'
@@ -137,7 +139,7 @@ export function RequestWorkspace({ sendState }: RequestWorkspaceProps) {
               onValueChange={(val) => setRequestTab(val as RequestTab)}
               className="flex min-h-0 flex-1 flex-col"
             >
-              <div className="flex shrink-0 items-center border-b border-border/50 bg-muted/20 px-4 py-2">
+              <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border/50 bg-muted/20 px-4 py-2">
                 <TabsList variant="default" className="h-8">
                   <TabsTrigger value="params">
                     Params
@@ -155,7 +157,9 @@ export function RequestWorkspace({ sendState }: RequestWorkspaceProps) {
                   </TabsTrigger>
                   <TabsTrigger value="body">Body</TabsTrigger>
                   <TabsTrigger value="auth">Auth</TabsTrigger>
+                  <TabsTrigger value="scripts">Scripts</TabsTrigger>
                 </TabsList>
+                <CodeGeneratorButton />
               </div>
               <TabsContent value="params" className="mt-0 min-h-0 flex-1 overflow-auto">
                 <ParamsEditor />
@@ -171,6 +175,12 @@ export function RequestWorkspace({ sendState }: RequestWorkspaceProps) {
               </TabsContent>
               <TabsContent value="auth" className="mt-0 min-h-0 flex-1 overflow-auto">
                 <AuthEditor />
+              </TabsContent>
+              <TabsContent
+                value="scripts"
+                className="mt-0 flex min-h-0 flex-1 flex-col overflow-hidden"
+              >
+                <ScriptsEditor />
               </TabsContent>
             </Tabs>
           </section>

@@ -102,6 +102,13 @@ function authSkeleton(type: RequestAuth['type'], prev?: RequestAuth): RequestAut
         oauthAuthUrl: prev?.oauthAuthUrl ?? '',
         oauthTokenUrl: prev?.oauthTokenUrl ?? '',
       }
+    case 'apikey':
+      return {
+        type,
+        apiKey: prev?.apiKey ?? '',
+        apiKeyHeader: prev?.apiKeyHeader ?? 'X-API-Key',
+        apiKeyIn: prev?.apiKeyIn ?? 'header',
+      }
     default:
       return { type: 'none' }
   }
@@ -122,6 +129,8 @@ type UiState = {
   contentType: string
   bodyFiles: BodyFileItem[]
   auth: RequestAuth
+  preRequestScript: string
+  testScript: string
   toast: string | null
   folders: CollectionFolder[]
   history: HistoryItem[]
@@ -134,6 +143,7 @@ type UiState = {
   theme: ThemeMode
   accentColor: string
   generalToggles: Record<string, boolean>
+  autoUpdateEnabled: boolean
   setShowWelcome: (v: boolean) => void
   setActiveNav: (v: NavId) => void
   selectRequest: (id: string) => void
@@ -151,6 +161,9 @@ type UiState = {
   updateBodyFile: (id: string, patch: Partial<Pick<BodyFileItem, 'fieldName'>>) => void
   setBodyFiles: (files: BodyFileItem[]) => void
   setAuth: (v: RequestAuth) => void
+  setPreRequestScript: (v: string) => void
+  setTestScript: (v: string) => void
+  setAutoUpdateEnabled: (v: boolean) => void
   toggleFolder: (id: string) => void
   sendRequest: () => void
   clearToast: () => void
@@ -249,6 +262,9 @@ export const useRestlyStore = create<UiState>((set, get) => ({
     'opt-3': true,
     'opt-4': true,
   },
+  autoUpdateEnabled: initialPersisted?.autoUpdateEnabled ?? false,
+  preRequestScript: initialPersisted?.preRequestScript ?? '',
+  testScript: initialPersisted?.testScript ?? '',
 
   setShowWelcome: (showWelcome) => set({ showWelcome }),
   setActiveNav: (activeNav) => set({ activeNav }),
@@ -291,6 +307,9 @@ export const useRestlyStore = create<UiState>((set, get) => ({
     })),
   setBodyFiles: (bodyFiles) => set({ bodyFiles }),
   setAuth: (auth) => set({ auth }),
+  setPreRequestScript: (preRequestScript) => set({ preRequestScript }),
+  setTestScript: (testScript) => set({ testScript }),
+  setAutoUpdateEnabled: (autoUpdateEnabled) => set({ autoUpdateEnabled }),
   toggleFolder: (id) =>
     set({
       folders: get().folders.map((f) => (f.id === id ? { ...f, open: !f.open } : f)),
@@ -920,6 +939,9 @@ if (typeof window !== 'undefined') {
       authProfileId: state.authProfileId,
       mockServers: state.mockServers,
       mockServerId: state.mockServerId,
+      autoUpdateEnabled: state.autoUpdateEnabled,
+      preRequestScript: state.preRequestScript,
+      testScript: state.testScript,
     })
   })
 }

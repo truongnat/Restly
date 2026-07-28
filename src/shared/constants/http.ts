@@ -1,4 +1,4 @@
-export const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const
+export const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'] as const
 
 export type HttpMethodConst = (typeof HTTP_METHODS)[number]
 

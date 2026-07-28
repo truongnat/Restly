@@ -30,6 +30,9 @@ export type PersistedState = {
   authProfileId?: string
   mockServers?: MockServer[]
   mockServerId?: string
+  autoUpdateEnabled?: boolean
+  preRequestScript?: string
+  testScript?: string
 }
 
 export function loadPersistedState(): PersistedState | null {

@@ -8,6 +8,7 @@ import {
   KeyRound,
   Layers,
   Plus,
+  Radio,
   Settings,
   Terminal,
 } from 'lucide-react'
@@ -28,7 +29,7 @@ import { ROUTES } from '@/shared/constants/app'
 import { cn } from '@/shared/lib/utils'
 import { MethodBadge } from '@/shared/ui/method-badge'
 
-type ExtendedNavId = NavId | 'auth' | 'mocks'
+type ExtendedNavId = NavId | 'auth' | 'mocks' | 'websocket' | 'sse'
 
 const navItems: {
   id: ExtendedNavId
@@ -42,6 +43,8 @@ const navItems: {
   { id: 'environments', label: 'Environments', to: ROUTES.environments, icon: Layers },
   { id: 'auth', label: 'Auth', to: ROUTES.auth, icon: KeyRound },
   { id: 'mocks', label: 'Mock Servers', to: ROUTES.mocks, icon: Globe },
+  { id: 'websocket', label: 'WebSocket', to: ROUTES.websocket, icon: Radio },
+  { id: 'sse', label: 'SSE', to: ROUTES.sse, icon: Radio },
 ]
 
 export function Sidebar() {

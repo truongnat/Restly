@@ -25,6 +25,7 @@ hljs.registerLanguage('xml', xml)
 
 const CONTENT_TYPES = [
   { label: 'JSON (application/json)', value: 'application/json' },
+  { label: 'GraphQL', value: 'application/graphql' },
   { label: 'Text (text/plain)', value: 'text/plain' },
   { label: 'XML (application/xml)', value: 'application/xml' },
   { label: 'Form URL Encoded', value: 'application/x-www-form-urlencoded' },
@@ -34,6 +35,7 @@ const CONTENT_TYPES = [
 const EXAMPLES: Record<string, string> = {
   'application/json':
     '{\n  "name": "John Doe",\n  "email": "john@example.com",\n  "age": 30,\n  "isActive": true\n}',
+  'application/graphql': '{\n  "query": "query { viewer { id name } }",\n  "variables": {}\n}',
   'text/plain': 'Hello World',
   'application/xml':
     '<?xml version="1.0" encoding="UTF-8"?>\n<note>\n  <to>Tove</to>\n  <from>Jani</from>\n  <heading>Reminder</heading>\n  <body>Don\'t forget me this weekend!</body>\n</note>',
@@ -305,6 +307,59 @@ function XmlBodyEditor({
   )
 }
 
+function GraphQLBodyEditor({
+  value,
+  onChange,
+  vars,
+}: {
+  value: string
+  onChange: (v: string) => void
+  vars: EnvVarSubstituteItem[]
+}) {
+  let query = 'query { }'
+  let variables = '{\n  \n}'
+  try {
+    const parsed = JSON.parse(value || '{}') as { query?: string; variables?: unknown }
+    if (typeof parsed.query === 'string') query = parsed.query
+    if (parsed.variables !== undefined) {
+      variables =
+        typeof parsed.variables === 'string'
+          ? parsed.variables
+          : JSON.stringify(parsed.variables, null, 2)
+    }
+  } catch {
+    /* keep defaults */
+  }
+
+  const commit = (nextQuery: string, nextVars: string) => {
+    let variablesObj: unknown = {}
+    try {
+      variablesObj = JSON.parse(nextVars || '{}')
+    } catch {
+      variablesObj = {}
+    }
+    onChange(JSON.stringify({ query: nextQuery, variables: variablesObj }, null, 2))
+  }
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <div className="flex min-h-0 flex-[1.4] flex-col gap-1">
+        <Label className="text-[11px] text-muted-foreground">Query</Label>
+        <EnvAwareTextarea
+          value={query}
+          onChange={(e) => commit(e.target.value, variables)}
+          className="h-full min-h-[120px] flex-1 font-mono text-xs leading-relaxed"
+          spellCheck={false}
+        />
+      </div>
+      <div className="flex min-h-0 flex-1 flex-col gap-1">
+        <Label className="text-[11px] text-muted-foreground">Variables (JSON)</Label>
+        <JsonBodyEditor value={variables} onChange={(v) => commit(query, v)} vars={vars} />
+      </div>
+    </div>
+  )
+}
+
 export function BodyEditor() {
   const body = useRestlyStore((s) => s.body)
   const contentType = useRestlyStore((s) => s.contentType)
@@ -342,6 +397,25 @@ export function BodyEditor() {
             key: 'Content-Type',
             value,
             description: 'Set from Body content type',
+          },
+        ])
+      }
+    } else if (newContentType === 'application/graphql') {
+      // GraphQL over HTTP uses JSON payload + application/json Content-Type.
+      const value = 'application/json'
+      if (ctIdx >= 0) {
+        const next = [...headers]
+        next[ctIdx] = { ...next[ctIdx]!, value, enabled: true }
+        setHeaders(next)
+      } else {
+        setHeaders([
+          ...headers,
+          {
+            id: `h-ct-${Date.now()}`,
+            enabled: true,
+            key: 'Content-Type',
+            value,
+            description: 'GraphQL JSON body',
           },
         ])
       }
@@ -410,6 +484,8 @@ export function BodyEditor() {
             placeholder={EXAMPLES['application/json']}
             vars={vars}
           />
+        ) : contentType === 'application/graphql' ? (
+          <GraphQLBodyEditor value={body} onChange={setBody} vars={vars} />
         ) : isXmlContent ? (
           <XmlBodyEditor
             value={body}

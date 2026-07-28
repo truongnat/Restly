@@ -37,6 +37,7 @@ const generalToggleDefs = [
   { id: 'opt-2', label: 'Send anonymous usage analytics' },
   { id: 'opt-3', label: 'Auto-follow HTTP redirects' },
   { id: 'opt-4', label: 'Enable SSL certificate verification' },
+  { id: 'opt-auto-update', label: 'Check for updates automatically (desktop)' },
 ]
 
 const themePresets = [
@@ -69,6 +70,8 @@ export function SettingsPage() {
   const setAccentColor = useRestlyStore((s) => s.setAccentColor)
   const generalToggles = useRestlyStore((s) => s.generalToggles)
   const setGeneralToggle = useRestlyStore((s) => s.setGeneralToggle)
+  const autoUpdateEnabled = useRestlyStore((s) => s.autoUpdateEnabled)
+  const setAutoUpdateEnabled = useRestlyStore((s) => s.setAutoUpdateEnabled)
 
   // Section local mock states
   const [shortcutFilter, setShortcutFilter] = useState('')
@@ -219,7 +222,8 @@ export function SettingsPage() {
                   </h2>
                   <div className="flex flex-col gap-3 rounded-lg border border-border/50 bg-card px-4 py-2">
                     {generalToggleDefs.map(({ id, label }) => {
-                      const isChecked = generalToggles[id] ?? true
+                      const isChecked =
+                        id === 'opt-auto-update' ? autoUpdateEnabled : (generalToggles[id] ?? true)
                       return (
                         <div key={id} className="flex items-center justify-between gap-4 py-1.5">
                           <Label
@@ -231,7 +235,10 @@ export function SettingsPage() {
                           <Switch
                             id={id}
                             checked={isChecked}
-                            onCheckedChange={(val) => setGeneralToggle(id, val)}
+                            onCheckedChange={(val) => {
+                              if (id === 'opt-auto-update') setAutoUpdateEnabled(val)
+                              else setGeneralToggle(id, val)
+                            }}
                           />
                         </div>
                       )

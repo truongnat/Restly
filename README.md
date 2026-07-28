@@ -1,6 +1,6 @@
 # Restly
 
-Desktop-first API client UI (Postman alternative) — **mock-phase** (no real HTTP / Tauri yet).
+Desktop-first API client (Postman alternative) — **hybrid**: real `fetch` Send by default, mock fixtures + Mock Server wire, **no Tauri yet**.
 
 Design under `design/` is **reference only**, not pixel SSOT.
 
@@ -21,21 +21,25 @@ Design under `design/` is **reference only**, not pixel SSOT.
 src/app | pages | features | entities | shared | components/ui | infrastructure
 ```
 
-Clean / hexagonal frontend layering — see `.cursor/rules/clean-architecture.mdc`.
+## Routes
 
-## Routes (mock UI)
+| Path            | Screen                                      |
+| --------------- | ------------------------------------------- |
+| `/`             | Welcome + Postman import/export             |
+| `/workspace`    | Request editor + real Send (Cancel)         |
+| `/history`      | Grouped history                             |
+| `/environments` | Env + variables                             |
+| `/auth`         | Auth profiles                               |
+| `/mocks`        | Mock servers (wired into Send when running) |
+| `/websocket`    | WebSocket client                            |
+| `/sse`          | Server-Sent Events client                   |
+| `/settings`     | Theme / prefs / telemetry / auto-update     |
 
-| Path            | Screen                          |
-| --------------- | ------------------------------- |
-| `/`             | Welcome + import + recent       |
-| `/workspace`    | Request editor + mock Send      |
-| `/history`      | Grouped history, restore/delete |
-| `/environments` | Env + variables CRUD            |
-| `/auth`         | Auth profiles (apply to request)|
-| `/mocks`        | Mock servers + routes           |
-| `/settings`     | Theme / prefs / stubs           |
+**Shortcuts:** `Ctrl/Cmd+K` command palette.
 
-Persist key: `restly.mock.v1` (folders, envs, history, auth profiles, mock servers, prefs).
+**Env:** `VITE_USE_MOCK_HTTP=true` forces mock echo adapter.
+
+Persist: `restly.mock.v1`.
 
 ## Develop
 
@@ -47,7 +51,7 @@ npm run check   # fmt + lint + test + build
 
 ## Agent skills
 
-Simple Skills kit in `.agents/` (frontend+backend). See `AGENTS.md`.
+Simple Skills kit in `.agents/` — see `AGENTS.md`.
 
 ## Coding standards
 

@@ -2,6 +2,7 @@ import { createListCollections } from '@/application/use-cases/list-collections'
 import { createListEnvironments } from '@/application/use-cases/list-environments'
 import { createListHistory } from '@/application/use-cases/list-history'
 import { createSendRequest } from '@/application/use-cases/send-request'
+import { createFetchRequestClient } from '@/infrastructure/adapters/http/fetch-request.adapter'
 import { createMockCollectionRepository } from '@/infrastructure/adapters/mock/mock-collection.adapter'
 import { createMockEnvironmentRepository } from '@/infrastructure/adapters/mock/mock-environment.adapter'
 import { createMockHistoryRepository } from '@/infrastructure/adapters/mock/mock-history.adapter'
@@ -10,7 +11,7 @@ import { Container } from '@/infrastructure/di/container'
 import { TOKENS } from '@/infrastructure/di/tokens'
 
 /**
- * Build a fresh container (mock adapters by default).
+ * Build a fresh container.
  * Does not mutate the global runtime — call `bootContainer(createAppContainer())` to activate.
  */
 export function createAppContainer(): Container {
@@ -19,7 +20,9 @@ export function createAppContainer(): Container {
   const collections = createMockCollectionRepository()
   const history = createMockHistoryRepository()
   const environments = createMockEnvironmentRepository()
-  const requestClient = createMockRequestClient()
+
+  const useMock = import.meta.env.VITE_USE_MOCK_HTTP === 'true'
+  const requestClient = useMock ? createMockRequestClient() : createFetchRequestClient()
 
   container
     .register(TOKENS.CollectionRepository, collections)

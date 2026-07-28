@@ -7,6 +7,8 @@ export const methodColor: Record<HttpMethod, string> = {
   PUT: 'text-amber-500',
   PATCH: 'text-orange-400',
   DELETE: 'text-rose-500',
+  HEAD: 'text-purple-400',
+  OPTIONS: 'text-indigo-400',
 }
 
 export const methodColorLight: Record<HttpMethod, string> = {
@@ -15,4 +17,6 @@ export const methodColorLight: Record<HttpMethod, string> = {
   PUT: 'text-amber-600',
   PATCH: 'text-orange-600',
   DELETE: 'text-rose-600',
+  HEAD: 'text-purple-600',
+  OPTIONS: 'text-indigo-600',
 }

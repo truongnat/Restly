@@ -1,10 +1,11 @@
 import { useMutation } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { useRestlyStore } from '@/app/store/restly-store'
 import { resolveActiveEnvironment } from '@/application/use-cases/list-environments'
 import type { RequestAuth } from '@/entities/request'
 import type { HttpExchangeResult } from '@/entities/response'
+import { runScript } from '@/features/request-editor/lib/script-sandbox'
 import { resolve, TOKENS } from '@/infrastructure/di'
 import { substituteEnv, type EnvVarSubstituteItem } from '@/shared/lib/substitute-env'
 import { validateBody } from '@/shared/lib/validate-body'
@@ -51,6 +52,13 @@ function substituteAuth(auth: RequestAuth, vars: EnvVarSubstituteItem[]): Reques
         : auth.oauthTokenUrl,
     }
   }
+  if (auth.type === 'apikey') {
+    return {
+      ...auth,
+      apiKey: auth.apiKey ? substituteEnv(auth.apiKey, vars) : auth.apiKey,
+      apiKeyHeader: auth.apiKeyHeader ? substituteEnv(auth.apiKeyHeader, vars) : auth.apiKeyHeader,
+    }
+  }
   return auth
 }
 
@@ -60,9 +68,11 @@ export function useSendRequestMutation() {
 
   const [responseBody, setResponseBody] = useState(INITIAL_BODY)
   const [meta, setMeta] = useState(INITIAL_META)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   const mutation = useMutation({
-    mutationFn: (input: unknown) => resolve(TOKENS.SendRequest)(input),
+    mutationFn: ({ input, signal }: { input: unknown; signal?: AbortSignal }) =>
+      resolve(TOKENS.SendRequest)(input, signal),
     onSuccess: (data) => {
       setResponseBody(data.body)
       setMeta({
@@ -104,11 +114,22 @@ export function useSendRequestMutation() {
   const bodyValidation = validateBody(body, contentType)
   const isSendDisabled = mutation.isPending || !bodyValidation.isValid
 
+  const onCancel = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+      abortControllerRef.current = null
+    }
+  }
+
   const onSend = () => {
     if (!bodyValidation.isValid) return
 
+    const state = useRestlyStore.getState()
     const activeEnv = resolveActiveEnvironment(environments, environmentId)
     const vars = activeEnv?.variables ?? []
+    const envGet = (key: string) =>
+      activeEnv?.variables.find((v) => v.enabled && v.key === key)?.value
+
     const resolvedUrl = substituteEnv(url, vars)
     const resolvedBody = substituteEnv(body, vars)
     const resolvedParams = params.map((p) => ({
@@ -123,21 +144,65 @@ export function useSendRequestMutation() {
     }))
     const resolvedAuth = substituteAuth(auth, vars)
 
-    mutation.mutate({
-      method,
-      url: resolvedUrl,
-      params: resolvedParams,
-      headers: resolvedHeaders,
-      body: resolvedBody,
-      contentType,
-      auth: resolvedAuth,
-      bodyFiles: bodyFiles.map(({ id, fieldName, name, size }) => ({
-        id,
-        fieldName: fieldName.trim() || 'file',
-        name,
-        size,
-      })),
-    })
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
+    void (async () => {
+      const pre = await runScript(state.preRequestScript, {
+        environment: { get: envGet },
+        request: { url: resolvedUrl, method },
+        console,
+      })
+      if (pre.error) {
+        useRestlyStore.setState({ toast: `Pre-request: ${pre.error}` })
+        window.setTimeout(() => {
+          if (useRestlyStore.getState().toast?.startsWith('Pre-request')) {
+            useRestlyStore.setState({ toast: null })
+          }
+        }, 3200)
+        return
+      }
+
+      mutation.mutate(
+        {
+          input: {
+            method,
+            url: resolvedUrl,
+            params: resolvedParams,
+            headers: resolvedHeaders,
+            body: resolvedBody,
+            contentType,
+            auth: resolvedAuth,
+            bodyFiles: bodyFiles.map(({ id, fieldName, name, size }) => ({
+              id,
+              fieldName: fieldName.trim() || 'file',
+              name,
+              size,
+            })),
+          },
+          signal: controller.signal,
+        },
+        {
+          onSuccess: (data) => {
+            void runScript(useRestlyStore.getState().testScript, {
+              environment: { get: envGet },
+              request: { url: resolvedUrl, method },
+              response: { code: data.status, body: data.body },
+              console,
+            }).then((test) => {
+              if (test.error) {
+                useRestlyStore.setState({ toast: `Test script: ${test.error}` })
+                window.setTimeout(() => {
+                  if (useRestlyStore.getState().toast?.startsWith('Test script')) {
+                    useRestlyStore.setState({ toast: null })
+                  }
+                }, 3200)
+              }
+            })
+          },
+        },
+      )
+    })()
   }
 
   return {
@@ -151,6 +216,7 @@ export function useSendRequestMutation() {
     isPending: mutation.isPending,
     isSendDisabled,
     onSend,
+    onCancel,
   }
 }
 

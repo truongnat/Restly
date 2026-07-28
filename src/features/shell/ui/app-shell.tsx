@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
 import { AppTopBar } from './app-top-bar'
+import { CommandPalette } from './command-palette'
 import { Sidebar } from './sidebar'
 import { Toast } from './toast'
 
@@ -31,6 +32,7 @@ export function AppShell({ children }: AppShellProps) {
         {children}
       </div>
       <Toast />
+      <CommandPalette />
     </div>
   )
 }

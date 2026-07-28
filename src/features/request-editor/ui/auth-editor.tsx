@@ -45,6 +45,7 @@ export function AuthEditor() {
             <SelectItem value="none">No Auth</SelectItem>
             <SelectItem value="bearer">Bearer Token</SelectItem>
             <SelectItem value="basic">Basic Auth</SelectItem>
+            <SelectItem value="apikey">API Key</SelectItem>
             <SelectItem value="oauth">OAuth 2.0 (Mock)</SelectItem>
           </SelectContent>
         </Select>
@@ -53,6 +54,52 @@ export function AuthEditor() {
       {auth.type === 'none' && (
         <div className="rounded-md bg-muted/40 p-3 text-xs text-muted-foreground">
           This request does not use any authorization headers or credentials.
+        </div>
+      )}
+
+      {auth.type === 'apikey' && (
+        <div className="flex flex-col gap-3 rounded-md border border-border/60 p-3">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="api-key" className="text-xs">
+              Key
+            </Label>
+            <EnvAwareInput
+              id="api-key"
+              value={auth.apiKey ?? ''}
+              onChange={(e) => handleFieldChange('apiKey', e.target.value)}
+              placeholder="e.g. secret_key_123"
+              className="font-mono text-xs"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="api-key-header" className="text-xs">
+              Key Name / Header
+            </Label>
+            <EnvAwareInput
+              id="api-key-header"
+              value={auth.apiKeyHeader ?? 'X-API-Key'}
+              onChange={(e) => handleFieldChange('apiKeyHeader', e.target.value)}
+              placeholder="X-API-Key"
+              className="font-mono text-xs"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="api-key-in" className="text-xs">
+              Add to
+            </Label>
+            <Select
+              value={auth.apiKeyIn ?? 'header'}
+              onValueChange={(v) => handleFieldChange('apiKeyIn', v)}
+            >
+              <SelectTrigger id="api-key-in" size="sm" className="w-[180px]">
+                <SelectValue placeholder="Location" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="header">Header</SelectItem>
+                <SelectItem value="query">Query Params</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       )}
 

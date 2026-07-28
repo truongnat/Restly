@@ -9,4 +9,6 @@ export const ROUTES = {
   settings: '/settings',
   auth: '/auth',
   mocks: '/mocks',
+  websocket: '/websocket',
+  sse: '/sse',
 } as const

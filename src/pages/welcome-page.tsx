@@ -1,5 +1,5 @@
 import { Link, useNavigate } from '@tanstack/react-router'
-import { ArrowRight, Clock, FileUp, Layers, Terminal } from 'lucide-react'
+import { ArrowRight, Clock, Download, FileUp, Layers, Terminal } from 'lucide-react'
 import { useRef } from 'react'
 
 import { useRestlyStore } from '@/app/store/restly-store'
@@ -11,8 +11,8 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
-import type { CollectionFolder } from '@/entities'
 import { ROUTES } from '@/shared/constants/app'
+import { collectionFromPostman, downloadPostmanCollection } from '@/shared/lib/postman-collection'
 import { MethodBadge } from '@/shared/ui/method-badge'
 
 const quickLinks = [
@@ -43,6 +43,7 @@ const quickLinks = [
 export function WelcomePage() {
   const navigate = useNavigate()
   const importCollection = useRestlyStore((s) => s.importCollection)
+  const folders = useRestlyStore((s) => s.folders)
   const history = useRestlyStore((s) => s.history)
   const reopenHistoryItem = useRestlyStore((s) => s.reopenHistoryItem)
   const removeHistoryItem = useRestlyStore((s) => s.removeHistoryItem)
@@ -62,43 +63,16 @@ export function WelcomePage() {
       reader.onload = (event) => {
         try {
           const content = JSON.parse(event.target?.result as string)
-          const name = content.info?.name || content.name || file.name.replace('.json', '')
-          const parsedColl: CollectionFolder = {
-            id: `coll-imp-${Date.now()}`,
-            name: name || 'Imported Collection',
-            open: true,
-            requests: Array.isArray(content.item)
-              ? content.item.map(
-                  (
-                    item: {
-                      name?: string
-                      request?: { method?: string; url?: string | { raw?: string } }
-                    },
-                    idx: number,
-                  ) => ({
-                    id: `req-imp-${Date.now()}-${idx}`,
-                    name: item.name || `Request ${idx + 1}`,
-                    method: item.request?.method || 'GET',
-                    url:
-                      typeof item.request?.url === 'string'
-                        ? item.request.url
-                        : item.request?.url?.raw || 'https://api.restly.com/v1/resource',
-                  }),
-                )
-              : [
-                  {
-                    id: `req-imp-${Date.now()}-1`,
-                    name: 'GET /v1/products',
-                    method: 'GET',
-                    url: 'https://api.restly.com/v1/products',
-                  },
-                ],
+          const parsedColl = collectionFromPostman(content, file.name)
+          if (parsedColl.requests.length === 0) {
+            importCollection()
+          } else {
+            importCollection(parsedColl)
           }
-          importCollection(parsedColl)
-          navigate({ to: ROUTES.workspace })
+          void navigate({ to: ROUTES.workspace })
         } catch {
           importCollection()
-          navigate({ to: ROUTES.workspace })
+          void navigate({ to: ROUTES.workspace })
         }
       }
       reader.readAsText(file)
@@ -156,6 +130,16 @@ export function WelcomePage() {
           >
             <FileUp className="size-[14px]" />
             Import collection
+          </Button>
+          <Button
+            variant="outline"
+            size="default"
+            onClick={() => downloadPostmanCollection(folders)}
+            className="gap-2"
+            id="btn-export"
+          >
+            <Download className="size-[14px]" />
+            Export v2.1
           </Button>
         </div>
 

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const httpMethodSchema = z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])
+export const httpMethodSchema = z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'])
 
 export const paramRowSchema = z.object({
   id: z.string().min(1),
@@ -18,7 +18,7 @@ export const headerRowSchema = z.object({
   description: z.string().optional(),
 })
 
-export const requestAuthTypeSchema = z.enum(['none', 'bearer', 'basic', 'oauth'])
+export const requestAuthTypeSchema = z.enum(['none', 'bearer', 'basic', 'oauth', 'apikey'])
 
 export const requestAuthSchema = z.object({
   type: requestAuthTypeSchema,
@@ -29,6 +29,9 @@ export const requestAuthSchema = z.object({
   oauthClientSecret: z.string().optional(),
   oauthTokenUrl: z.string().optional(),
   oauthAuthUrl: z.string().optional(),
+  apiKey: z.string().optional(),
+  apiKeyHeader: z.string().optional(),
+  apiKeyIn: z.enum(['header', 'query']).optional(),
 })
 
 export const bodyFilePartSchema = z.object({

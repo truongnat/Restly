@@ -17,7 +17,7 @@ export interface BodyFormatResult {
  */
 export function validateBody(body: string, contentType: string): BodyValidationResult {
   const ct = contentType.toLowerCase()
-  const isJson = ct.includes('json')
+  const isJson = ct.includes('json') || ct.includes('graphql')
   const isXml = ct.includes('xml')
 
   if (!isJson && !isXml) {
@@ -57,7 +57,7 @@ export function validateBody(body: string, contentType: string): BodyValidationR
  */
 export function formatBody(body: string, contentType: string): BodyFormatResult {
   const ct = contentType.toLowerCase()
-  const isJson = ct.includes('json')
+  const isJson = ct.includes('json') || ct.includes('graphql')
   const isXml = ct.includes('xml')
 
   if (!isJson && !isXml) {
