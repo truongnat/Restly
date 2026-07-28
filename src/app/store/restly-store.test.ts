@@ -89,6 +89,26 @@ describe('useRestlyStore remaining mock cards actions', () => {
     expect(state.environments.some((e) => e.id === newEnv!.id)).toBe(false)
   })
 
+  it('duplicates environment and updates color', () => {
+    const store = useRestlyStore.getState()
+    const sourceId = store.environments[0]?.id
+    expect(sourceId).toBeTruthy()
+    const sourceVars = store.environments.find((e) => e.id === sourceId)!.variables.length
+    const before = store.environments.length
+
+    store.duplicateEnvironment(sourceId!)
+    let state = useRestlyStore.getState()
+    expect(state.environments.length).toBe(before + 1)
+    const copy = state.environments.find((e) => e.name.endsWith(' Copy'))
+    expect(copy).toBeTruthy()
+    expect(copy!.variables.length).toBe(sourceVars)
+    expect(state.environmentId).toBe(copy!.id)
+
+    store.updateEnvironmentColor(copy!.id, 'bg-rose-500')
+    state = useRestlyStore.getState()
+    expect(state.environments.find((e) => e.id === copy!.id)?.color).toBe('bg-rose-500')
+  })
+
   it('handles theme, accent, and general toggles (T-014)', () => {
     const store = useRestlyStore.getState()
 

@@ -15,6 +15,7 @@ import type {
   RequestTab,
   ResponseTab,
 } from '@/entities'
+import { ENV_COLOR_OPTIONS } from '@/entities/environment'
 import { HISTORY_BODY_MAX_CHARS, HISTORY_MAX_ITEMS } from '@/entities/history'
 import {
   mockAuth,
@@ -44,6 +45,14 @@ function resolveInitialHistory(): HistoryItem[] {
     (h) => h.contentType != null || h.body != null || (h.params != null && h.params.length > 0),
   )
   return hasSnapshot ? persisted : mockHistory
+}
+
+function resolveInitialEnvironments(): Environment[] {
+  const persisted = initialPersisted?.environments
+  if (!persisted || persisted.length === 0) return mockEnvironments
+  // Upgrade fixtures that still store bullet-glyph “secrets” (not substitutable).
+  const hasBulletSecret = persisted.some((e) => e.variables.some((v) => /•/.test(v.value)))
+  return hasBulletSecret ? mockEnvironments : persisted
 }
 
 // Always apply on boot so <html> matches store (avoids light shell + dark tokens mix).
@@ -119,7 +128,9 @@ type UiState = {
   importCollection: (collection?: CollectionFolder) => void
   createEnvironment: (name?: string) => void
   deleteEnvironment: (id: string) => void
+  duplicateEnvironment: (id: string) => void
   updateEnvironmentName: (id: string, name: string) => void
+  updateEnvironmentColor: (id: string, color: string) => void
   addVariable: (envId: string) => void
   updateVariable: (envId: string, varId: string, patch: Partial<EnvVar>) => void
   deleteVariable: (envId: string, varId: string) => void
@@ -151,7 +162,7 @@ export const useRestlyStore = create<UiState>((set, get) => ({
   toast: null,
   folders: initialPersisted?.folders ?? mockFolders,
   history: resolveInitialHistory(),
-  environments: initialPersisted?.environments ?? mockEnvironments,
+  environments: resolveInitialEnvironments(),
   searchQuery: '',
   theme: initialTheme,
   accentColor: initialPersisted?.accentColor ?? 'emerald',
@@ -355,19 +366,11 @@ export const useRestlyStore = create<UiState>((set, get) => ({
     }, 3500)
   },
   createEnvironment: (name) => {
-    const colors = [
-      'bg-emerald-500',
-      'bg-blue-500',
-      'bg-purple-500',
-      'bg-amber-500',
-      'bg-rose-500',
-      'bg-cyan-500',
-    ]
-    const randomColor = colors[Math.floor(Math.random() * colors.length)]
+    const randomColor = ENV_COLOR_OPTIONS[Math.floor(Math.random() * ENV_COLOR_OPTIONS.length)]
     const newEnv: Environment = {
       id: `env-${Date.now()}`,
       name: name?.trim() || 'New Environment',
-      color: randomColor,
+      color: randomColor ?? 'bg-emerald-500',
       variables: [
         {
           id: `var-${Date.now()}-1`,
@@ -375,13 +378,18 @@ export const useRestlyStore = create<UiState>((set, get) => ({
           key: 'API_KEY',
           value: 'mock_key_123',
           secret: true,
+          description: 'Default API key',
         },
       ],
     }
     set({
       environments: [...get().environments, newEnv],
       environmentId: newEnv.id,
+      toast: 'Environment created',
     })
+    window.setTimeout(() => {
+      if (get().toast === 'Environment created') set({ toast: null })
+    }, 2800)
   },
   deleteEnvironment: (id) => {
     const nextEnvs = get().environments.filter((e) => e.id !== id)
@@ -392,11 +400,42 @@ export const useRestlyStore = create<UiState>((set, get) => ({
     set({
       environments: nextEnvs,
       environmentId: nextEnvId,
+      toast: 'Environment deleted',
     })
+    window.setTimeout(() => {
+      if (get().toast === 'Environment deleted') set({ toast: null })
+    }, 2800)
+  },
+  duplicateEnvironment: (id) => {
+    const source = get().environments.find((e) => e.id === id)
+    if (!source) return
+    const stamp = Date.now()
+    const clone: Environment = {
+      id: `env-${stamp}`,
+      name: `${source.name} Copy`,
+      color: source.color,
+      variables: source.variables.map((v, i) => ({
+        ...v,
+        id: `var-${stamp}-${i}`,
+      })),
+    }
+    set({
+      environments: [...get().environments, clone],
+      environmentId: clone.id,
+      toast: 'Environment duplicated',
+    })
+    window.setTimeout(() => {
+      if (get().toast === 'Environment duplicated') set({ toast: null })
+    }, 2800)
   },
   updateEnvironmentName: (id, name) => {
     set({
       environments: get().environments.map((e) => (e.id === id ? { ...e, name } : e)),
+    })
+  },
+  updateEnvironmentColor: (id, color) => {
+    set({
+      environments: get().environments.map((e) => (e.id === id ? { ...e, color } : e)),
     })
   },
   addVariable: (envId) => {
@@ -406,6 +445,7 @@ export const useRestlyStore = create<UiState>((set, get) => ({
       key: '',
       value: '',
       secret: false,
+      description: '',
     }
     set({
       environments: get().environments.map((e) =>

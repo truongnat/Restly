@@ -1,30 +1,52 @@
-import { Eye, EyeOff, Key, Layers, Plus, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { Copy, Eye, EyeOff, Key, Layers, Plus, Search, Trash2 } from 'lucide-react'
+import { useMemo, useState } from 'react'
 
 import { useRestlyStore } from '@/app/store/restly-store'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
+import { ENV_COLOR_OPTIONS } from '@/entities/environment'
 import { useActiveEnvironment } from '@/features/environments/model/use-environments-query'
 import { AppShell } from '@/features/shell/ui/app-shell'
 import { ContentToolbar } from '@/features/shell/ui/content-toolbar'
 import { cn } from '@/shared/lib/utils'
+
+function cycleColor(current: string): string {
+  const idx = ENV_COLOR_OPTIONS.indexOf(current as (typeof ENV_COLOR_OPTIONS)[number])
+  const next = ENV_COLOR_OPTIONS[(idx + 1) % ENV_COLOR_OPTIONS.length]
+  return next ?? ENV_COLOR_OPTIONS[0]!
+}
 
 export function EnvironmentsPage() {
   const { data: environments = [], active, environmentId } = useActiveEnvironment()
   const setEnvironmentId = useRestlyStore((s) => s.setEnvironmentId)
   const createEnvironment = useRestlyStore((s) => s.createEnvironment)
   const deleteEnvironment = useRestlyStore((s) => s.deleteEnvironment)
+  const duplicateEnvironment = useRestlyStore((s) => s.duplicateEnvironment)
   const updateEnvironmentName = useRestlyStore((s) => s.updateEnvironmentName)
+  const updateEnvironmentColor = useRestlyStore((s) => s.updateEnvironmentColor)
   const addVariable = useRestlyStore((s) => s.addVariable)
   const updateVariable = useRestlyStore((s) => s.updateVariable)
   const deleteVariable = useRestlyStore((s) => s.deleteVariable)
 
   const [visibleSecrets, setVisibleSecrets] = useState<Record<string, boolean>>({})
+  const [varSearch, setVarSearch] = useState('')
 
   const toggleSecretVisibility = (varId: string) => {
     setVisibleSecrets((prev) => ({ ...prev, [varId]: !prev[varId] }))
   }
+
+  const filteredVars = useMemo(() => {
+    if (!active) return []
+    const q = varSearch.trim().toLowerCase()
+    if (!q) return active.variables
+    return active.variables.filter(
+      (v) =>
+        v.key.toLowerCase().includes(q) ||
+        v.value.toLowerCase().includes(q) ||
+        (v.description ?? '').toLowerCase().includes(q),
+    )
+  }, [active, varSearch])
 
   return (
     <AppShell>
@@ -34,8 +56,7 @@ export function EnvironmentsPage() {
       />
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
-        {/* ── Environment list panel ──────────────────────── */}
-        <aside className="flex w-60 shrink-0 flex-col border-r border-border/60 bg-background">
+        <aside className="flex w-64 shrink-0 flex-col border-r border-border/60 bg-background">
           <div className="no-scrollbar flex-1 overflow-y-auto p-2">
             {environments.length === 0 ? (
               <p className="px-2 py-3 body-sm text-muted-foreground">No environments yet.</p>
@@ -49,23 +70,33 @@ export function EnvironmentsPage() {
                       type="button"
                       onClick={() => setEnvironmentId(env.id)}
                       className={cn(
-                        'w-full justify-between rounded-md px-3 py-2.5 text-left pr-8',
+                        'w-full justify-between rounded-lg px-3 py-2.5 pr-8 text-left',
                         selected
-                          ? 'bg-accent text-accent-foreground hover:bg-accent'
+                          ? 'bg-muted text-foreground ring-1 ring-border/60 hover:bg-muted'
                           : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
                       )}
                     >
                       <div className="flex min-w-0 items-center gap-2.5">
                         <span
                           className={cn(
-                            'size-[6px] shrink-0 rounded-full',
+                            'size-2 shrink-0 rounded-full',
                             env.color,
-                            !selected && 'opacity-50',
+                            selected && 'shadow-[0_0_8px_rgba(16,185,129,0.45)]',
                           )}
                         />
-                        <span className={cn('text-[13px] truncate', selected ? 'font-medium' : '')}>
-                          {env.name}
-                        </span>
+                        <div className="min-w-0">
+                          <span
+                            className={cn(
+                              'block truncate text-[13px]',
+                              selected ? 'font-semibold' : 'font-medium',
+                            )}
+                          >
+                            {env.name}
+                          </span>
+                          <span className="block text-[11px] text-muted-foreground/70">
+                            {env.variables.length} var{env.variables.length !== 1 ? 's' : ''}
+                          </span>
+                        </div>
                       </div>
                     </Button>
 
@@ -88,7 +119,6 @@ export function EnvironmentsPage() {
             )}
           </div>
 
-          {/* Add button */}
           <div className="border-t border-border/50 p-3">
             <Button
               variant="ghost"
@@ -97,31 +127,58 @@ export function EnvironmentsPage() {
               size="sm"
             >
               <Plus className="size-[13px]" />
-              Add environment
+              Create environment
             </Button>
           </div>
         </aside>
 
-        {/* ── Environment detail panel ────────────────────── */}
         <main className="flex min-w-0 flex-1 flex-col">
           {active ? (
             <>
-              {/* Detail header */}
               <header className="flex h-(--spacing-toolbar) shrink-0 items-center justify-between gap-3 border-b border-border/50 px-5">
                 <div className="flex min-w-0 flex-1 items-center gap-2.5">
-                  <Layers className="size-[14px] shrink-0 text-primary" />
+                  <button
+                    type="button"
+                    title="Cycle color"
+                    onClick={() => updateEnvironmentColor(active.id, cycleColor(active.color))}
+                    className={cn(
+                      'size-3 shrink-0 rounded-full ring-2 ring-background transition-transform hover:scale-110',
+                      active.color,
+                    )}
+                    aria-label="Change environment color"
+                  />
                   <Input
                     value={active.name}
                     onChange={(e) => updateEnvironmentName(active.id, e.target.value)}
-                    className="h-7 w-48 border-transparent bg-transparent text-[14px] font-semibold text-foreground hover:border-border focus-visible:border-border focus-visible:bg-background"
+                    className="h-7 w-52 border-transparent bg-transparent text-[14px] font-semibold text-foreground hover:border-border focus-visible:border-border focus-visible:bg-background"
                     aria-label="Environment name"
                   />
-                  <span className="shrink-0 label-caps text-muted-foreground/50">
+                  <span className="shrink-0 rounded-md bg-muted px-2 py-0.5 label-caps text-muted-foreground/70">
                     {active.variables.length} variable{active.variables.length !== 1 ? 's' : ''}
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2">
+                  <div className="relative hidden sm:block">
+                    <Search className="absolute top-1/2 left-2 size-3 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      value={varSearch}
+                      onChange={(e) => setVarSearch(e.target.value)}
+                      placeholder="Search variables…"
+                      className="h-7 w-44 pl-7 text-[12px]"
+                      aria-label="Search variables"
+                    />
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => duplicateEnvironment(active.id)}
+                    className="h-7 gap-1.5 text-[12px]"
+                    title="Duplicate environment"
+                  >
+                    <Copy className="size-3" />
+                    Duplicate
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"
@@ -143,8 +200,18 @@ export function EnvironmentsPage() {
                 </div>
               </header>
 
-              {/* Variables table */}
-              <div className="flex-1 overflow-auto p-4">
+              <div className="flex-1 overflow-auto p-5">
+                <div className="mb-4 flex items-end justify-between gap-3">
+                  <div>
+                    <h2 className="text-[15px] font-semibold text-foreground">
+                      Environment Variables
+                    </h2>
+                    <p className="mt-0.5 body-sm text-muted-foreground">
+                      Keys substitute into URLs, headers, and bodies via {'{{name}}'}.
+                    </p>
+                  </div>
+                </div>
+
                 {active.variables.length === 0 ? (
                   <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
                     <p className="text-[14px] font-medium text-foreground">No variables yet</p>
@@ -161,17 +228,32 @@ export function EnvironmentsPage() {
                       Add variable
                     </Button>
                   </div>
+                ) : filteredVars.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
+                    <p className="text-[14px] font-medium text-foreground">No matching variables</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setVarSearch('')}
+                      className="text-[12px]"
+                    >
+                      Clear search
+                    </Button>
+                  </div>
                 ) : (
-                  <div className="overflow-hidden rounded-md border border-border/50">
+                  <div className="overflow-hidden rounded-lg border border-border/50">
                     <table className="w-full border-collapse text-[13px]">
                       <thead>
                         <tr className="border-b border-border/50 bg-muted/40">
                           <th className="w-10 px-3 py-2 text-center" />
-                          <th className="px-3 py-2 text-left label-caps text-muted-foreground/70">
-                            Variable Key
+                          <th className="min-w-[140px] px-3 py-2 text-left label-caps text-muted-foreground/70">
+                            Variable
                           </th>
-                          <th className="px-3 py-2 text-left label-caps text-muted-foreground/70">
+                          <th className="min-w-[160px] px-3 py-2 text-left label-caps text-muted-foreground/70">
                             Value
+                          </th>
+                          <th className="min-w-[160px] px-3 py-2 text-left label-caps text-muted-foreground/70">
+                            Description
                           </th>
                           <th className="w-24 px-2 py-2 text-center label-caps text-muted-foreground/70">
                             Secret
@@ -180,7 +262,7 @@ export function EnvironmentsPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {active.variables.map((v) => (
+                        {filteredVars.map((v) => (
                           <tr
                             key={v.id}
                             className="border-b border-border/30 transition-colors last:border-b-0 hover:bg-muted/20"
@@ -201,7 +283,7 @@ export function EnvironmentsPage() {
                                   updateVariable(active.id, v.id, { key: e.target.value })
                                 }
                                 placeholder="VARIABLE_NAME"
-                                className="h-7 border-transparent bg-transparent font-mono text-[12px] hover:border-border focus-visible:bg-background"
+                                className="h-7 border-transparent bg-transparent font-mono text-[12px] text-primary hover:border-border focus-visible:bg-background"
                               />
                             </td>
                             <td className="px-2 py-1.5 font-mono text-[12px]">
@@ -222,7 +304,7 @@ export function EnvironmentsPage() {
                                     size="icon"
                                     onClick={() => toggleSecretVisibility(v.id)}
                                     className="absolute right-1 size-6 rounded-md p-0 text-muted-foreground hover:text-foreground"
-                                    title={visibleSecrets[v.id] ? 'Hide password' : 'Show password'}
+                                    title={visibleSecrets[v.id] ? 'Hide' : 'Show'}
                                   >
                                     {visibleSecrets[v.id] ? (
                                       <EyeOff className="size-3" />
@@ -232,6 +314,16 @@ export function EnvironmentsPage() {
                                   </Button>
                                 )}
                               </div>
+                            </td>
+                            <td className="px-2 py-1.5">
+                              <Input
+                                value={v.description ?? ''}
+                                onChange={(e) =>
+                                  updateVariable(active.id, v.id, { description: e.target.value })
+                                }
+                                placeholder="Optional note"
+                                className="h-7 border-transparent bg-transparent text-[12px] text-muted-foreground italic hover:border-border focus-visible:bg-background focus-visible:text-foreground focus-visible:not-italic"
+                              />
                             </td>
                             <td className="px-2 py-1.5 text-center">
                               <Button
@@ -244,10 +336,10 @@ export function EnvironmentsPage() {
                                 className={cn(
                                   'h-6 gap-1 px-2 text-[11px]',
                                   v.secret
-                                    ? 'bg-amber-500/10 text-amber-500 hover:bg-amber-500/20'
+                                    ? 'bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 dark:text-amber-400'
                                     : 'text-muted-foreground hover:text-foreground',
                                 )}
-                                title={v.secret ? 'Secret variable (masked)' : 'Plain text'}
+                                title={v.secret ? 'Secret (masked)' : 'Plain text'}
                               >
                                 <Key className="size-3" />
                                 {v.secret ? 'Secret' : 'Plain'}
@@ -271,10 +363,21 @@ export function EnvironmentsPage() {
                     </table>
                   </div>
                 )}
+
+                {active.variables.length > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => addVariable(active.id)}
+                    className="mt-4 h-8 gap-1.5 border-dashed text-[12px] text-muted-foreground hover:border-primary hover:text-primary"
+                  >
+                    <Plus className="size-3.5" />
+                    Add variable
+                  </Button>
+                )}
               </div>
             </>
           ) : (
-            /* No environment selected */
             <div className="flex flex-1 flex-col items-center justify-center gap-3 px-8 text-center">
               <div className="flex size-12 items-center justify-center rounded-xl bg-muted">
                 <Layers className="size-5 text-muted-foreground" />
