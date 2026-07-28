@@ -112,4 +112,19 @@ describe('useRestlyStore remaining mock cards actions', () => {
     expect(state.folders[0].name).toBe('Imported API Collection')
     expect(state.toast).toContain('Imported')
   })
+
+  it('handles bodyFiles state management', () => {
+    const store = useRestlyStore.getState()
+    const dummyFile = new File(['hello content'], 'test.txt', { type: 'text/plain' })
+
+    store.addBodyFiles([dummyFile])
+    let state = useRestlyStore.getState()
+    expect(state.bodyFiles.length).toBe(1)
+    expect(state.bodyFiles[0].name).toBe('test.txt')
+
+    const fileId = state.bodyFiles[0].id
+    store.removeBodyFile(fileId)
+    state = useRestlyStore.getState()
+    expect(state.bodyFiles.length).toBe(0)
+  })
 })

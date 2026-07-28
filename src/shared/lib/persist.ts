@@ -4,6 +4,12 @@ export const PERSIST_KEY = 'restly.mock.v1'
 
 export type ThemeMode = 'system' | 'light' | 'dark'
 
+export type PersistedBodyFile = {
+  id: string
+  name: string
+  size: number
+}
+
 export type PersistedState = {
   folders?: CollectionFolder[]
   environments?: Environment[]
@@ -12,6 +18,7 @@ export type PersistedState = {
   theme?: ThemeMode
   accentColor?: string
   generalToggles?: Record<string, boolean>
+  bodyFiles?: PersistedBodyFile[]
 }
 
 export function loadPersistedState(): PersistedState | null {
@@ -29,7 +36,15 @@ export function loadPersistedState(): PersistedState | null {
 export function savePersistedState(state: PersistedState): void {
   if (typeof window === 'undefined' || typeof localStorage === 'undefined') return
   try {
-    localStorage.setItem(PERSIST_KEY, JSON.stringify(state))
+    const cleanState = { ...state }
+    if (cleanState.bodyFiles) {
+      cleanState.bodyFiles = cleanState.bodyFiles.map((f) => ({
+        id: f.id,
+        name: f.name,
+        size: f.size,
+      }))
+    }
+    localStorage.setItem(PERSIST_KEY, JSON.stringify(cleanState))
   } catch (err) {
     console.warn('Failed to save persisted state:', err)
   }

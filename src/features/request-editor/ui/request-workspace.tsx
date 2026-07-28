@@ -163,7 +163,10 @@ export function RequestWorkspace({ sendState }: RequestWorkspaceProps) {
               <TabsContent value="headers" className="mt-0 min-h-0 flex-1 overflow-auto">
                 <HeadersEditor />
               </TabsContent>
-              <TabsContent value="body" className="mt-0 min-h-0 flex-1 overflow-auto">
+              <TabsContent
+                value="body"
+                className="mt-0 flex min-h-0 flex-1 flex-col overflow-hidden"
+              >
                 <BodyEditor />
               </TabsContent>
               <TabsContent value="auth" className="mt-0 min-h-0 flex-1 overflow-auto">

@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { MultipartFilesEditor } from '@/features/request-editor/ui/multipart-files-editor'
 import type { EnvVarSubstituteItem } from '@/shared/lib/substitute-env'
 import { getEnvResolutionTooltip, hasUnresolvedEnvTokens } from '@/shared/lib/substitute-env'
 import { formatBody, validateBody } from '@/shared/lib/validate-body'
@@ -183,14 +184,14 @@ function JsonBodyEditor({
 
   const editorContainer = (
     <div
-      className={`relative min-h-[220px] w-full rounded-lg border bg-transparent font-mono text-xs leading-relaxed transition-colors ${
+      className={`relative h-full min-h-0 w-full flex-1 rounded-lg border bg-transparent font-mono text-xs leading-relaxed transition-colors ${
         hasUnresolved ? 'border-destructive ring-1 ring-destructive/20' : 'border-input'
       }`}
     >
       <pre
         ref={preRef}
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 overflow-auto p-2.5 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap text-foreground [font-variant-ligatures:none] [font-kerning:none]"
+        className="pointer-events-none absolute inset-0 overflow-auto p-2.5 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap text-foreground [font-kerning:none] [font-variant-ligatures:none]"
       >
         {renderHighlightedJson(value + (value.endsWith('\n') ? ' ' : ''), vars)}
       </pre>
@@ -207,7 +208,7 @@ function JsonBodyEditor({
         autoCorrect="off"
         autoCapitalize="off"
         placeholder={placeholder}
-        className="absolute inset-0 h-full w-full resize-none overflow-auto border-0 bg-transparent p-2.5 font-mono text-xs leading-relaxed text-transparent caret-foreground outline-none selection:bg-accent selection:text-accent-foreground placeholder:text-muted-foreground [font-variant-ligatures:none] [font-kerning:none]"
+        className="absolute inset-0 h-full w-full resize-none overflow-auto border-0 bg-transparent p-2.5 font-mono text-xs leading-relaxed text-transparent caret-foreground outline-none [font-kerning:none] [font-variant-ligatures:none] selection:bg-accent selection:text-accent-foreground placeholder:text-muted-foreground"
       />
     </div>
   )
@@ -239,19 +240,8 @@ export function BodyEditor() {
 
   const handleContentTypeChange = (newContentType: string) => {
     setContentType(newContentType)
-    if (!body || !body.trim()) {
-      const example = EXAMPLES[newContentType]
-      if (example) {
-        setBody(example)
-      }
-    }
-  }
-
-  const handleInsertExample = () => {
-    const example = EXAMPLES[contentType]
-    if (example) {
-      setBody(example)
-    }
+    const example = EXAMPLES[newContentType] ?? ''
+    setBody(example)
   }
 
   const handleFormat = () => {
@@ -260,8 +250,8 @@ export function BodyEditor() {
   }
 
   return (
-    <div className="flex flex-col gap-3 p-4">
-      <div className="flex items-center justify-between gap-3">
+    <div className="flex min-h-0 flex-1 flex-col gap-3 p-4">
+      <div className="flex shrink-0 items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Label
             htmlFor="content-type-select"
@@ -283,16 +273,13 @@ export function BodyEditor() {
           </Select>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleInsertExample} className="h-8 text-xs">
-            Insert Example
-          </Button>
           <Button variant="outline" size="sm" onClick={handleFormat} className="h-8 text-xs">
             Format
           </Button>
         </div>
       </div>
 
-      <div className="flex flex-col gap-1.5">
+      <div className="flex min-h-0 flex-1 flex-col gap-1.5">
         {contentType === 'application/json' ? (
           <JsonBodyEditor
             value={body}
@@ -300,16 +287,22 @@ export function BodyEditor() {
             placeholder={EXAMPLES['application/json']}
             vars={vars}
           />
+        ) : contentType === 'multipart/form-data' ? (
+          <MultipartFilesEditor
+            body={body}
+            onBodyChange={setBody}
+            placeholder={EXAMPLES['multipart/form-data']}
+          />
         ) : (
           <EnvAwareTextarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
             placeholder={EXAMPLES[contentType] || 'Enter request body here...'}
-            className="min-h-[220px] font-mono text-xs leading-relaxed"
+            className="h-full min-h-0 flex-1 font-mono text-xs leading-relaxed"
           />
         )}
         {!validation.isValid && validation.error && (
-          <p className="text-xs font-medium text-destructive">{validation.error}</p>
+          <p className="shrink-0 text-xs font-medium text-destructive">{validation.error}</p>
         )}
       </div>
     </div>

@@ -37,6 +37,13 @@ const initialTheme: ThemeMode = initialPersisted?.theme ?? 'light'
 // Always apply on boot so <html> matches store (avoids light shell + dark tokens mix).
 applyTheme(initialTheme)
 
+export type BodyFileItem = {
+  id: string
+  name: string
+  size: number
+  file?: File
+}
+
 type UiState = {
   showWelcome: boolean
   activeNav: NavId
@@ -50,6 +57,7 @@ type UiState = {
   headers: HeaderRow[]
   body: string
   contentType: string
+  bodyFiles: BodyFileItem[]
   auth: RequestAuth
   toast: string | null
   folders: CollectionFolder[]
@@ -71,6 +79,9 @@ type UiState = {
   setHeaders: (v: HeaderRow[]) => void
   setBody: (v: string) => void
   setContentType: (v: string) => void
+  addBodyFiles: (files: File[]) => void
+  removeBodyFile: (id: string) => void
+  setBodyFiles: (files: BodyFileItem[]) => void
   setAuth: (v: RequestAuth) => void
   toggleFolder: (id: string) => void
   sendRequest: () => void
@@ -112,6 +123,7 @@ export const useRestlyStore = create<UiState>((set, get) => ({
   headers: mockHeaders,
   body: mockBody,
   contentType: mockContentType,
+  bodyFiles: initialPersisted?.bodyFiles ?? [],
   auth: mockAuth,
   toast: null,
   folders: initialPersisted?.folders ?? mockFolders,
@@ -151,6 +163,17 @@ export const useRestlyStore = create<UiState>((set, get) => ({
   setHeaders: (headers) => set({ headers }),
   setBody: (body) => set({ body }),
   setContentType: (contentType) => set({ contentType }),
+  addBodyFiles: (newFiles) => {
+    const items: BodyFileItem[] = newFiles.map((file) => ({
+      id: `file-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      name: file.name,
+      size: file.size,
+      file,
+    }))
+    set((s) => ({ bodyFiles: [...s.bodyFiles, ...items] }))
+  },
+  removeBodyFile: (id) => set((s) => ({ bodyFiles: s.bodyFiles.filter((f) => f.id !== id) })),
+  setBodyFiles: (bodyFiles) => set({ bodyFiles }),
   setAuth: (auth) => set({ auth }),
   toggleFolder: (id) =>
     set({
@@ -382,6 +405,7 @@ if (typeof window !== 'undefined') {
       theme: state.theme,
       accentColor: state.accentColor,
       generalToggles: state.generalToggles,
+      bodyFiles: state.bodyFiles.map(({ id, name, size }) => ({ id, name, size })),
     })
   })
 }
