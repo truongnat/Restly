@@ -6,6 +6,7 @@ import { useRestlyStore } from '@/app/store/restly-store'
 import { Button } from '@/components/ui/button'
 import type { CollectionFolder } from '@/entities'
 import { ROUTES } from '@/shared/constants/app'
+import { MethodBadge } from '@/shared/ui/method-badge'
 
 const quickLinks = [
   {
@@ -35,7 +36,10 @@ const quickLinks = [
 export function WelcomePage() {
   const navigate = useNavigate()
   const importCollection = useRestlyStore((s) => s.importCollection)
+  const history = useRestlyStore((s) => s.history)
+  const reopenHistoryItem = useRestlyStore((s) => s.reopenHistoryItem)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const recentHistory = history.slice(0, 3)
 
   const handleImportClick = () => {
     if (fileInputRef.current) {
@@ -146,6 +150,42 @@ export function WelcomePage() {
             Import collection
           </Button>
         </div>
+
+        {recentHistory.length > 0 && (
+          <div className="mb-8 w-full text-left">
+            <div className="mb-2 flex items-center justify-between px-0.5">
+              <p className="label-caps text-muted-foreground/70">Recent</p>
+              <Link
+                to={ROUTES.history}
+                className="text-[11px] font-medium text-muted-foreground hover:text-foreground"
+              >
+                View all
+              </Link>
+            </div>
+            <div className="divide-y divide-border/50 rounded-lg border border-border/60 bg-card">
+              {recentHistory.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    reopenHistoryItem(item)
+                    void navigate({ to: ROUTES.workspace })
+                  }}
+                  className="group flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors first:rounded-t-lg last:rounded-b-lg hover:bg-muted/40"
+                >
+                  <MethodBadge method={item.method} className="w-[40px]" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-mono text-[12px] text-foreground">{item.url}</p>
+                    <p className="body-sm text-muted-foreground/70">
+                      {item.status} {item.statusText} · {item.when}
+                    </p>
+                  </div>
+                  <ArrowRight className="size-[13px] text-muted-foreground/40 transition-transform group-hover:translate-x-0.5 group-hover:text-muted-foreground" />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Quick links */}
         <div className="w-full divide-y divide-border/50 rounded-lg border border-border/60 bg-card">

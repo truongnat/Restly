@@ -10,7 +10,7 @@ export function createListHistory(repo: HistoryRepository): ListHistory {
 /** Pure biz: group history rows for the history screen. */
 export function groupHistoryByDay(
   items: HistoryItem[],
-  groups: readonly HistoryGroup[] = ['Today', 'Yesterday'],
+  groups: readonly HistoryGroup[] = ['Today', 'Yesterday', 'Older'],
 ): { group: HistoryGroup; items: HistoryItem[] }[] {
   return groups
     .map((group) => ({

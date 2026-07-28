@@ -1,5 +1,5 @@
 import { useNavigate } from '@tanstack/react-router'
-import { Check, Clock, Filter, Search, Trash2, X } from 'lucide-react'
+import { Check, Clock, Filter, RotateCcw, Search, Trash2, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
 import { useRestlyStore } from '@/app/store/restly-store'
@@ -20,10 +20,18 @@ import { ROUTES } from '@/shared/constants/app'
 import { cn } from '@/shared/lib/utils'
 import { MethodBadge } from '@/shared/ui/method-badge'
 
+function statusBadgeClass(status: number): string {
+  if (status < 400) {
+    return 'border-emerald-200/80 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300'
+  }
+  return 'border-rose-200/80 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950/50 dark:text-rose-300'
+}
+
 export function HistoryPage() {
   const navigate = useNavigate()
   const history = useRestlyStore((s) => s.history)
   const clearHistory = useRestlyStore((s) => s.clearHistory)
+  const removeHistoryItem = useRestlyStore((s) => s.removeHistoryItem)
   const reopenHistoryItem = useRestlyStore((s) => s.reopenHistoryItem)
 
   const [searchQuery, setSearchQuery] = useState('')
@@ -48,9 +56,19 @@ export function HistoryPage() {
   const isHistoryEmpty = history.length === 0
   const isFilteredEmpty = !isHistoryEmpty && filteredItems.length === 0
 
-  const handleRowClick = (item: HistoryItem) => {
+  const restoreItem = (item: HistoryItem) => {
     reopenHistoryItem(item)
     void navigate({ to: ROUTES.workspace })
+  }
+
+  const handleClearAll = () => {
+    clearHistory()
+    useRestlyStore.setState({ toast: 'History cleared' })
+    window.setTimeout(() => {
+      if (useRestlyStore.getState().toast === 'History cleared') {
+        useRestlyStore.setState({ toast: null })
+      }
+    }, 2800)
   }
 
   const handleResetFilters = () => {
@@ -123,22 +141,29 @@ export function HistoryPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={clearHistory}
+              onClick={handleClearAll}
               disabled={isHistoryEmpty}
               className="gap-1.5 text-[12px] text-muted-foreground hover:text-destructive disabled:opacity-40"
               id="btn-history-clear"
+              title="Clear history (Ctrl+Shift+H)"
             >
               <Trash2 className="size-[13px]" />
-              Clear
+              Clear All
             </Button>
           </div>
         }
       />
 
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-3xl px-6 py-6">
+        <div className="mx-auto max-w-4xl px-6 py-6">
+          <div className="mb-8 flex items-center justify-between gap-3">
+            <h1 className="text-[24px] leading-8 font-semibold tracking-tight text-foreground">
+              Request History
+            </h1>
+            <p className="body-sm text-muted-foreground">{history.length} total</p>
+          </div>
+
           {isHistoryEmpty ? (
-            /* Empty state */
             <div className="flex flex-col items-center justify-center gap-3 py-24 text-center">
               <div className="flex size-12 items-center justify-center rounded-xl bg-muted">
                 <Clock className="size-5 text-muted-foreground" />
@@ -151,7 +176,6 @@ export function HistoryPage() {
               </div>
             </div>
           ) : isFilteredEmpty ? (
-            /* Filtered out state */
             <div className="flex flex-col items-center justify-center gap-3 py-24 text-center">
               <div className="flex size-12 items-center justify-center rounded-xl bg-muted">
                 <Search className="size-5 text-muted-foreground" />
@@ -172,54 +196,85 @@ export function HistoryPage() {
               </Button>
             </div>
           ) : (
-            <div className="space-y-8">
+            <div className="space-y-10">
               {groups.map(({ group, items }) => (
                 <section key={group} aria-label={group}>
-                  {/* Group header */}
-                  <div className="mb-3 flex items-center gap-3">
-                    <h2 className="label-caps text-muted-foreground/60">{group}</h2>
+                  <div className="mb-4 flex items-center gap-4">
+                    <h2 className="label-caps text-muted-foreground/70">{group}</h2>
                     <div className="h-px flex-1 bg-border/50" />
                   </div>
 
-                  {/* Request rows */}
-                  <div className="flex flex-col gap-0.5">
+                  <div className="flex flex-col gap-1">
                     {items.map((item) => (
-                      <Button
+                      <div
                         key={item.id}
-                        variant="ghost"
-                        type="button"
-                        onClick={() => handleRowClick(item)}
-                        className="group w-full justify-start gap-3 rounded-lg px-3 py-2.5 text-left hover:bg-muted/50"
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => restoreItem(item)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            restoreItem(item)
+                          }
+                        }}
+                        className="group relative flex w-full cursor-pointer items-center gap-4 rounded-xl border border-transparent px-3 py-2.5 text-left shadow-sm transition-all hover:border-border/60 hover:bg-muted/40 hover:shadow-md"
                       >
                         <MethodBadge method={item.method} className="w-[44px]" />
 
-                        {/* URL + meta */}
                         <div className="min-w-0 flex-1">
                           <div className="truncate font-mono text-[12px] text-foreground">
                             {item.url}
                           </div>
                           <div className="mt-0.5 flex items-center gap-2">
-                            <span className="body-sm text-muted-foreground/60">{item.when}</span>
+                            <span className="body-sm text-muted-foreground/70">{item.when}</span>
                             <span className="size-[3px] rounded-full bg-border" />
-                            <span className="body-sm text-muted-foreground/60">
+                            <span className="body-sm text-muted-foreground/70">
                               {item.durationMs}ms
                             </span>
                           </div>
                         </div>
 
-                        {/* Status badge */}
                         <Badge
                           variant="secondary"
                           className={cn(
-                            'shrink-0 text-[11px]',
-                            item.status < 400
-                              ? 'border-emerald-100 bg-emerald-50 text-emerald-700'
-                              : 'border-rose-100 bg-rose-50 text-rose-700',
+                            'shrink-0 font-mono text-[11px]',
+                            statusBadgeClass(item.status),
                           )}
                         >
-                          {item.status}
+                          {item.status} {item.statusText}
                         </Badge>
-                      </Button>
+
+                        <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            type="button"
+                            title="Restore"
+                            aria-label={`Restore ${item.method} ${item.url}`}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              restoreItem(item)
+                            }}
+                            className="text-primary hover:bg-primary/10"
+                          >
+                            <RotateCcw className="size-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            type="button"
+                            title="Delete"
+                            aria-label={`Delete history item ${item.url}`}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              removeHistoryItem(item.id)
+                            }}
+                            className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </section>

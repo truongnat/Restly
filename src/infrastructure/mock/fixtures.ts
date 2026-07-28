@@ -125,6 +125,11 @@ export const mockHistory: HistoryItem[] = [
     durationMs: 124,
     when: '2 mins ago',
     group: 'Today',
+    params: mockParams,
+    headers: mockHeaders,
+    body: '',
+    contentType: 'application/json',
+    auth: mockAuth,
   },
   {
     id: 'h2',
@@ -135,6 +140,9 @@ export const mockHistory: HistoryItem[] = [
     durationMs: 210,
     when: '18 mins ago',
     group: 'Today',
+    body: '{\n  "email": "alex@restly.com",\n  "password": "{{password}}"\n}',
+    contentType: 'application/json',
+    auth: { type: 'none' },
   },
   {
     id: 'h3',

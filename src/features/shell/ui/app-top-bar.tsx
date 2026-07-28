@@ -32,6 +32,17 @@ export function AppTopBar() {
         const current = useRestlyStore.getState().theme
         const dark = resolveIsDark(current)
         useRestlyStore.getState().setTheme(dark ? 'light' : 'dark')
+        return
+      }
+      if (e.ctrlKey && e.shiftKey && (e.key === 'H' || e.key === 'h')) {
+        e.preventDefault()
+        useRestlyStore.getState().clearHistory()
+        useRestlyStore.setState({ toast: 'History cleared' })
+        window.setTimeout(() => {
+          if (useRestlyStore.getState().toast === 'History cleared') {
+            useRestlyStore.setState({ toast: null })
+          }
+        }, 2800)
       }
     }
     window.addEventListener('keydown', onKeyDown)

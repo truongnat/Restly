@@ -6,6 +6,7 @@ import type {
   EnvVar,
   HeaderRow,
   HistoryItem,
+  HistoryDraftSnapshot,
   HttpMethod,
   NavId,
   ParamRow,
@@ -14,6 +15,7 @@ import type {
   RequestTab,
   ResponseTab,
 } from '@/entities'
+import { HISTORY_BODY_MAX_CHARS, HISTORY_MAX_ITEMS } from '@/entities/history'
 import {
   mockAuth,
   mockBody,
@@ -91,13 +93,16 @@ type UiState = {
   clearToast: () => void
   setSearchQuery: (query: string) => void
   clearHistory: () => void
-  addHistoryItem: (item: {
-    method: HttpMethod
-    url: string
-    status: number
-    statusText: string
-    durationMs: number
-  }) => void
+  removeHistoryItem: (id: string) => void
+  addHistoryItem: (
+    item: {
+      method: HttpMethod
+      url: string
+      status: number
+      statusText: string
+      durationMs: number
+    } & HistoryDraftSnapshot,
+  ) => void
   reopenHistoryItem: (item: HistoryItem) => void
   createRequest: () => void
   createCollection: () => void
@@ -202,7 +207,14 @@ export const useRestlyStore = create<UiState>((set, get) => ({
   clearToast: () => set({ toast: null }),
   setSearchQuery: (searchQuery) => set({ searchQuery }),
   clearHistory: () => set({ history: [] }),
+  removeHistoryItem: (id) => set((s) => ({ history: s.history.filter((h) => h.id !== id) })),
   addHistoryItem: (item) => {
+    const rawBody = item.body ?? ''
+    const body =
+      rawBody.length > HISTORY_BODY_MAX_CHARS
+        ? `${rawBody.slice(0, HISTORY_BODY_MAX_CHARS)}\n/* …truncated */`
+        : rawBody
+
     const newItem: HistoryItem = {
       id: `hist-${Date.now()}`,
       method: item.method,
@@ -212,15 +224,32 @@ export const useRestlyStore = create<UiState>((set, get) => ({
       durationMs: item.durationMs,
       when: 'Just now',
       group: 'Today',
+      params: item.params,
+      headers: item.headers,
+      body,
+      contentType: item.contentType,
+      auth: item.auth,
     }
-    set({ history: [newItem, ...get().history] })
+    set({ history: [newItem, ...get().history].slice(0, HISTORY_MAX_ITEMS) })
   },
   reopenHistoryItem: (item) => {
+    // Step 1: restore URL bar
+    // Step 2: restore draft tabs when snapshot exists
     set({
       method: item.method,
       url: item.url,
       activeNav: 'collections',
+      showWelcome: false,
+      params: item.params ?? [],
+      headers: item.headers ?? [],
+      body: item.body ?? '',
+      contentType: item.contentType ?? 'application/json',
+      auth: item.auth ?? { type: 'none' },
+      toast: 'Request restored successfully',
     })
+    window.setTimeout(() => {
+      if (get().toast === 'Request restored successfully') set({ toast: null })
+    }, 2800)
   },
   createCollection: () => {
     const newFolder: CollectionFolder = {

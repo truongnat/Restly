@@ -79,6 +79,11 @@ export function useSendRequestMutation() {
         status: data.status,
         statusText: data.statusText,
         durationMs: data.durationMs,
+        params: useRestlyStore.getState().params,
+        headers: useRestlyStore.getState().headers,
+        body: useRestlyStore.getState().body,
+        contentType: useRestlyStore.getState().contentType,
+        auth: useRestlyStore.getState().auth,
       })
     },
   })

@@ -137,4 +137,54 @@ describe('useRestlyStore remaining mock cards actions', () => {
     state = useRestlyStore.getState()
     expect(state.bodyFiles.length).toBe(1)
   })
+
+  it('history snapshot, remove, reopen, and trim', () => {
+    const store = useRestlyStore.getState()
+    store.clearHistory()
+
+    store.addHistoryItem({
+      method: 'POST',
+      url: 'https://api.example.com/echo',
+      status: 200,
+      statusText: 'OK',
+      durationMs: 42,
+      body: '{"ok":true}',
+      contentType: 'application/json',
+      params: [{ id: 'p1', enabled: true, key: 'q', value: '1', description: '' }],
+      headers: [{ id: 'h1', enabled: true, key: 'Accept', value: 'application/json' }],
+      auth: { type: 'bearer', bearerToken: 'tok' },
+    })
+
+    let state = useRestlyStore.getState()
+    expect(state.history.length).toBe(1)
+    expect(state.history[0].body).toBe('{"ok":true}')
+    expect(state.history[0].auth?.type).toBe('bearer')
+
+    const id = state.history[0].id
+    store.reopenHistoryItem(state.history[0])
+    state = useRestlyStore.getState()
+    expect(state.method).toBe('POST')
+    expect(state.url).toBe('https://api.example.com/echo')
+    expect(state.body).toBe('{"ok":true}')
+    expect(state.params[0]?.key).toBe('q')
+    expect(state.headers[0]?.key).toBe('Accept')
+    expect(state.auth.type).toBe('bearer')
+    expect(state.toast).toBe('Request restored successfully')
+
+    store.removeHistoryItem(id)
+    state = useRestlyStore.getState()
+    expect(state.history.length).toBe(0)
+
+    for (let i = 0; i < 105; i++) {
+      store.addHistoryItem({
+        method: 'GET',
+        url: `https://api.example.com/${i}`,
+        status: 200,
+        statusText: 'OK',
+        durationMs: 1,
+      })
+    }
+    state = useRestlyStore.getState()
+    expect(state.history.length).toBe(100)
+  })
 })
