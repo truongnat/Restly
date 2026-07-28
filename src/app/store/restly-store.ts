@@ -36,6 +36,16 @@ import {
 const initialPersisted = loadPersistedState()
 const initialTheme: ThemeMode = initialPersisted?.theme ?? 'light'
 
+function resolveInitialHistory(): HistoryItem[] {
+  const persisted = initialPersisted?.history
+  if (!persisted || persisted.length === 0) return mockHistory
+  // Upgrade legacy rows that never stored a draft snapshot.
+  const hasSnapshot = persisted.some(
+    (h) => h.contentType != null || h.body != null || (h.params != null && h.params.length > 0),
+  )
+  return hasSnapshot ? persisted : mockHistory
+}
+
 // Always apply on boot so <html> matches store (avoids light shell + dark tokens mix).
 applyTheme(initialTheme)
 
@@ -140,7 +150,7 @@ export const useRestlyStore = create<UiState>((set, get) => ({
   auth: mockAuth,
   toast: null,
   folders: initialPersisted?.folders ?? mockFolders,
-  history: initialPersisted?.history ?? mockHistory,
+  history: resolveInitialHistory(),
   environments: initialPersisted?.environments ?? mockEnvironments,
   searchQuery: '',
   theme: initialTheme,

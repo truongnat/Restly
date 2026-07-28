@@ -137,19 +137,19 @@ export function RequestWorkspace({ sendState }: RequestWorkspaceProps) {
               onValueChange={(val) => setRequestTab(val as RequestTab)}
               className="flex min-h-0 flex-1 flex-col"
             >
-              <div className="border-b border-border/50 px-4">
-                <TabsList variant="line" className="h-10">
+              <div className="flex shrink-0 items-center border-b border-border/50 bg-muted/20 px-4 py-2">
+                <TabsList variant="default" className="h-8">
                   <TabsTrigger value="params">
                     Params
                     {params.length > 0 && (
-                      <Badge variant="secondary" className="ml-1.5 text-[10px]">
+                      <Badge variant="secondary" className="text-[10px]">
                         {params.length}
                       </Badge>
                     )}
                   </TabsTrigger>
                   <TabsTrigger value="headers">
                     Headers
-                    <Badge variant="secondary" className="ml-1.5 text-[10px]">
+                    <Badge variant="secondary" className="text-[10px]">
                       {headers.length}
                     </Badge>
                   </TabsTrigger>
@@ -225,15 +225,15 @@ export function RequestWorkspace({ sendState }: RequestWorkspaceProps) {
                 </div>
 
                 <Tabs defaultValue="pretty" className="flex min-h-0 flex-1 flex-col">
-                  <div className="flex items-center border-b border-border/50 px-4">
-                    <TabsList variant="line" className="h-10">
+                  <div className="flex shrink-0 items-center border-b border-border/50 px-3">
+                    <TabsList variant="line" className="h-9">
                       <TabsTrigger value="pretty">Pretty</TabsTrigger>
                       <TabsTrigger value="raw">Raw</TabsTrigger>
                       <TabsTrigger value="preview">Preview</TabsTrigger>
                       <TabsTrigger value="headers">
                         Headers
                         {headerCount > 0 && (
-                          <Badge variant="secondary" className="ml-1.5 text-[10px]">
+                          <Badge variant="secondary" className="text-[10px]">
                             {headerCount}
                           </Badge>
                         )}
