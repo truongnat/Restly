@@ -1,6 +1,20 @@
 # Restly coding standards
 
-Agent-facing rules also live in `.cursor/rules/`. This doc is the human checklist.
+Agent-facing rules also live in `.cursor/rules/`. This document is the human entrypoint.
+
+## Engineering rule set
+
+These documents are normative for new and changed code:
+
+| Document | Scope |
+| --- | --- |
+| [Frontend coding rules](./engineering/frontend-coding-rules.md) | React/TypeScript architecture, naming, complexity, state, async Tauri UX and testing |
+| [Rust and Tauri coding rules](./engineering/tauri-rust-coding-rules.md) | Native architecture, commands, async jobs, security, persistence and quality |
+| [Comment and trace rules](./engineering/comment-and-trace-rules.md) | Feature-scoped flow/rule tags and trace requirements |
+| [Flow and business-rule registry](./engineering/flow-registry.md) | Approved namespaces, flow IDs and critical rule IDs |
+| [Commit rules](./engineering/commit-rules.md) | Conventional Commits, atomicity, Linear references and verification |
+
+When a short checklist in this file conflicts with a detailed rule, the detailed engineering rule applies. Architecture/security decisions recorded in an accepted ADR take precedence for their explicit scope.
 
 ## Layers
 
@@ -16,7 +30,7 @@ entities/            → types + Zod (no React)
 shared/              → constants, lib, styles, primitives
 components/ui        → shadcn
 infrastructure/
-  adapters/          → port implementations (mock → real later)
+  adapters/          → port implementations (browser/native)
   di/                → Container, tokens, bootContainer, resolve
   mock/              → fixtures
   query/             → QueryClient
@@ -38,40 +52,52 @@ See `.cursor/rules/di.mdc`.
 1. New screen → `pages/XPage.tsx` + `features/x/...` if logic grows.
 2. JSX > ~150 lines or 3+ responsibilities → extract child UI + `model` hook.
 3. Business branching in JSX → move to `application/use-cases` or feature `lib`.
-4. New remote capability → port in `application/ports` + adapter + register in `createAppContainer`.
+4. New remote/native capability → port in `application/ports` + adapter + register in `createAppContainer`.
+5. FE must not call Tauri directly outside `infrastructure/tauri`.
 
 ## Constants
 
-| Scope          | Path                                |
-| -------------- | ----------------------------------- |
-| Global         | `src/shared/constants/<domain>.ts`  |
-| Feature        | `src/features/<f>/lib/constants.ts` |
-| Config / env   | `src/shared/config/`                |
-| Domain schemas | `src/entities/`                     |
+| Scope | Path |
+| --- | --- |
+| Global | `src/shared/constants/<domain>.ts` |
+| Feature | `src/features/<f>/lib/constants.ts` |
+| Config / env | `src/shared/config/` |
+| Domain schemas | `src/entities/` |
 
 Use `UPPER_SNAKE` + `as const`. No magic strings/numbers in UI.
 
 ## Logic separation
 
-| Kind               | Prefer                                  |
-| ------------------ | --------------------------------------- |
-| Biz rules          | `application/use-cases`                 |
-| IO / HTTP          | port + `infrastructure/adapters` via DI |
-| Cache/UI sync      | TanStack Query in `features/*/model`    |
-| Shell UI state     | Zustand (`app/store`)                   |
-| Local widget state | `useState` / `useReducer`               |
-| Validation         | Zod in `entities`                       |
+| Kind | Prefer |
+| --- | --- |
+| Biz rules | `application/use-cases` |
+| IO / HTTP | port + `infrastructure/adapters` via DI |
+| Native capability | port + `infrastructure/tauri` adapter |
+| Cache/UI sync | TanStack Query in `features/*/model` |
+| Shell UI state | Zustand (`app/store`) |
+| Local widget state | `useState` / `useReducer` |
+| Validation | Zod in `entities` |
 
-## Mock phase
+## Current hybrid phase
 
-- No real network / Tauri. Persist UI state via `shared/lib/persist.ts` (`restly.mock.v1`).
-- Pages: kebab-case (`auth-page.tsx`, `mocks-page.tsx`). Domain extras: `entities/auth-profile.ts`, `entities/mock-server.ts`.
-- Prefer shadcn primitives under `components/ui` (incl. `context-menu`).
-- Store actions must not be named `use*` (oxlint treats them as hooks).
+- Browser Send uses real `fetch`; optional mock adapter remains available.
+- Persisted browser state currently uses `shared/lib/persist.ts` (`restly.mock.v1`).
+- Tauri/native capabilities must follow the Rust/Tauri rules when introduced.
+- Pages use kebab-case.
+- Prefer shadcn primitives under `components/ui`.
+- Store actions must not be named `use*`.
 
 ## Tooling
 
-- Format: `npm run fmt` (oxfmt)
-- Lint: `npm run lint` (oxlint)
-- Test: `npm test` (Vitest)
-- Gate: `npm run check` (fmt + lint + test + build)
+Frontend:
+
+- Format: `npm run fmt`
+- Lint: `npm run lint`
+- Test: `npm test`
+- Gate: `npm run check`
+
+Rust/Tauri when present:
+
+- `cargo fmt --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test`
