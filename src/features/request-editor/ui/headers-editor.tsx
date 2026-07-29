@@ -15,7 +15,11 @@ import {
 import type { HeaderRow } from '@/entities/request'
 import { createHeaderColumns } from '@/features/request-editor/model/header-columns'
 
-export function HeadersEditor() {
+interface HeadersEditorProps {
+  error?: string
+}
+
+export function HeadersEditor({ error }: HeadersEditorProps) {
   const headers = useRestlyStore((s) => s.headers)
 
   const handleUpdateHeader = useCallback(
@@ -58,6 +62,11 @@ export function HeadersEditor() {
 
   return (
     <div className="flex flex-col gap-2 p-2">
+      {error && (
+        <p className="px-2 text-xs font-medium text-destructive" role="alert">
+          {error}
+        </p>
+      )}
       <div className="overflow-visible">
         <Table>
           <TableHeader>
