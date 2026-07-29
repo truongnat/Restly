@@ -59,6 +59,32 @@ describe('createSendRequest (no React)', () => {
     expect(client.lastDraft?.auth.type).toBe('bearer')
     expect(result.body).toBe('{"ok":true}')
   })
+
+  it('preserves the selected File through validation and preparation', async () => {
+    const client = createFakeRequestClient()
+    const send = createSendRequest(client)
+    const file = new File(['real bytes'], 'payload.bin', {
+      type: 'application/octet-stream',
+    })
+
+    await send({
+      ...draft,
+      method: 'POST',
+      contentType: 'multipart/form-data',
+      bodyFiles: [
+        {
+          id: 'file-1',
+          fieldName: 'artifact',
+          name: file.name,
+          size: file.size,
+          file,
+        },
+      ],
+    })
+
+    expect(client.lastDraft?.bodyFiles[0]?.file).toBe(file)
+    expect(await client.lastDraft?.bodyFiles[0]?.file?.text()).toBe('real bytes')
+  })
 })
 
 describe('module-level DI resolve (no React)', () => {
