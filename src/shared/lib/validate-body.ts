@@ -35,7 +35,7 @@ export function validateBody(body: string, contentType: string): BodyValidationR
       return { isValid: true, error: null }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Invalid JSON format'
-      return { isValid: false, error: message }
+      return { isValid: false, error: `Invalid JSON: ${message}` }
     }
   }
 
