@@ -41,6 +41,7 @@ export const bodyFilePartSchema = z.object({
   fieldName: z.string(),
   name: z.string(),
   size: z.number().nonnegative(),
+  file: z.custom<File>().optional(),
 })
 
 const TEMPLATE_VARIABLE_PATTERN = /\{\{[^{}]+\}\}/g
@@ -97,6 +98,34 @@ export const requestDraftSchema = z
         path: ['headers', index, 'key'],
       })
     })
+
+    const contentType = draft.contentType.toLowerCase()
+    const usesFiles =
+      contentType.includes('multipart/form-data') ||
+      contentType.includes('application/octet-stream')
+
+    if (usesFiles) {
+      draft.bodyFiles.forEach((filePart, index) => {
+        if (!filePart.file) {
+          ctx.addIssue({
+            code: 'custom',
+            message: `Select "${filePart.name}" again before sending`,
+            path: ['bodyFiles', index, 'file'],
+          })
+        }
+      })
+    }
+
+    if (contentType.includes('application/octet-stream') && draft.bodyFiles.length !== 1) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          draft.bodyFiles.length === 0
+            ? 'Select a file before sending a binary request'
+            : 'Binary requests support exactly one file',
+        path: ['bodyFiles'],
+      })
+    }
   })
 
 export const envVarSchema = z.object({
