@@ -19,10 +19,20 @@ interface RequestUrlBarProps {
 }
 
 export function RequestUrlBar({ sendState }: RequestUrlBarProps) {
-  const { method, setMethod, url, setUrl, isPending, isSendDisabled, onSend, onCancel } = sendState
+  const {
+    method,
+    setMethod,
+    url,
+    setUrl,
+    isPending,
+    isSendDisabled,
+    requestValidation,
+    onSend,
+    onCancel,
+  } = sendState
 
   return (
-    <div className="flex min-w-0 flex-1 items-center gap-2">
+    <div className="flex min-w-0 flex-1 items-start gap-2">
       <Select value={method} onValueChange={(v) => setMethod(v as HttpMethod)}>
         <SelectTrigger
           className={cn(
@@ -45,13 +55,22 @@ export function RequestUrlBar({ sendState }: RequestUrlBarProps) {
         </SelectContent>
       </Select>
 
-      <EnvAwareInput
-        className="flex-1 rounded-md border-border/70 bg-card font-mono text-[12px] shadow-none placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-primary/40"
-        value={url}
-        onChange={(e) => setUrl(e.target.value)}
-        placeholder="https://api.example.com/v1/users"
-        aria-label="Request URL"
-      />
+      <div className="min-w-0 flex-1">
+        <EnvAwareInput
+          className="w-full rounded-md border-border/70 bg-card font-mono text-[12px] shadow-none placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-primary/40"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="https://api.example.com/v1/users"
+          aria-label="Request URL"
+          aria-invalid={Boolean(requestValidation.urlError)}
+          aria-describedby={requestValidation.urlError ? 'request-url-error' : undefined}
+        />
+        {requestValidation.urlError && (
+          <p id="request-url-error" className="mt-1 text-xs font-medium text-destructive">
+            {requestValidation.urlError}
+          </p>
+        )}
+      </div>
 
       <Button
         onClick={isPending ? onCancel : onSend}
