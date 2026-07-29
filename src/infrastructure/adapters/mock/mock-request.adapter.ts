@@ -1,6 +1,6 @@
 import type { RequestClient } from '@/application/ports/request.port'
 import type { RequestDraft } from '@/entities'
-import type { HttpExchangeResult } from '@/entities/response'
+import { RESPONSE_CONTRACT_VERSION, type HttpExchangeResult } from '@/entities/response'
 import { sampleResponseJson } from '@/infrastructure/mock/fixtures'
 import { MOCK_REQUEST_DELAY_MS } from '@/shared/constants/http'
 
@@ -142,14 +142,27 @@ export function createMockRequestClient(): RequestClient {
       const bodyText = JSON.stringify(responseBodyObj, null, 2)
       const headers = buildMockHeaders(bodyText)
       const bytes = Number(headers['content-length'] ?? 0)
+      const totalMs = 42 + Math.floor(Math.random() * 80)
 
       return {
+        version: RESPONSE_CONTRACT_VERSION,
         status: 200,
         statusText: 'OK',
-        durationMs: 42 + Math.floor(Math.random() * 80),
-        size: formatBytes(bytes),
         body: bodyText,
         headers,
+        timings: {
+          dnsMs: null,
+          connectMs: null,
+          tlsMs: null,
+          ttfbMs: null,
+          downloadMs: null,
+          totalMs,
+        },
+        sizes: {
+          encodedBodyBytes: bytes,
+          decodedBodyBytes: bytes,
+          downloadedBytes: null,
+        },
       }
     },
   }
