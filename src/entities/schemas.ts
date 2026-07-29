@@ -1,6 +1,8 @@
 import { z } from 'zod'
 
-export const httpMethodSchema = z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'])
+import { HTTP_METHODS } from '@/shared/constants/http'
+
+export const httpMethodSchema = z.enum(HTTP_METHODS)
 
 export const paramRowSchema = z.object({
   id: z.string().min(1),
@@ -41,16 +43,61 @@ export const bodyFilePartSchema = z.object({
   size: z.number().nonnegative(),
 })
 
-export const requestDraftSchema = z.object({
-  method: httpMethodSchema,
-  url: z.string().min(1, 'URL is required'),
-  params: z.array(paramRowSchema).default([]),
-  headers: z.array(headerRowSchema).default([]),
-  body: z.string().default(''),
-  contentType: z.string().default('application/json'),
-  auth: requestAuthSchema.default({ type: 'none' }),
-  bodyFiles: z.array(bodyFilePartSchema).default([]),
-})
+const TEMPLATE_VARIABLE_PATTERN = /\{\{[^{}]+\}\}/g
+const LEADING_TEMPLATE_VARIABLE_PATTERN = /^\s*\{\{[^{}]+\}\}/
+
+function isValidRequestUrl(value: string): boolean {
+  const url = value.trim()
+  if (!url) return false
+
+  // [RULE:REQUEST:UNRESOLVED_URL_VARIABLE]
+  // A leading variable may resolve to the complete base URL at execution time.
+  if (LEADING_TEMPLATE_VARIABLE_PATTERN.test(url)) return true
+
+  try {
+    const parsed = new URL(url.replace(TEMPLATE_VARIABLE_PATTERN, 'template-value'))
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+export const requestDraftSchema = z
+  .object({
+    method: httpMethodSchema,
+    url: z
+      .string()
+      .min(1, 'URL is required')
+      .refine(isValidRequestUrl, 'Enter a valid HTTP or HTTPS URL'),
+    params: z.array(paramRowSchema).default([]),
+    headers: z.array(headerRowSchema).default([]),
+    body: z.string().default(''),
+    contentType: z.string().default('application/json'),
+    auth: requestAuthSchema.default({ type: 'none' }),
+    bodyFiles: z.array(bodyFilePartSchema).default([]),
+  })
+  .superRefine((draft, ctx) => {
+    const firstHeaderIndexByKey = new Map<string, number>()
+
+    draft.headers.forEach((header, index) => {
+      const normalizedKey = header.key.trim().toLowerCase()
+      if (!header.enabled || !normalizedKey) return
+
+      const firstIndex = firstHeaderIndexByKey.get(normalizedKey)
+      if (firstIndex === undefined) {
+        firstHeaderIndexByKey.set(normalizedKey, index)
+        return
+      }
+
+      // [RULE:REQUEST:ENABLED_HEADER_UNIQUENESS]
+      // Fetch headers collapse case-insensitive duplicates, so reject every later enabled row.
+      ctx.addIssue({
+        code: 'custom',
+        message: `Duplicate enabled header "${header.key.trim()}"`,
+        path: ['headers', index, 'key'],
+      })
+    })
+  })
 
 export const envVarSchema = z.object({
   id: z.string().min(1),
