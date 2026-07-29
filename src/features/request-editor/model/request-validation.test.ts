@@ -97,6 +97,84 @@ describe('request draft validation contract', () => {
       ])
     }
   })
+
+  it('rejects multipart metadata when the real file is unavailable', () => {
+    const result = requestDraftSchema.safeParse(
+      createDraft({
+        contentType: 'multipart/form-data',
+        bodyFiles: [
+          {
+            id: 'file-1',
+            fieldName: 'artifact',
+            name: 'persisted.bin',
+            size: 42,
+          },
+        ],
+      }),
+    )
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: ['bodyFiles', 0, 'file'],
+            message: 'Select "persisted.bin" again before sending',
+          }),
+        ]),
+      )
+    }
+  })
+
+  it('rejects more than one file in binary mode', () => {
+    const files = ['one.bin', 'two.bin'].map((name, index) => {
+      const file = new File([String(index)], name)
+      return {
+        id: `file-${index}`,
+        fieldName: 'file',
+        name,
+        size: file.size,
+        file,
+      }
+    })
+
+    const result = requestDraftSchema.safeParse(
+      createDraft({
+        contentType: 'application/octet-stream',
+        bodyFiles: files,
+      }),
+    )
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: ['bodyFiles'],
+            message: 'Binary requests support exactly one file',
+          }),
+        ]),
+      )
+    }
+  })
+
+  it('requires a file in binary mode', () => {
+    const result = requestDraftSchema.safeParse(
+      createDraft({
+        contentType: 'application/octet-stream',
+      }),
+    )
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues[0]).toEqual(
+        expect.objectContaining({
+          path: ['bodyFiles'],
+          message: 'Select a file before sending a binary request',
+        }),
+      )
+    }
+  })
 })
 
 describe('request editor validation projection', () => {
