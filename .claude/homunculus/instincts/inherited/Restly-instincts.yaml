@@ -1,0 +1,340 @@
+# Instincts generated from https://github.com/truongnat/Restly
+# Generated: 2026-07-29T09:26:04.130Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: Restly-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/truongnat/Restly
+---
+
+# Restly Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: fix, test
+
+## Evidence
+
+- 3 commits analyzed
+- Detected conventional commit pattern
+- Examples: fix(request): guard latest run state, test(request): cover execution races
+
+---
+id: Restly-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/truongnat/Restly
+---
+
+# Restly Commit Length
+
+## Action
+
+Keep commit messages concise (~35 characters)
+
+## Evidence
+
+- Average commit message length: 35 chars
+- Based on 3 commits
+
+---
+id: Restly-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/truongnat/Restly
+---
+
+# Restly Naming Files
+
+## Action
+
+Use kebab-case naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: kebab-case
+
+---
+id: Restly-import-alias
+trigger: "when importing modules"
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/truongnat/Restly
+---
+
+# Restly Import Alias
+
+## Action
+
+Use path aliases (@/, ~/) instead of relative imports
+
+## Evidence
+
+- Import analysis shows alias pattern
+- Example: import { x } from '@/lib/x'
+
+---
+id: Restly-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/truongnat/Restly
+---
+
+# Restly Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: Restly-test-colocate
+trigger: "when writing tests"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/truongnat/Restly
+---
+
+# Restly Test Colocate
+
+## Action
+
+Place test file next to the source file (e.g., Button.test.tsx next to Button.tsx)
+
+## Evidence
+
+- Colocated test pattern detected
+- Tests live alongside source files
+
+---
+id: restly-instinct-file-naming
+trigger: "When creating a new file in the codebase"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: truongnat/Restly
+---
+
+# Restly Instinct File Naming
+
+## Action
+
+Name the file using kebab-case
+
+## Evidence
+
+- Pattern in namingConventions.files
+- Observed in src/features/*
+
+---
+id: restly-instinct-function-naming
+trigger: "When defining a new function"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: truongnat/Restly
+---
+
+# Restly Instinct Function Naming
+
+## Action
+
+Use camelCase for the function name
+
+## Evidence
+
+- Pattern in namingConventions.functions
+
+---
+id: restly-instinct-class-naming
+trigger: "When defining a new class"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: truongnat/Restly
+---
+
+# Restly Instinct Class Naming
+
+## Action
+
+Use PascalCase for the class name
+
+## Evidence
+
+- Pattern in namingConventions.classes
+
+---
+id: restly-instinct-constant-naming
+trigger: "When declaring a constant"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: truongnat/Restly
+---
+
+# Restly Instinct Constant Naming
+
+## Action
+
+Use SCREAMING_SNAKE_CASE for the constant name
+
+## Evidence
+
+- Pattern in namingConventions.constants
+
+---
+id: restly-instinct-import-style
+trigger: "When importing modules"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: truongnat/Restly
+---
+
+# Restly Instinct Import Style
+
+## Action
+
+Use alias import style
+
+## Evidence
+
+- Pattern in importStyle
+
+---
+id: restly-instinct-export-style
+trigger: "When exporting from a module"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: truongnat/Restly
+---
+
+# Restly Instinct Export Style
+
+## Action
+
+Use named exports
+
+## Evidence
+
+- Pattern in exportStyle
+
+---
+id: restly-instinct-test-colocation
+trigger: "When adding tests for a feature"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: truongnat/Restly
+---
+
+# Restly Instinct Test Colocation
+
+## Action
+
+Place test files colocated with the feature code
+
+## Evidence
+
+- Pattern in architecture.testLocation
+
+---
+id: restly-instinct-test-prefix
+trigger: "When writing a test commit"
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: truongnat/Restly
+---
+
+# Restly Instinct Test Prefix
+
+## Action
+
+Prefix the commit message with 'test' and the affected scope in parentheses
+
+## Evidence
+
+- Seen in commit 'test(request): cover execution races'
+- Pattern in commits.prefixes
+
+---
+id: restly-instinct-fix-prefix
+trigger: "When writing a bug fix commit"
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: truongnat/Restly
+---
+
+# Restly Instinct Fix Prefix
+
+## Action
+
+Prefix the commit message with 'fix' and the affected scope in parentheses
+
+## Evidence
+
+- Seen in commit 'fix(request): guard latest run state'
+- Pattern in commits.prefixes
+
+---
+id: restly-instinct-commit-length
+trigger: "When composing a commit message"
+confidence: 0.7
+domain: git
+source: repo-analysis
+source_repo: truongnat/Restly
+---
+
+# Restly Instinct Commit Length
+
+## Action
+
+Keep the commit message concise, around 35 characters on average
+
+## Evidence
+
+- Pattern in commits.averageLength
+
+---
+id: restly-instinct-commit-format
+trigger: "When writing any commit message"
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: truongnat/Restly
+---
+
+# Restly Instinct Commit Format
+
+## Action
+
+Use the conventional commit format: <type>(<scope>): <short description>
+
+## Evidence
+
+- Pattern in commits.type
+- Seen in commit 'fix(request): add run coordinator'
+
