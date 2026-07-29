@@ -150,6 +150,49 @@ describe('fetch-request.adapter', () => {
       expect(res.statusText).toBe('Network Error')
       expect(res.body).toBe('Failed to fetch')
     })
+
+    it('sends actual multipart file bytes without a caller-defined boundary', async () => {
+      useRestlyStore.setState({ mockServers: [] })
+      const fetchSpy = vi.fn().mockResolvedValue(new Response('OK', { status: 200 }))
+      global.fetch = fetchSpy
+      const file = new File([new Uint8Array([1, 2, 3, 255])], 'payload.bin', {
+        type: 'application/octet-stream',
+      })
+
+      const client = createFetchRequestClient()
+      await client.send({
+        ...baseDraft,
+        method: 'POST',
+        contentType: 'multipart/form-data',
+        headers: [
+          {
+            id: 'content-type',
+            enabled: true,
+            key: 'content-type',
+            value: 'multipart/form-data; boundary=fake',
+          },
+        ],
+        bodyFiles: [
+          {
+            id: 'file-1',
+            fieldName: 'artifact',
+            name: file.name,
+            size: file.size,
+            file,
+          },
+        ],
+      })
+
+      const [, init] = fetchSpy.mock.calls[0] as [string, RequestInit]
+      expect(init.body).toBeInstanceOf(FormData)
+      expect(
+        Object.keys(init.headers as Record<string, string>).some(
+          (key) => key.toLowerCase() === 'content-type',
+        ),
+      ).toBe(false)
+      const sentFile = (init.body as FormData).get('artifact') as File
+      expect(Array.from(new Uint8Array(await sentFile.arrayBuffer()))).toEqual([1, 2, 3, 255])
+    })
   })
 
   describe('createFetchRequestClient - API Key Auth (T-032)', () => {
