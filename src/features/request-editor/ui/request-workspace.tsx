@@ -165,7 +165,7 @@ export function RequestWorkspace({ sendState }: RequestWorkspaceProps) {
                 <ParamsEditor />
               </TabsContent>
               <TabsContent value="headers" className="mt-0 min-h-0 flex-1 overflow-auto">
-                <HeadersEditor />
+                <HeadersEditor error={sendState.requestValidation.headerError} />
               </TabsContent>
               <TabsContent
                 value="body"
