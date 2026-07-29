@@ -2,6 +2,7 @@ import { useRestlyStore } from '@/app/store/restly-store'
 import type { RequestClient } from '@/application/ports/request.port'
 import type { MockServer, RequestDraft } from '@/entities'
 import type { HttpExchangeResult } from '@/entities/response'
+import { serializeRequestBody } from '@/infrastructure/adapters/http/serialize-request-body'
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
@@ -181,43 +182,27 @@ export function createFetchRequestClient(): RequestClient {
           }
         }
 
-        // Body handling
-        let reqBody: BodyInit | undefined = undefined
         const methodUpper = draft.method.toUpperCase()
         const hasBodyMethod = ['POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'].includes(methodUpper)
+        const serializedBody = hasBodyMethod
+          ? serializeRequestBody(draft)
+          : { body: undefined, contentType: undefined }
 
-        if (hasBodyMethod) {
-          if (draft.bodyFiles && draft.bodyFiles.length > 0) {
-            const formData = new FormData()
-            for (const filePart of draft.bodyFiles) {
-              const fieldName = filePart.fieldName?.trim() || 'file'
-              const rawFile = (filePart as { file?: File }).file
-              if (rawFile) {
-                formData.append(fieldName, rawFile, filePart.name)
-              } else {
-                formData.append(
-                  fieldName,
-                  new Blob(['mock file content'], { type: 'application/octet-stream' }),
-                  filePart.name,
-                )
-              }
-            }
-            reqBody = formData
-            delete headers['Content-Type']
-            delete headers['content-type']
-          } else if (draft.body) {
-            reqBody = draft.body
-            const hasCt = Object.keys(headers).some((k) => k.toLowerCase() === 'content-type')
-            if (!hasCt && draft.contentType) {
-              headers['Content-Type'] = draft.contentType
-            }
+        if (draft.contentType.toLowerCase().includes('multipart/form-data')) {
+          for (const key of Object.keys(headers)) {
+            if (key.toLowerCase() === 'content-type') delete headers[key]
           }
+        } else if (
+          serializedBody.contentType &&
+          !Object.keys(headers).some((key) => key.toLowerCase() === 'content-type')
+        ) {
+          headers['Content-Type'] = serializedBody.contentType
         }
 
         const response = await fetch(fetchUrl, {
           method: methodUpper,
           headers,
-          body: reqBody,
+          body: serializedBody.body,
           signal,
         })
 
