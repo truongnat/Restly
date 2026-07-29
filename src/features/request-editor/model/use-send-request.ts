@@ -5,7 +5,7 @@ import { useRestlyStore } from '@/app/store/restly-store'
 import { resolveActiveEnvironment } from '@/application/use-cases/list-environments'
 import type { HistoryDraftSnapshot, HttpMethod, RequestDraft } from '@/entities'
 import type { RequestAuth } from '@/entities/request'
-import type { HttpExchangeResult } from '@/entities/response'
+import { RESPONSE_CONTRACT_VERSION, type HttpExchangeResult } from '@/entities/response'
 import { runScript } from '@/features/request-editor/lib/script-sandbox'
 import { createRequestRunCoordinator } from '@/features/request-editor/model/request-run-coordinator'
 import { validateRequestEditor } from '@/features/request-editor/model/request-validation'
@@ -14,10 +14,23 @@ import { substituteEnv, type EnvVarSubstituteItem } from '@/shared/lib/substitut
 import { validateBody } from '@/shared/lib/validate-body'
 
 const INITIAL_META: Omit<HttpExchangeResult, 'body'> = {
+  version: RESPONSE_CONTRACT_VERSION,
   status: 0,
   statusText: '',
-  durationMs: 0,
-  size: '',
+  headers: {},
+  timings: {
+    dnsMs: null,
+    connectMs: null,
+    tlsMs: null,
+    ttfbMs: null,
+    downloadMs: null,
+    totalMs: null,
+  },
+  sizes: {
+    encodedBodyBytes: null,
+    decodedBodyBytes: null,
+    downloadedBytes: null,
+  },
 }
 
 const INITIAL_BODY = ''
@@ -276,10 +289,11 @@ export function useSendRequestMutation() {
         setIsPending(false)
         setResponseBody(data.body)
         setMeta({
+          version: data.version,
           status: data.status,
           statusText: data.statusText,
-          durationMs: data.durationMs,
-          size: data.size,
+          timings: data.timings,
+          sizes: data.sizes,
           headers: data.headers,
         })
         notifySent()
@@ -287,7 +301,7 @@ export function useSendRequestMutation() {
           ...snapshot.history,
           status: data.status,
           statusText: data.statusText,
-          durationMs: data.durationMs,
+          durationMs: data.timings.totalMs,
         })
 
         void runScript(snapshot.testScript, {
