@@ -8,6 +8,7 @@ import type { RequestAuth } from '@/entities/request'
 import type { HttpExchangeResult } from '@/entities/response'
 import { runScript } from '@/features/request-editor/lib/script-sandbox'
 import { createRequestRunCoordinator } from '@/features/request-editor/model/request-run-coordinator'
+import { validateRequestEditor } from '@/features/request-editor/model/request-validation'
 import { resolve, TOKENS } from '@/infrastructure/di'
 import { substituteEnv, type EnvVarSubstituteItem } from '@/shared/lib/substitute-env'
 import { validateBody } from '@/shared/lib/validate-body'
@@ -151,11 +152,29 @@ export function useSendRequestMutation() {
   const url = useRestlyStore((s) => s.url)
   const setUrl = useRestlyStore((s) => s.setUrl)
   const params = useRestlyStore((s) => s.params)
+  const headers = useRestlyStore((s) => s.headers)
   const body = useRestlyStore((s) => s.body)
   const contentType = useRestlyStore((s) => s.contentType)
+  const auth = useRestlyStore((s) => s.auth)
+  const bodyFiles = useRestlyStore((s) => s.bodyFiles)
 
   const bodyValidation = validateBody(body, contentType)
-  const isSendDisabled = isPending || !bodyValidation.isValid
+  const requestValidation = validateRequestEditor({
+    method,
+    url,
+    params,
+    headers,
+    body,
+    contentType,
+    auth,
+    bodyFiles: bodyFiles.map(({ id, fieldName, name, size }) => ({
+      id,
+      fieldName,
+      name,
+      size,
+    })),
+  })
+  const isSendDisabled = isPending || !bodyValidation.isValid || !requestValidation.isValid
 
   /**
    * [FLOW:REQUEST:CANCEL]
@@ -195,7 +214,7 @@ export function useSendRequestMutation() {
    * [TRACE:REQUEST:IT0-39]
    */
   const onSend = () => {
-    if (!bodyValidation.isValid) return
+    if (!bodyValidation.isValid || !requestValidation.isValid) return
 
     // [STEP:REQUEST:SEND:01]
     const previousRun = activeRunRef.current
@@ -303,6 +322,7 @@ export function useSendRequestMutation() {
     meta,
     isPending,
     isSendDisabled,
+    requestValidation,
     onSend,
     onCancel,
   }
