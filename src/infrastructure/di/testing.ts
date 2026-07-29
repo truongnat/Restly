@@ -4,7 +4,7 @@ import { createListCollections } from '@/application/use-cases/list-collections'
 import { createSendRequest } from '@/application/use-cases/send-request'
 import type { RequestDraft } from '@/entities'
 import type { CollectionFolder } from '@/entities'
-import type { HttpExchangeResult } from '@/entities/response'
+import { RESPONSE_CONTRACT_VERSION, type HttpExchangeResult } from '@/entities/response'
 import { Container } from '@/infrastructure/di/container'
 import { TOKENS } from '@/infrastructure/di/tokens'
 
@@ -17,11 +17,24 @@ export function createFakeRequestClient(
     async send(draft: RequestDraft): Promise<HttpExchangeResult> {
       client.lastDraft = draft
       return {
+        version: RESPONSE_CONTRACT_VERSION,
         status: 200,
         statusText: 'OK',
-        durationMs: 1,
-        size: '0 B',
         body: '{}',
+        headers: {},
+        timings: {
+          dnsMs: null,
+          connectMs: null,
+          tlsMs: null,
+          ttfbMs: null,
+          downloadMs: null,
+          totalMs: 1,
+        },
+        sizes: {
+          encodedBodyBytes: 2,
+          decodedBodyBytes: 2,
+          downloadedBytes: null,
+        },
         ...result,
       }
     },

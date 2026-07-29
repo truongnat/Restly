@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useRestlyStore } from '@/app/store/restly-store'
 import type { RequestDraft } from '@/entities'
+import { httpExchangeResultSchema } from '@/entities/response'
 
 import { createFetchRequestClient, findMatchingMockRoute } from './fetch-request.adapter'
 
@@ -101,6 +102,19 @@ describe('fetch-request.adapter', () => {
       expect(res.status).toBe(200)
       expect(res.body).toBe('{"mocked": true}')
       expect(res.headers?.['x-restly-mock']).toBe('true')
+      expect(httpExchangeResultSchema.safeParse(res).success).toBe(true)
+      expect(res.timings).toMatchObject({
+        dnsMs: null,
+        connectMs: null,
+        tlsMs: null,
+        ttfbMs: null,
+        downloadMs: null,
+      })
+      expect(res.sizes).toEqual({
+        encodedBodyBytes: 16,
+        decodedBodyBytes: 16,
+        downloadedBytes: null,
+      })
     })
 
     it('supports HEAD and OPTIONS mock routes', async () => {
@@ -137,6 +151,18 @@ describe('fetch-request.adapter', () => {
       )
       expect(res.status).toBe(200)
       expect(res.body).toBe('{"success": true}')
+      expect(httpExchangeResultSchema.safeParse(res).success).toBe(true)
+      expect(res.timings.dnsMs).toBeNull()
+      expect(res.timings.connectMs).toBeNull()
+      expect(res.timings.tlsMs).toBeNull()
+      expect(res.timings.ttfbMs).not.toBeNull()
+      expect(res.timings.downloadMs).not.toBeNull()
+      expect(res.timings.totalMs).not.toBeNull()
+      expect(res.sizes).toEqual({
+        encodedBodyBytes: null,
+        decodedBodyBytes: 17,
+        downloadedBytes: null,
+      })
     })
 
     it('maps network errors gracefully', async () => {
@@ -149,6 +175,22 @@ describe('fetch-request.adapter', () => {
       expect(res.status).toBe(0)
       expect(res.statusText).toBe('Network Error')
       expect(res.body).toBe('Failed to fetch')
+      expect(httpExchangeResultSchema.safeParse(res).success).toBe(true)
+      expect(res.timings.totalMs).not.toBeNull()
+      expect(res.timings.ttfbMs).toBeNull()
+      expect(res.sizes.decodedBodyBytes).toBe(15)
+      expect(res.sizes.downloadedBytes).toBeNull()
+    })
+
+    it('measures decoded UTF-8 bytes instead of JavaScript string length', async () => {
+      useRestlyStore.setState({ mockServers: [] })
+      global.fetch = vi.fn().mockResolvedValue(new Response('Việt Nam', { status: 200 }))
+
+      const res = await createFetchRequestClient().send(baseDraft)
+
+      expect(res.body.length).toBe(8)
+      expect(res.sizes.decodedBodyBytes).toBe(10)
+      expect(res.sizes.encodedBodyBytes).toBeNull()
     })
 
     it('sends actual multipart file bytes without a caller-defined boundary', async () => {

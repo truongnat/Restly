@@ -176,7 +176,7 @@ type UiState = {
       url: string
       status: number
       statusText: string
-      durationMs: number
+      durationMs: number | null
     } & HistoryDraftSnapshot,
   ) => void
   reopenHistoryItem: (item: HistoryItem) => void

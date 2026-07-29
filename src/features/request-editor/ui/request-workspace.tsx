@@ -8,6 +8,7 @@ import { Group, Panel, ResizableHandle } from '@/components/ui/resizable'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { RequestTab } from '@/entities/request'
+import { formatResponseBytes } from '@/entities/response'
 import type { SendRequestState } from '@/features/request-editor/model/use-send-request'
 import { AuthEditor } from '@/features/request-editor/ui/auth-editor'
 import { BodyEditor } from '@/features/request-editor/ui/body-editor'
@@ -212,11 +213,15 @@ export function RequestWorkspace({ sendState }: RequestWorkspaceProps) {
                 <div className="flex h-(--spacing-toolbar) shrink-0 items-center justify-between border-b border-border/60 px-4">
                   <div className="flex items-center gap-3">
                     <StatusBadge status={meta.status} statusText={meta.statusText} />
-                    {meta.durationMs ? (
-                      <span className="body-sm text-muted-foreground">{meta.durationMs}ms</span>
+                    {meta.timings.totalMs !== null ? (
+                      <span className="body-sm text-muted-foreground">
+                        {Math.round(meta.timings.totalMs)}ms
+                      </span>
                     ) : null}
-                    {meta.size ? (
-                      <span className="body-sm text-muted-foreground">{meta.size}</span>
+                    {meta.sizes.decodedBodyBytes !== null ? (
+                      <span className="body-sm text-muted-foreground">
+                        {formatResponseBytes(meta.sizes.decodedBodyBytes)}
+                      </span>
                     ) : null}
                   </div>
                   <div className="flex items-center gap-1">

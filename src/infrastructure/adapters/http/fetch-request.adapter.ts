@@ -1,13 +1,39 @@
 import { useRestlyStore } from '@/app/store/restly-store'
 import type { RequestClient } from '@/application/ports/request.port'
 import type { MockServer, RequestDraft } from '@/entities'
-import type { HttpExchangeResult } from '@/entities/response'
+import {
+  RESPONSE_CONTRACT_VERSION,
+  type HttpExchangeResult,
+  type ResponseSizes,
+  type ResponseTimings,
+} from '@/entities/response'
 import { serializeRequestBody } from '@/infrastructure/adapters/http/serialize-request-body'
 
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+function utf8ByteLength(value: string): number {
+  return new TextEncoder().encode(value).length
+}
+
+function browserTimings(values: {
+  ttfbMs?: number
+  downloadMs?: number
+  totalMs: number
+}): ResponseTimings {
+  return {
+    dnsMs: null,
+    connectMs: null,
+    tlsMs: null,
+    ttfbMs: values.ttfbMs ?? null,
+    downloadMs: values.downloadMs ?? null,
+    totalMs: values.totalMs,
+  }
+}
+
+function browserSizes(decodedBodyBytes: number): ResponseSizes {
+  return {
+    encodedBodyBytes: null,
+    decodedBodyBytes,
+    downloadedBytes: null,
+  }
 }
 
 function getStatusText(status: number): string {
@@ -98,26 +124,32 @@ export function createFetchRequestClient(): RequestClient {
 
         if (signal?.aborted) {
           return {
+            version: RESPONSE_CONTRACT_VERSION,
             status: 0,
             statusText: 'Cancelled',
-            durationMs: mockRoute.delayMs,
-            size: '0 B',
             body: 'Request was cancelled.',
             headers: {},
+            timings: browserTimings({ totalMs: mockRoute.delayMs }),
+            sizes: browserSizes(utf8ByteLength('Request was cancelled.')),
           }
         }
 
         const bodyStr = mockRoute.responseBody ?? ''
-        const bytes = new TextEncoder().encode(bodyStr).length
+        const bytes = utf8ByteLength(bodyStr)
         return {
+          version: RESPONSE_CONTRACT_VERSION,
           status: mockRoute.status ?? 200,
           statusText: getStatusText(mockRoute.status ?? 200),
-          durationMs: mockRoute.delayMs,
-          size: formatBytes(bytes),
           body: bodyStr,
           headers: {
             'content-type': 'application/json; charset=utf-8',
             'x-restly-mock': 'true',
+          },
+          timings: browserTimings({ totalMs: mockRoute.delayMs }),
+          sizes: {
+            encodedBodyBytes: bytes,
+            decodedBodyBytes: bytes,
+            downloadedBytes: null,
           },
         }
       }
@@ -206,9 +238,10 @@ export function createFetchRequestClient(): RequestClient {
           signal,
         })
 
-        const durationMs = Math.round(performance.now() - startTime)
+        const responseStartTime = performance.now()
         const responseBodyText = await response.text()
-        const bytes = new TextEncoder().encode(responseBodyText).length
+        const endTime = performance.now()
+        const bytes = utf8ByteLength(responseBodyText)
 
         const responseHeaders: Record<string, string> = {}
         response.headers.forEach((val, key) => {
@@ -216,33 +249,42 @@ export function createFetchRequestClient(): RequestClient {
         })
 
         return {
+          version: RESPONSE_CONTRACT_VERSION,
           status: response.status,
           statusText: response.statusText || getStatusText(response.status),
-          durationMs,
-          size: formatBytes(bytes),
           body: responseBodyText,
           headers: responseHeaders,
+          timings: browserTimings({
+            ttfbMs: responseStartTime - startTime,
+            downloadMs: endTime - responseStartTime,
+            totalMs: endTime - startTime,
+          }),
+          sizes: browserSizes(bytes),
         }
       } catch (err) {
-        const durationMs = Math.round(performance.now() - startTime)
+        const totalMs = performance.now() - startTime
         if (err instanceof Error && err.name === 'AbortError') {
+          const body = 'Request was cancelled by user.'
           return {
+            version: RESPONSE_CONTRACT_VERSION,
             status: 0,
             statusText: 'Cancelled',
-            durationMs,
-            size: '0 B',
-            body: 'Request was cancelled by user.',
+            body,
             headers: {},
+            timings: browserTimings({ totalMs }),
+            sizes: browserSizes(utf8ByteLength(body)),
           }
         }
 
+        const body = err instanceof Error ? err.message : String(err)
         return {
+          version: RESPONSE_CONTRACT_VERSION,
           status: 0,
           statusText: 'Network Error',
-          durationMs,
-          size: '0 B',
-          body: err instanceof Error ? err.message : String(err),
+          body,
           headers: {},
+          timings: browserTimings({ totalMs }),
+          sizes: browserSizes(utf8ByteLength(body)),
         }
       }
     },

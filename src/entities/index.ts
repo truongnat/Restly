@@ -17,6 +17,13 @@ export type {
   RequestTab,
   ResponseTab,
 } from '@/entities/request'
-export type { HttpExchangeResult } from '@/entities/response'
+export {
+  formatResponseBytes,
+  httpExchangeResultSchema,
+  RESPONSE_CONTRACT_VERSION,
+  responseSizesSchema,
+  responseTimingsSchema,
+} from '@/entities/response'
+export type { HttpExchangeResult, ResponseSizes, ResponseTimings } from '@/entities/response'
 
 export * from '@/entities/schemas'

@@ -18,7 +18,7 @@ export type HistoryItem = {
   url: string
   status: number
   statusText: string
-  durationMs: number
+  durationMs: number | null
   when: string
   group: HistoryGroup
 } & HistoryDraftSnapshot
