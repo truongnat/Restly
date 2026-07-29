@@ -30,6 +30,7 @@ const CONTENT_TYPES = [
   { label: 'XML (application/xml)', value: 'application/xml' },
   { label: 'Form URL Encoded', value: 'application/x-www-form-urlencoded' },
   { label: 'Multipart Form', value: 'multipart/form-data' },
+  { label: 'Binary File', value: 'application/octet-stream' },
 ]
 
 const EXAMPLES: Record<string, string> = {
@@ -41,6 +42,7 @@ const EXAMPLES: Record<string, string> = {
     '<?xml version="1.0" encoding="UTF-8"?>\n<note>\n  <to>Tove</to>\n  <from>Jani</from>\n  <heading>Reminder</heading>\n  <body>Don\'t forget me this weekend!</body>\n</note>',
   'application/x-www-form-urlencoded': 'name=John+Doe&email=john%40example.com&age=30',
   'multipart/form-data': '',
+  'application/octet-stream': '',
 }
 
 function renderHighlightedJson(text: string, vars: EnvVarSubstituteItem[] = []): React.ReactNode {
@@ -368,11 +370,22 @@ export function BodyEditor() {
   const setBody = useRestlyStore((s) => s.setBody)
   const setContentType = useRestlyStore((s) => s.setContentType)
   const setHeaders = useRestlyStore((s) => s.setHeaders)
+  const bodyFiles = useRestlyStore((s) => s.bodyFiles)
 
   const activeEnv = resolveActiveEnvironment(environments, environmentId)
   const vars = activeEnv?.variables ?? []
 
   const validation = validateBody(body, contentType)
+  const isBinaryContent = contentType === 'application/octet-stream'
+  const usesFileBody = contentType === 'multipart/form-data' || isBinaryContent
+  const missingRuntimeFile = usesFileBody && bodyFiles.some((filePart) => !filePart.file)
+  const fileValidationError = missingRuntimeFile
+    ? 'Select unavailable files again before sending.'
+    : isBinaryContent && bodyFiles.length === 0
+      ? 'Select a file before sending a binary request.'
+      : isBinaryContent && bodyFiles.length > 1
+        ? 'Binary requests support exactly one file.'
+        : null
 
   const handleContentTypeChange = (newContentType: string) => {
     setContentType(newContentType)
@@ -383,7 +396,12 @@ export function BodyEditor() {
     const headers = useRestlyStore.getState().headers
     const ctIdx = headers.findIndex((h) => h.key.toLowerCase() === 'content-type')
     if (newContentType === 'multipart/form-data') {
-      const value = 'multipart/form-data; boundary=----RestlyFormBoundary'
+      // [RULE:REQUEST:MULTIPART_BOUNDARY]
+      // FormData/fetch (or the future native transport) generates the boundary at send time.
+      const next = headers.filter((header) => header.key.toLowerCase() !== 'content-type')
+      setHeaders(next)
+    } else if (newContentType === 'application/octet-stream') {
+      const value = newContentType
       if (ctIdx >= 0) {
         const next = [...headers]
         next[ctIdx] = { ...next[ctIdx]!, value, enabled: true }
@@ -396,7 +414,7 @@ export function BodyEditor() {
             enabled: true,
             key: 'Content-Type',
             value,
-            description: 'Set from Body content type',
+            description: 'Binary file content type',
           },
         ])
       }
@@ -494,7 +512,9 @@ export function BodyEditor() {
             vars={vars}
           />
         ) : contentType === 'multipart/form-data' ? (
-          <MultipartFilesEditor />
+          <MultipartFilesEditor mode="multipart" />
+        ) : contentType === 'application/octet-stream' ? (
+          <MultipartFilesEditor mode="binary" />
         ) : (
           <EnvAwareTextarea
             value={body}
@@ -505,6 +525,9 @@ export function BodyEditor() {
         )}
         {!validation.isValid && validation.error && (
           <p className="shrink-0 text-xs font-medium text-destructive">{validation.error}</p>
+        )}
+        {fileValidationError && (
+          <p className="shrink-0 text-xs font-medium text-destructive">{fileValidationError}</p>
         )}
       </div>
     </div>
