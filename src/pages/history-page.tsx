@@ -239,7 +239,9 @@ export function HistoryPage() {
                                 </span>
                                 <span className="size-[3px] rounded-full bg-border" />
                                 <span className="body-sm text-muted-foreground/70">
-                                  {item.durationMs}ms
+                                  {item.durationMs === null
+                                    ? '—'
+                                    : `${Math.round(item.durationMs)}ms`}
                                 </span>
                               </div>
                             </div>
