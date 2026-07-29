@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import { createSendRequest, prepareRequestDraft } from '@/application/use-cases/send-request'
 import type { RequestDraft } from '@/entities'
+import { httpExchangeResultSchema } from '@/entities/response'
 import {
   createFakeRequestClient,
   createTestContainer,
@@ -113,6 +114,11 @@ describe('createMockRequestClient', () => {
     expect(res.headers?.['content-type']).toBe('application/json; charset=utf-8')
     expect(res.headers?.['server']).toBe('Restly-Mock/1.0')
     expect(res.headers?.['x-request-id']).toBeTruthy()
+    expect(httpExchangeResultSchema.safeParse(res).success).toBe(true)
+    expect(res.timings.dnsMs).toBeNull()
+    expect(res.timings.totalMs).not.toBeNull()
+    expect(res.sizes.encodedBodyBytes).toBe(res.sizes.decodedBodyBytes)
+    expect(res.sizes.downloadedBytes).toBeNull()
 
     const parsed = JSON.parse(res.body)
     expect(parsed.request.method).toBe('GET')
