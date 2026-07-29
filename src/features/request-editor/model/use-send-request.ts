@@ -106,11 +106,12 @@ function captureRequestExecution(): RequestExecutionSnapshot {
       body: substituteEnv(state.body, variables),
       contentType: state.contentType,
       auth: substituteAuth(auth, variables),
-      bodyFiles: state.bodyFiles.map(({ id, fieldName, name, size }) => ({
+      bodyFiles: state.bodyFiles.map(({ id, fieldName, name, size, file }) => ({
         id,
         fieldName: fieldName.trim() || 'file',
         name,
         size,
+        file,
       })),
     },
     history: {
@@ -167,11 +168,12 @@ export function useSendRequestMutation() {
     body,
     contentType,
     auth,
-    bodyFiles: bodyFiles.map(({ id, fieldName, name, size }) => ({
+    bodyFiles: bodyFiles.map(({ id, fieldName, name, size, file }) => ({
       id,
       fieldName,
       name,
       size,
+      file,
     })),
   })
   const isSendDisabled = isPending || !bodyValidation.isValid || !requestValidation.isValid
