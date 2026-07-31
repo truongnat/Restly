@@ -7,12 +7,18 @@ import { createMockCollectionRepository } from '@/infrastructure/adapters/mock/m
 import { createMockEnvironmentRepository } from '@/infrastructure/adapters/mock/mock-environment.adapter'
 import { createMockHistoryRepository } from '@/infrastructure/adapters/mock/mock-history.adapter'
 import { createMockRequestClient } from '@/infrastructure/adapters/mock/mock-request.adapter'
+import { createTauriRequestClient, isTauriRuntime } from '@/infrastructure/adapters/tauri'
 import { Container } from '@/infrastructure/di/container'
 import { TOKENS } from '@/infrastructure/di/tokens'
 
 /**
  * Build a fresh container.
  * Does not mutate the global runtime — call `bootContainer(createAppContainer())` to activate.
+ *
+ * Runtime detection order:
+ * 1. Tauri desktop → native HTTP engine (reqwest)
+ * 2. VITE_USE_MOCK_HTTP=true → mock echo adapter
+ * 3. Browser → fetch API
  */
 export function createAppContainer(): Container {
   const container = new Container()
@@ -21,8 +27,13 @@ export function createAppContainer(): Container {
   const history = createMockHistoryRepository()
   const environments = createMockEnvironmentRepository()
 
+  // Select request client based on runtime
   const useMock = import.meta.env.VITE_USE_MOCK_HTTP === 'true'
-  const requestClient = useMock ? createMockRequestClient() : createFetchRequestClient()
+  const requestClient = isTauriRuntime()
+    ? createTauriRequestClient()
+    : useMock
+      ? createMockRequestClient()
+      : createFetchRequestClient()
 
   container
     .register(TOKENS.CollectionRepository, collections)

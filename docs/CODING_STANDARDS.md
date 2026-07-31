@@ -6,13 +6,13 @@ Agent-facing rules also live in `.cursor/rules/`. This document is the human ent
 
 These documents are normative for new and changed code:
 
-| Document | Scope |
-| --- | --- |
-| [Frontend coding rules](./engineering/frontend-coding-rules.md) | React/TypeScript architecture, naming, complexity, state, async Tauri UX and testing |
-| [Rust and Tauri coding rules](./engineering/tauri-rust-coding-rules.md) | Native architecture, commands, async jobs, security, persistence and quality |
-| [Comment and trace rules](./engineering/comment-and-trace-rules.md) | Feature-scoped flow/rule tags and trace requirements |
-| [Flow and business-rule registry](./engineering/flow-registry.md) | Approved namespaces, flow IDs and critical rule IDs |
-| [Commit rules](./engineering/commit-rules.md) | Conventional Commits, atomicity, Linear references and verification |
+| Document                                                                | Scope                                                                                |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| [Frontend coding rules](./engineering/frontend-coding-rules.md)         | React/TypeScript architecture, naming, complexity, state, async Tauri UX and testing |
+| [Rust and Tauri coding rules](./engineering/tauri-rust-coding-rules.md) | Native architecture, commands, async jobs, security, persistence and quality         |
+| [Comment and trace rules](./engineering/comment-and-trace-rules.md)     | Feature-scoped flow/rule tags and trace requirements                                 |
+| [Flow and business-rule registry](./engineering/flow-registry.md)       | Approved namespaces, flow IDs and critical rule IDs                                  |
+| [Commit rules](./engineering/commit-rules.md)                           | Conventional Commits, atomicity, Linear references and verification                  |
 
 When a short checklist in this file conflicts with a detailed rule, the detailed engineering rule applies. Architecture/security decisions recorded in an accepted ADR take precedence for their explicit scope.
 
@@ -57,26 +57,26 @@ See `.cursor/rules/di.mdc`.
 
 ## Constants
 
-| Scope | Path |
-| --- | --- |
-| Global | `src/shared/constants/<domain>.ts` |
-| Feature | `src/features/<f>/lib/constants.ts` |
-| Config / env | `src/shared/config/` |
-| Domain schemas | `src/entities/` |
+| Scope          | Path                                |
+| -------------- | ----------------------------------- |
+| Global         | `src/shared/constants/<domain>.ts`  |
+| Feature        | `src/features/<f>/lib/constants.ts` |
+| Config / env   | `src/shared/config/`                |
+| Domain schemas | `src/entities/`                     |
 
 Use `UPPER_SNAKE` + `as const`. No magic strings/numbers in UI.
 
 ## Logic separation
 
-| Kind | Prefer |
-| --- | --- |
-| Biz rules | `application/use-cases` |
-| IO / HTTP | port + `infrastructure/adapters` via DI |
-| Native capability | port + `infrastructure/tauri` adapter |
-| Cache/UI sync | TanStack Query in `features/*/model` |
-| Shell UI state | Zustand (`app/store`) |
-| Local widget state | `useState` / `useReducer` |
-| Validation | Zod in `entities` |
+| Kind               | Prefer                                  |
+| ------------------ | --------------------------------------- |
+| Biz rules          | `application/use-cases`                 |
+| IO / HTTP          | port + `infrastructure/adapters` via DI |
+| Native capability  | port + `infrastructure/tauri` adapter   |
+| Cache/UI sync      | TanStack Query in `features/*/model`    |
+| Shell UI state     | Zustand (`app/store`)                   |
+| Local widget state | `useState` / `useReducer`               |
+| Validation         | Zod in `entities`                       |
 
 ## Current hybrid phase
 

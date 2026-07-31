@@ -1,0 +1,458 @@
+{
+  "info": {
+    "name": "Restly Example API",
+    "description": "Complete collection for testing Restly Example Server",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & Docs",
+      "item": [
+        {
+          "name": "Get API Info",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/"
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          }
+        },
+        {
+          "name": "API Documentation",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/docs"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/users?page=1&limit=10",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "role", "value": "", "disabled": true },
+                { "key": "search", "value": "", "disabled": true },
+                { "key": "sortBy", "value": "createdAt", "disabled": true },
+                { "key": "order", "value": "desc", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/users/1"
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/users",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"role\": \"user\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update User (PUT)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/users/1",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alice Updated\",\n  \"email\": \"alice.updated@example.com\",\n  \"role\": \"admin\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Patch User",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/users/1",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"moderator\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/users/5"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Posts",
+      "item": [
+        {
+          "name": "List Posts",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/posts?include=author",
+              "query": [
+                { "key": "include", "value": "author" },
+                { "key": "userId", "value": "", "disabled": true },
+                { "key": "tag", "value": "", "disabled": true },
+                { "key": "q", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Post with Comments",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/posts/1"
+          }
+        },
+        {
+          "name": "Create Post",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/posts",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"1\",\n  \"title\": \"My New Post\",\n  \"body\": \"This is the content of my new post.\",\n  \"tags\": [\"new\", \"test\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Post Comments",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/posts/1/comments"
+          }
+        },
+        {
+          "name": "Add Comment",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/posts/1/comments",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"2\",\n  \"body\": \"Great post!\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login (Get Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data.token) {",
+                  "  pm.collectionVariables.set('token', res.data.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"any\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify Token",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/auth/verify",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "Basic Auth",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/auth/basic",
+            "auth": {
+              "type": "basic",
+              "basic": [
+                { "key": "username", "value": "admin" },
+                { "key": "password", "value": "secret123" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "API Key (Header)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/auth/apikey",
+            "header": [
+              { "key": "X-API-Key", "value": "rk_live_abc123" }
+            ]
+          }
+        },
+        {
+          "name": "API Key (Query)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/auth/apikey?apiKey=rk_test_xyz789"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/logout",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Debug & Testing",
+      "item": [
+        {
+          "name": "Delayed Response (2s)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/debug/delay/2000"
+          }
+        },
+        {
+          "name": "Delayed Response (5s)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/debug/delay/5000"
+          }
+        },
+        {
+          "name": "Error 400",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/debug/error/400"
+          }
+        },
+        {
+          "name": "Error 401",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/debug/error/401"
+          }
+        },
+        {
+          "name": "Error 404",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/debug/error/404"
+          }
+        },
+        {
+          "name": "Error 429 (Rate Limit)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/debug/error/429"
+          }
+        },
+        {
+          "name": "Error 500",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/debug/error/500"
+          }
+        },
+        {
+          "name": "Echo Request",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/debug/echo?test=query",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Custom-Header", "value": "custom-value" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Hello Echo\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Custom Headers",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/debug/headers"
+          }
+        },
+        {
+          "name": "Content-Type JSON",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/debug/content-type/json"
+          }
+        },
+        {
+          "name": "Content-Type XML",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/debug/content-type/xml"
+          }
+        },
+        {
+          "name": "Content-Type HTML",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/debug/content-type/html"
+          }
+        },
+        {
+          "name": "Content-Type CSV",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/debug/content-type/csv"
+          }
+        },
+        {
+          "name": "Large Response (100KB)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/debug/large/100"
+          }
+        },
+        {
+          "name": "Redirect Chain (3)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/debug/redirect/3"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Files",
+      "item": [
+        {
+          "name": "Upload File",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/files/upload",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": [] }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Download JSON",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/files/download/json"
+          }
+        },
+        {
+          "name": "Download CSV",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/files/download/csv"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Streaming",
+      "item": [
+        {
+          "name": "Server-Sent Events",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/stream/events?count=5"
+          }
+        },
+        {
+          "name": "Chunked Response",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/stream/chunks?chunks=5"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Batch Operations",
+      "item": [
+        {
+          "name": "Batch Create Users",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/batch/users",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"users\": [\n    { \"name\": \"Batch User 1\", \"email\": \"batch1@example.com\" },\n    { \"name\": \"Batch User 2\", \"email\": \"batch2@example.com\" },\n    { \"name\": \"Batch User 3\", \"email\": \"batch3@example.com\" }\n  ]\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

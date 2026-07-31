@@ -77,7 +77,7 @@ Step comments reuse the exact flow ID:
 
 ```ts
 // [STEP:DEPENDENCY:RESOLVE_REQUEST:01]
-const request = requestDraftSchema.parse(input.request);
+const request = requestDraftSchema.parse(input.request)
 ```
 
 FE and Rust use the same flow ID across the boundary.

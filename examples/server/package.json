@@ -1,0 +1,25 @@
+{
+  "name": "restly-example-server",
+  "version": "1.0.0",
+  "description": "A comprehensive example API server for testing Restly",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "restly",
+    "api",
+    "example",
+    "mock"
+  ],
+  "author": "Restly Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.0",
+    "multer": "^1.4.5-lts.1",
+    "cors": "^2.8.5",
+    "uuid": "^10.0.0"
+  }
+}

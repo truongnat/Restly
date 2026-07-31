@@ -67,7 +67,7 @@ export function AuthEditor() {
               id="api-key"
               value={auth.apiKey ?? ''}
               onChange={(e) => handleFieldChange('apiKey', e.target.value)}
-              placeholder="e.g. secret_key_123"
+              placeholder="rk_live_abc123"
               className="font-mono text-xs"
             />
           </div>
@@ -113,7 +113,7 @@ export function AuthEditor() {
               id="bearer-token"
               value={auth.bearerToken ?? ''}
               onChange={(e) => handleFieldChange('bearerToken', e.target.value)}
-              placeholder="e.g. eyJhbGciOi..."
+              placeholder="8ff1b6f8-99a3-47bb-bb76-c457b34dcf38"
               className="font-mono text-xs"
             />
           </div>
@@ -130,7 +130,7 @@ export function AuthEditor() {
               id="basic-username"
               value={auth.basicUsername ?? ''}
               onChange={(e) => handleFieldChange('basicUsername', e.target.value)}
-              placeholder="Username"
+              placeholder="admin"
               className="text-xs"
             />
           </div>
@@ -143,7 +143,7 @@ export function AuthEditor() {
               type="password"
               value={auth.basicPassword ?? ''}
               onChange={(e) => handleFieldChange('basicPassword', e.target.value)}
-              placeholder="Password"
+              placeholder="secret123"
               className="text-xs"
             />
           </div>
@@ -160,7 +160,7 @@ export function AuthEditor() {
               id="oauth-client-id"
               value={auth.oauthClientId ?? ''}
               onChange={(e) => handleFieldChange('oauthClientId', e.target.value)}
-              placeholder="client_id_123"
+              placeholder="restly-client"
               className="font-mono text-xs"
             />
           </div>
@@ -173,7 +173,7 @@ export function AuthEditor() {
               type="password"
               value={auth.oauthClientSecret ?? ''}
               onChange={(e) => handleFieldChange('oauthClientSecret', e.target.value)}
-              placeholder="••••••••"
+              placeholder="restly-secret"
               className="font-mono text-xs"
             />
           </div>
@@ -185,7 +185,7 @@ export function AuthEditor() {
               id="oauth-auth-url"
               value={auth.oauthAuthUrl ?? ''}
               onChange={(e) => handleFieldChange('oauthAuthUrl', e.target.value)}
-              placeholder="https://auth.example.com/oauth/authorize"
+              placeholder="http://localhost:3000/api/auth/login"
               className="font-mono text-xs"
             />
           </div>
@@ -197,7 +197,7 @@ export function AuthEditor() {
               id="oauth-token-url"
               value={auth.oauthTokenUrl ?? ''}
               onChange={(e) => handleFieldChange('oauthTokenUrl', e.target.value)}
-              placeholder="https://auth.example.com/oauth/token"
+              placeholder="http://localhost:3000/api/auth/verify"
               className="font-mono text-xs"
             />
           </div>
