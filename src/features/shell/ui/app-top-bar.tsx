@@ -1,8 +1,15 @@
-import { Bell, CircleHelp, Moon, MoreHorizontal, Search, Sun } from 'lucide-react'
+import { Bell, CircleHelp, Command, Moon, Search, Settings, Sun, Trash2 } from 'lucide-react'
 import { useEffect } from 'react'
 
 import { useRestlyStore } from '@/app/store/restly-store'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import type { ThemeMode } from '@/shared/lib/persist'
 
@@ -50,7 +57,7 @@ export function AppTopBar() {
   }, [])
 
   return (
-    <header className="z-40 flex h-11 shrink-0 items-center justify-between gap-2 border-b border-border/60 bg-background px-(--spacing-window)">
+    <header className="z-40 flex min-h-11 shrink-0 items-center justify-between gap-2 border-b border-border/60 bg-background px-(--spacing-window) pt-8 pb-2">
       <div className="flex-1 basis-0" />
       <div className="relative flex w-full max-w-md items-center">
         <Search className="pointer-events-none absolute left-2.5 size-4 text-muted-foreground" />
@@ -71,15 +78,75 @@ export function AppTopBar() {
         >
           {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
         </Button>
-        <Button variant="ghost" size="icon-sm" aria-label="Notifications">
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Notifications"
+          title="Notifications"
+          onClick={() => {
+            useRestlyStore.setState({ toast: 'No new notifications' })
+            window.setTimeout(() => {
+              if (useRestlyStore.getState().toast === 'No new notifications') {
+                useRestlyStore.setState({ toast: null })
+              }
+            }, 2500)
+          }}
+        >
           <Bell className="size-4" />
         </Button>
-        <Button variant="ghost" size="icon-sm" aria-label="Help">
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Help"
+          title="Help & Documentation"
+          onClick={() => window.open('https://github.com/restly', '_blank')}
+        >
           <CircleHelp className="size-4" />
         </Button>
-        <Button variant="ghost" size="icon-sm" aria-label="More">
-          <MoreHorizontal className="size-4" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon-sm" aria-label="More options" title="More options">
+              <Command className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-52">
+            <DropdownMenuItem
+              onClick={() => {
+                useRestlyStore.setState({ toast: 'Command palette: Ctrl+K' })
+                window.setTimeout(() => useRestlyStore.setState({ toast: null }), 2500)
+              }}
+              className="gap-2"
+            >
+              <Command className="size-4" />
+              Command Palette
+              <span className="ml-auto text-xs text-muted-foreground">Ctrl+K</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                useRestlyStore.getState().clearHistory()
+                useRestlyStore.setState({ toast: 'History cleared' })
+                window.setTimeout(() => {
+                  if (useRestlyStore.getState().toast === 'History cleared') {
+                    useRestlyStore.setState({ toast: null })
+                  }
+                }, 2500)
+              }}
+              className="gap-2"
+            >
+              <Trash2 className="size-4" />
+              Clear History
+              <span className="ml-auto text-xs text-muted-foreground">Ctrl+Shift+H</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => window.open('https://github.com/restly', '_blank')}
+              className="gap-2"
+            >
+              <Settings className="size-4" />
+              Documentation
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   )

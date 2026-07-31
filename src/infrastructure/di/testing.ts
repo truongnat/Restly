@@ -3,7 +3,13 @@ import type { RequestClient } from '@/application/ports/request.port'
 import { createListCollections } from '@/application/use-cases/list-collections'
 import { createSendRequest } from '@/application/use-cases/send-request'
 import type { RequestDraft } from '@/entities'
-import type { CollectionFolder } from '@/entities'
+import type {
+  CollectionFolder,
+  CollectionNode,
+  FolderNode,
+  RequestNode,
+  TreeNode,
+} from '@/entities'
 import { RESPONSE_CONTRACT_VERSION, type HttpExchangeResult } from '@/entities/response'
 import { Container } from '@/infrastructure/di/container'
 import { TOKENS } from '@/infrastructure/di/tokens'
@@ -48,6 +54,27 @@ export function createFakeCollectionRepository(
   return {
     async listFolders() {
       return folders
+    },
+    async getWorkspaceTree(_workspaceId: string): Promise<FolderNode[]> {
+      return []
+    },
+    async listCollections(_workspaceId: string): Promise<CollectionNode[]> {
+      return []
+    },
+    async getCollection(_collectionId: string): Promise<CollectionNode | null> {
+      return null
+    },
+    async saveCollection(_collection: CollectionNode): Promise<void> {},
+    async deleteCollection(_collectionId: string): Promise<void> {},
+    async saveNode(_workspaceId: string, _node: FolderNode | RequestNode): Promise<void> {},
+    async moveNode(
+      _nodeId: string,
+      _targetParentId: string | null,
+      _sortOrder: number,
+    ): Promise<void> {},
+    async deleteNode(_nodeId: string): Promise<void> {},
+    async findNode(_nodeId: string): Promise<TreeNode | null> {
+      return null
     },
   }
 }

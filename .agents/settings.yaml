@@ -20,8 +20,8 @@ rules:
   #   checkout  — create/checkout a work branch first (safer default)
   branch:
     mode: direct
-    base: ""       # empty = detect (e.g. main)
-    naming: ""     # e.g. feat/<slug>
+    base: main
+    naming: feat/<slug>
 
   # Lifecycle report files: markdown (default) | html
   reports:
@@ -41,22 +41,11 @@ rules:
     comments:
       prose_language: repo-default
 
-  # Optional — fill when the repo has a convention (init can merge these):
-  # commit:
-  #   convention: ""
-  #   format: ""
-  # pull_request:
-  #   title_format: ""
-  #   description_sections: []
-  #   required_checks: []
+  commit:
+    convention: Conventional Commits
+    format: "<type>(<scope>): <imperative summary>"
 
-  # Multi-CLI routing (main brain + optional workers). Inventory: detect_agents.py
-  # agents:
-  #   inventory_ref: .agents/PRJ_REFERENCE.md   # ## Agent CLIs section
-  #   fallback: main
-  #   routing:
-  #     investigate: [codex, main]
-  #     planning: [claude, main]
-  #     execution: [opencode, codex, main]
-  #     review: [claude, main]
-  #   # Never dispatch a worker without CONTEXT_PACK Rules (mandatory) gate.
+  pull_request:
+    title_format: "<type>(<scope>): <imperative summary>"
+    description_sections: ["Summary", "Business rules", "Verification", "Refs"]
+    required_checks: ["bun run check", "bun run check:rust"]

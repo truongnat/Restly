@@ -1,5 +1,30 @@
 export type { HttpMethod } from '@/entities/http'
-export type { CollectionFolder } from '@/entities/collection'
+export type {
+  CollectionFolder,
+  CollectionNode,
+  FolderNode,
+  KeyValueRow,
+  RequestNode,
+  TreeNode,
+} from '@/entities/collection'
+export {
+  addNodeToTree,
+  collectionNodeSchema,
+  countNodes,
+  findNodeById,
+  findParentOf,
+  flattenRequests,
+  folderNodeSchema,
+  isFolderNode,
+  isRequestNode,
+  keyValueRowSchema,
+  migrateV1ToV2,
+  moveNodeInTree,
+  removeNodeFromTree,
+  requestNodeSchema,
+} from '@/entities/collection'
+export type { Workspace } from '@/entities/workspace'
+export { createWorkspace, workspaceSchema } from '@/entities/workspace'
 export type { HistoryItem, HistoryGroup, HistoryDraftSnapshot } from '@/entities/history'
 export { HISTORY_MAX_ITEMS, HISTORY_BODY_MAX_CHARS } from '@/entities/history'
 export type { Environment, EnvVar } from '@/entities/environment'

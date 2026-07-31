@@ -14,7 +14,7 @@
     "fmt:check": "oxfmt --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check": "npm run fmt:check && npm run lint && npm run test && npm run build",
+    "check": "bun run fmt:check && bun run lint && bun run test && bun run build",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",

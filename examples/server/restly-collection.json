@@ -75,9 +75,7 @@
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/api/users",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"role\": \"user\"\n}"
@@ -89,9 +87,7 @@
           "request": {
             "method": "PUT",
             "url": "{{baseUrl}}/api/users/1",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Alice Updated\",\n  \"email\": \"alice.updated@example.com\",\n  \"role\": \"admin\"\n}"
@@ -103,9 +99,7 @@
           "request": {
             "method": "PATCH",
             "url": "{{baseUrl}}/api/users/1",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"role\": \"moderator\"\n}"
@@ -151,9 +145,7 @@
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/api/posts",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"userId\": \"1\",\n  \"title\": \"My New Post\",\n  \"body\": \"This is the content of my new post.\",\n  \"tags\": [\"new\", \"test\"]\n}"
@@ -172,9 +164,7 @@
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/api/posts/1/comments",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"userId\": \"2\",\n  \"body\": \"Great post!\"\n}"
@@ -204,9 +194,7 @@
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/api/auth/login",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"any\"\n}"
@@ -218,9 +206,7 @@
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/api/auth/verify",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ]
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
           }
         },
         {
@@ -242,9 +228,7 @@
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/api/auth/apikey",
-            "header": [
-              { "key": "X-API-Key", "value": "rk_live_abc123" }
-            ]
+            "header": [{ "key": "X-API-Key", "value": "rk_live_abc123" }]
           }
         },
         {
@@ -259,9 +243,7 @@
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/api/auth/logout",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ]
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
           }
         }
       ]
@@ -394,9 +376,7 @@
             "url": "{{baseUrl}}/api/files/upload",
             "body": {
               "mode": "formdata",
-              "formdata": [
-                { "key": "file", "type": "file", "src": [] }
-              ]
+              "formdata": [{ "key": "file", "type": "file", "src": [] }]
             }
           }
         },
@@ -443,9 +423,7 @@
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/api/batch/users",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"users\": [\n    { \"name\": \"Batch User 1\", \"email\": \"batch1@example.com\" },\n    { \"name\": \"Batch User 2\", \"email\": \"batch2@example.com\" },\n    { \"name\": \"Batch User 3\", \"email\": \"batch3@example.com\" }\n  ]\n}"

@@ -38,5 +38,12 @@
       }
     ]
   },
-  "ignorePatterns": ["dist/**", "node_modules/**", "design/**", ".agents/**", ".agent-work/**"]
+  "ignorePatterns": [
+    "dist/**",
+    "node_modules/**",
+    "design/**",
+    ".agents/**",
+    ".agent-work/**",
+    "examples/**"
+  ]
 }

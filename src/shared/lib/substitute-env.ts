@@ -1,23 +1,79 @@
+import { isDynamicVariable, resolveDynamicVariable } from './dynamic-generators'
+
 export type EnvVarSubstituteItem = {
   key: string
   value: string
   enabled?: boolean
 }
 
+/** Maximum recursion depth for nested variable resolution */
+const MAX_RECURSION_DEPTH = 10
+
+/** Error thrown when circular variable reference is detected */
+export class CircularVariableError extends Error {
+  readonly chain: string[]
+
+  constructor(chain: string[]) {
+    super(`Circular variable reference detected: ${chain.join(' -> ')}`)
+    this.name = 'CircularVariableError'
+    this.chain = chain
+  }
+}
+
 /**
  * Replaces `{{key}}` placeholders in a template string with values from enabled environment variables.
+ * Supports:
+ * - Static variables from the provided list
+ * - Dynamic variables ({{$guid}}, {{$timestamp}}, etc.)
+ * - Recursive resolution ({{varA}} containing {{varB}})
+ * - Circular reference detection
  */
 export function substituteEnv(template: string, vars: EnvVarSubstituteItem[] = []): string {
   if (!template) return template
-  let result = template
+
+  const varMap = new Map<string, string>()
   for (const v of vars) {
     if (v.enabled === false) continue
     if (!v.key) continue
-    const escapedKey = v.key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    const regex = new RegExp(`\\{\\{\\s*${escapedKey}\\s*\\}\\}`, 'g')
-    result = result.replace(regex, () => v.value)
+    varMap.set(v.key.trim(), v.value)
   }
-  return result
+
+  return resolveTemplate(template, varMap, [], 0)
+}
+
+/**
+ * Internal recursive resolver with circular reference detection.
+ */
+function resolveTemplate(
+  template: string,
+  varMap: Map<string, string>,
+  resolutionChain: string[],
+  depth: number,
+): string {
+  if (depth > MAX_RECURSION_DEPTH) {
+    throw new CircularVariableError([...resolutionChain, `depth>${MAX_RECURSION_DEPTH}`])
+  }
+
+  return template.replace(/\{\{\s*([\w$.-]+)\s*\}\}/g, (match, key: string) => {
+    // Check for circular reference
+    if (resolutionChain.includes(key)) {
+      throw new CircularVariableError([...resolutionChain, key])
+    }
+
+    // Try dynamic variable first ({{$guid}}, {{$timestamp}}, etc.)
+    if (isDynamicVariable(key)) {
+      return resolveDynamicVariable(key) ?? match
+    }
+
+    // Try static variable
+    const value = varMap.get(key)
+    if (value === undefined) {
+      return match // Leave unresolved tokens as-is
+    }
+
+    // Recursively resolve nested variables
+    return resolveTemplate(value, varMap, [...resolutionChain, key], depth + 1)
+  })
 }
 
 /**

@@ -102,7 +102,8 @@ export function Sidebar() {
       aria-label="Main navigation"
     >
       {/* ── Brand ─────────────────────────────────────────── */}
-      <div className="shrink-0 px-4 pt-5 pb-4">
+      {/* pt-12 leaves space for macOS traffic lights (close/minimize/maximize) */}
+      <div className="shrink-0 px-4 pt-12 pb-4">
         <Link
           to={ROUTES.workspace}
           className="mb-4 flex items-center gap-2.5 no-underline"

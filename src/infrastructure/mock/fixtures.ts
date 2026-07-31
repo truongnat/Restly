@@ -478,7 +478,8 @@ export const mockServers: MockServer[] = [
         path: '/login',
         status: 200,
         delayMs: 250,
-        responseBody: '{\n  "data": {\n    "token": "mock-token-123",\n    "tokenType": "Bearer"\n  }\n}',
+        responseBody:
+          '{\n  "data": {\n    "token": "mock-token-123",\n    "tokenType": "Bearer"\n  }\n}',
       },
       {
         id: 'mr-5',
